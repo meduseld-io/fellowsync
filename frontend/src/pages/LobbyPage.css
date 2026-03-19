@@ -5,6 +5,7 @@
   justify-content: center;
   min-height: 100vh;
   padding: 2rem;
+  padding-bottom: 12vh;
 }
 
 .lobby-page > .fs-footer {

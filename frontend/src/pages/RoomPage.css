@@ -164,6 +164,7 @@
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 1.25rem;
+  overflow: hidden;
 }
 
 .panel h2 {
@@ -236,10 +237,12 @@
 /* Search */
 .search-box {
   margin-bottom: 1.5rem;
+  min-width: 0;
 }
 
 .search-box input {
   width: 100%;
+  box-sizing: border-box;
 }
 
 .search-results {
@@ -260,6 +263,7 @@
   border-radius: 8px;
   cursor: pointer;
   transition: background 0.15s;
+  min-width: 0;
 }
 
 .search-item:hover {
