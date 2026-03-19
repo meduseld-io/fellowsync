@@ -58,4 +58,4 @@ socketio.start_background_task(run_sync_loop, socketio)
 if __name__ == '__main__':
     is_dev = os.getenv('FELLOWSYNC_ENV', 'development') == 'development'
     logger.info("Starting FellowSync backend on port 5050 (debug=%s)", is_dev)
-    socketio.run(app, host='0.0.0.0', port=5050, debug=is_dev)
+    socketio.run(app, host='0.0.0.0', port=5050, debug=is_dev, allow_unsafe_werkzeug=True)
