@@ -1,0 +1,62 @@
+.help-btn {
+  width: 100%;
+  margin-top: 0.75rem;
+  padding: 10px;
+  border-radius: 10px;
+  background: rgba(74, 222, 128, 0.1);
+  border: 1px solid #4ade80;
+  color: #4ade80;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.help-btn:hover:not(:disabled) {
+  background: rgba(74, 222, 128, 0.2);
+}
+
+.help-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 1rem;
+}
+
+.help-modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 520px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.help-modal h2 {
+  font-size: 1.2rem;
+  margin-bottom: 1.25rem;
+}
+
+.help-modal h3 {
+  font-size: 0.95rem;
+  color: var(--green);
+  margin-top: 1.25rem;
+  margin-bottom: 0.4rem;
+}
+
+.help-modal p {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 0.5rem;
+}
+
+.help-modal .close-btn {
+  margin-top: 1.5rem;
+  width: 100%;
+}

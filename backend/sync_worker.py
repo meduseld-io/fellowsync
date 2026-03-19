@@ -1,0 +1,75 @@
+"""Background worker that monitors playback and auto-advances the queue when tracks end."""
+
+import time
+import logging
+import room_manager
+import spotify_service
+from socket_events import broadcast_sync
+
+logger = logging.getLogger(__name__)
+
+
+EMPTY_ROOM_TTL = 300  # Clean up empty rooms after 5 minutes
+
+
+def run_sync_loop(socketio):
+    """Run the sync loop in a background thread. Checks every 2 seconds."""
+    logger.info("Sync worker started")
+    cleanup_counter = 0
+    while True:
+        try:
+            _tick()
+        except Exception as e:
+            logger.error("Sync worker tick error: %s", e)
+        # Run cleanup every 30 ticks (~60 seconds)
+        cleanup_counter += 1
+        if cleanup_counter >= 30:
+            cleanup_counter = 0
+            try:
+                _cleanup_empty_rooms()
+            except Exception as e:
+                logger.error("Room cleanup error: %s", e)
+        socketio.sleep(2)
+
+
+def _tick():
+    """Check all active rooms and advance tracks that have ended."""
+    room_ids = room_manager.get_all_active_rooms()
+    for room_id in room_ids:
+        try:
+            _check_room(room_id)
+        except Exception as e:
+            logger.error("Error checking room %s: %s", room_id, e)
+
+
+def _check_room(room_id):
+    """Check if the current track in a room has ended and advance if so."""
+    state = room_manager.get_room(room_id)
+    if not state or not state['is_playing'] or not state['current_track']:
+        return
+
+    track_info = state.get('current_track_info')
+    if not track_info or not track_info.get('duration_ms'):
+        return
+
+    elapsed_ms = state['position_ms'] + (time.time() - state['last_update']) * 1000
+    duration_ms = track_info['duration_ms']
+
+    # Track has ended (with 2s buffer for network latency)
+    if elapsed_ms >= duration_ms - 2000:
+        logger.info("Track ended in room %s, advancing queue", room_id)
+        updated = room_manager.skip_track(room_id)
+        if updated:
+            broadcast_sync(room_id, updated)
+
+
+def _cleanup_empty_rooms():
+    """Delete rooms with no participants and no active playback."""
+    room_ids = room_manager.get_all_active_rooms()
+    for room_id in room_ids:
+        participants = room_manager.get_participants(room_id)
+        if not participants:
+            state = room_manager.get_room(room_id)
+            if not state or not state.get('is_playing'):
+                logger.info("Cleaning up empty room %s", room_id)
+                room_manager.delete_room(room_id)
