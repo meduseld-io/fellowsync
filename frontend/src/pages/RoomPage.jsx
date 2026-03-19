@@ -368,8 +368,8 @@ export default function RoomPage() {
         </div>
       </div>
 
-      <div style={{ textAlign: 'center', flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0.5 }}>
-        <img src="/logo.png" alt="FellowSync" style={{ maxWidth: 160, height: 'auto' }} />
+      <div style={{ textAlign: 'center', padding: '1.5rem 0 0.5rem', opacity: 0.4 }}>
+        <img src="/logo.png" alt="FellowSync" style={{ maxWidth: 100, height: 'auto' }} />
       </div>
       <Footer />
     </div>

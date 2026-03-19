@@ -72,7 +72,10 @@ export default function LobbyPage() {
             </select>
           </div>
           <div className="option-row">
-            <label htmlFor="hearMeOut">Hear Me Out mode</label>
+            <label htmlFor="hearMeOut">
+              Hear Me Out
+              <span className="tooltip-icon" data-tooltip="Alternates songs between users so everyone gets a turn, regardless of queue order.">?</span>
+            </label>
             <button
               id="hearMeOut"
               type="button"
@@ -83,9 +86,6 @@ export default function LobbyPage() {
               {hearMeOut ? 'ON' : 'OFF'}
             </button>
           </div>
-          {hearMeOut && (
-            <p className="option-hint">Alternates songs between users so everyone gets a turn.</p>
-          )}
         </div>
 
         <div className="lobby-actions">

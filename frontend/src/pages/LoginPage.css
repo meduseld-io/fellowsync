@@ -5,17 +5,11 @@
   justify-content: center;
   min-height: 100dvh;
   min-height: 100vh;
-  overflow: hidden;
-}
-
-.login-page > .login-card {
-  margin-bottom: 12vh;
 }
 
 .login-page > .fs-footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
+  margin-top: auto;
+  flex-shrink: 0;
 }
 
 .login-card {
