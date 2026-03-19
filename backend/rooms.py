@@ -79,7 +79,22 @@ def _require_auth(f):
 def create_room():
     """Create a new room. Current user becomes host."""
     user = _get_user()
-    state = room_manager.create_room(user['spotify_user_id'], user['display_name'])
+    data = request.json or {}
+    max_consecutive = data.get('max_consecutive', 0)
+    hear_me_out = data.get('hear_me_out', False)
+
+    # Validate
+    try:
+        max_consecutive = int(max_consecutive)
+        if max_consecutive < 0:
+            max_consecutive = 0
+    except (TypeError, ValueError):
+        max_consecutive = 0
+
+    state = room_manager.create_room(
+        user['spotify_user_id'], user['display_name'],
+        max_consecutive=max_consecutive, hear_me_out=bool(hear_me_out),
+    )
     # Store host's token
     room_manager.store_user_token(state['room_id'], user['spotify_user_id'], {
         'access_token': user['access_token'],
@@ -136,6 +151,10 @@ def add_to_queue(room_id):
     track_info['queued_by_id'] = user['spotify_user_id']
 
     updated = room_manager.add_to_queue(room_id, track_info)
+    if updated == 'consecutive_limit':
+        return jsonify({'error': 'You have reached the maximum consecutive songs limit. Let someone else queue a track.'}), 429
+    if not updated:
+        return jsonify({'error': 'Room not found'}), 404
     return jsonify(_with_participants(room_id, updated))
 
 

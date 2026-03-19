@@ -11,12 +11,17 @@ export default function LobbyPage() {
   const [joinCode, setJoinCode] = useState('');
   const [error, setError] = useState('');
   const [creating, setCreating] = useState(false);
+  const [maxConsecutive, setMaxConsecutive] = useState(0);
+  const [hearMeOut, setHearMeOut] = useState(false);
 
   const handleCreate = async () => {
     setCreating(true);
     setError('');
     try {
-      const room = await api.createRoom();
+      const room = await api.createRoom({
+        max_consecutive: maxConsecutive,
+        hear_me_out: hearMeOut,
+      });
       navigate(`/room/${room.room_id}`);
     } catch (e) {
       console.error('Failed to create room:', e);
@@ -50,6 +55,38 @@ export default function LobbyPage() {
         </div>
 
         {error && <p style={{ color: 'var(--danger)', marginBottom: '1rem', fontSize: '0.9rem' }}>{error}</p>}
+
+        <div className="room-options">
+          <div className="option-row">
+            <label htmlFor="maxConsecutive">Max songs in a row per user</label>
+            <select
+              id="maxConsecutive"
+              value={maxConsecutive}
+              onChange={(e) => setMaxConsecutive(Number(e.target.value))}
+            >
+              <option value={0}>Unlimited</option>
+              <option value={1}>1</option>
+              <option value={2}>2</option>
+              <option value={3}>3</option>
+              <option value={5}>5</option>
+            </select>
+          </div>
+          <div className="option-row">
+            <label htmlFor="hearMeOut">Hear Me Out mode</label>
+            <button
+              id="hearMeOut"
+              type="button"
+              className={`toggle-btn${hearMeOut ? ' active' : ''}`}
+              onClick={() => setHearMeOut(!hearMeOut)}
+              aria-pressed={hearMeOut}
+            >
+              {hearMeOut ? 'ON' : 'OFF'}
+            </button>
+          </div>
+          {hearMeOut && (
+            <p className="option-hint">Alternates songs between users so everyone gets a turn.</p>
+          )}
+        </div>
 
         <div className="lobby-actions">
           <button className="btn-primary" onClick={handleCreate} disabled={creating}>

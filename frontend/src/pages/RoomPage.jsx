@@ -20,10 +20,16 @@ export default function RoomPage() {
   const [copied, setCopied] = useState(false);
   const [deviceWarning, setDeviceWarning] = useState(false);
   const [syncing, setSyncing] = useState(false);
+  const [queueError, setQueueError] = useState('');
   const searchTimeout = useRef(null);
   const socketRef = useRef(null);
 
   const intentionalLeave = useRef(false);
+
+  // Scroll to top on mount
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   // Load room and connect socket
   useEffect(() => {
@@ -98,6 +104,7 @@ export default function RoomPage() {
   }, []);
 
   const handleAddTrack = async (track) => {
+    setQueueError('');
     try {
       const updated = await api.addToQueue(roomId, track);
       setRoom(updated);
@@ -105,6 +112,10 @@ export default function RoomPage() {
       setSearchResults([]);
     } catch (e) {
       console.error('Failed to add track to queue:', e);
+      if (e.message && e.message.includes('consecutive')) {
+        setQueueError(e.message);
+        setTimeout(() => setQueueError(''), 5000);
+      }
     }
   };
 
@@ -203,6 +214,10 @@ export default function RoomPage() {
       <div className="room-header">
         <div>
           <h1>Fellow<span style={{ color: '#4ade80' }}>Sync</span></h1>
+          <div className="room-modes">
+            {room.hear_me_out && <span className="mode-badge hear-me-out">🎤 Hear Me Out</span>}
+            {room.max_consecutive > 0 && <span className="mode-badge">Max {room.max_consecutive} in a row</span>}
+          </div>
         </div>
         <div className="room-header-actions">
           <span className="room-code" onClick={handleCopyCode}>
@@ -285,6 +300,7 @@ export default function RoomPage() {
               />
             </div>
             {searching && <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Searching...</p>}
+            {queueError && <p className="queue-error">{queueError}</p>}
             {searchResults.length > 0 && (
               <ul className="search-results">
                 {searchResults.map((track) => (

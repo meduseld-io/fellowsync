@@ -3,9 +3,14 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  min-height: 100dvh;
   min-height: 100vh;
   padding: 2rem;
-  padding-bottom: 12vh;
+  overflow: hidden;
+}
+
+.lobby-page > .lobby-card {
+  margin-bottom: 12vh;
 }
 
 .lobby-page > .fs-footer {
@@ -81,4 +86,56 @@
 
 .btn-logout:hover {
   color: var(--text);
+}
+
+.room-options {
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+.option-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  gap: 12px;
+}
+
+.option-row label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.option-row select {
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 0.85rem;
+}
+
+.toggle-btn {
+  padding: 4px 16px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.toggle-btn.active {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+
+.option-hint {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+  text-align: center;
+  font-style: italic;
 }

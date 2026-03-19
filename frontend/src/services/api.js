@@ -22,7 +22,7 @@ export const api = {
   getMe: () => request('/api/auth/me'),
   logout: () => request('/api/auth/logout', { method: 'POST' }),
 
-  createRoom: () => request('/api/rooms', { method: 'POST' }),
+  createRoom: (options = {}) => request('/api/rooms', { method: 'POST', body: JSON.stringify(options) }),
   getRoom: (roomId) => request(`/api/rooms/${roomId}`),
   joinRoom: (roomId) => request(`/api/rooms/${roomId}/join`, { method: 'POST' }),
   addToQueue: (roomId, track) => request(`/api/rooms/${roomId}/queue`, { method: 'POST', body: JSON.stringify({ track }) }),

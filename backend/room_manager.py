@@ -32,7 +32,7 @@ def generate_room_code():
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
 
 
-def create_room(host_id, host_name):
+def create_room(host_id, host_name, max_consecutive=0, hear_me_out=False):
     """Create a new room and return its state."""
     room_id = generate_room_code()
     while _redis.exists(_room_key(room_id)):
@@ -48,6 +48,8 @@ def create_room(host_id, host_name):
         'is_playing': False,
         'last_update': time.time(),
         'skip_votes': [],
+        'max_consecutive': max_consecutive,
+        'hear_me_out': hear_me_out,
     }
     _redis.set(_room_key(room_id), json.dumps(state), ex=ROOM_TTL)
     _redis.hset(_participants_key(room_id), host_id, host_name)
@@ -125,13 +127,62 @@ def get_all_tokens(room_id):
 
 
 def add_to_queue(room_id, track_info):
-    """Add a track to the room's queue. Returns updated state."""
+    """Add a track to the room's queue. Enforces max_consecutive and hear_me_out rules. Returns updated state or (None, error_string)."""
     state = get_room(room_id)
     if not state:
         return None
+
+    max_consec = state.get('max_consecutive', 0)
+    queued_by_id = track_info.get('queued_by_id')
+
+    # Enforce max consecutive songs per user
+    if max_consec > 0 and queued_by_id:
+        # Count consecutive tracks by this user at the end of the queue
+        consecutive = 0
+        for t in reversed(state['queue']):
+            if t.get('queued_by_id') == queued_by_id:
+                consecutive += 1
+            else:
+                break
+        # Also count the currently playing track if it's by the same user
+        if state.get('current_track_info') and state['current_track_info'].get('queued_by_id') == queued_by_id and not state['queue']:
+            consecutive += 1
+        if consecutive >= max_consec:
+            return 'consecutive_limit'
+
     state['queue'].append(track_info)
+
+    # In hear-me-out mode, reorder queue to round-robin by user
+    if state.get('hear_me_out'):
+        state['queue'] = _round_robin_queue(state['queue'])
+
     save_room(room_id, state)
     return state
+
+
+def _round_robin_queue(queue):
+    """Reorder queue to alternate between users fairly (round-robin)."""
+    if len(queue) <= 1:
+        return queue
+
+    # Group tracks by user, preserving order within each user's tracks
+    from collections import OrderedDict
+    user_queues = OrderedDict()
+    for track in queue:
+        uid = track.get('queued_by_id', 'unknown')
+        if uid not in user_queues:
+            user_queues[uid] = []
+        user_queues[uid].append(track)
+
+    # Interleave: take one from each user in rotation
+    result = []
+    while any(user_queues.values()):
+        for uid in list(user_queues.keys()):
+            if user_queues[uid]:
+                result.append(user_queues[uid].pop(0))
+            if not user_queues[uid]:
+                del user_queues[uid]
+    return result
 
 
 def skip_track(room_id):

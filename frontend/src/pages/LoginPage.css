@@ -3,8 +3,13 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  min-height: 100dvh;
   min-height: 100vh;
-  padding-bottom: 12vh;
+  overflow: hidden;
+}
+
+.login-page > .login-card {
+  margin-bottom: 12vh;
 }
 
 .login-page > .fs-footer {
