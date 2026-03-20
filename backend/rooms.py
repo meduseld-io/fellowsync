@@ -21,6 +21,7 @@ RATE_LIMIT_SECONDS = {
     'settings': 1,
     'promote': 2,
     'remove': 1,
+    'reorder': 1,
 }
 
 
@@ -220,6 +221,39 @@ def remove_from_queue(room_id, index):
     return jsonify(_with_participants(room_id, state))
 
 
+@rooms_bp.route('/api/rooms/<room_id>/queue/reorder', methods=['PUT'])
+@_require_auth
+def reorder_queue(room_id):
+    """Reorder the queue (host only). Expects {from_index, to_index}."""
+    user = _get_user()
+    if not _check_rate_limit(user['spotify_user_id'], 'reorder'):
+        return jsonify({'error': 'Too fast, slow down'}), 429
+
+    state = room_manager.get_room(room_id)
+    if not state:
+        return jsonify({'error': 'Room not found'}), 404
+
+    if user['spotify_user_id'] != state['host_id']:
+        return jsonify({'error': 'Only the host can reorder the queue'}), 403
+
+    data = request.json or {}
+    from_idx = data.get('from_index')
+    to_idx = data.get('to_index')
+
+    if from_idx is None or to_idx is None:
+        return jsonify({'error': 'Missing from_index or to_index'}), 400
+
+    queue = state.get('queue', [])
+    if from_idx < 0 or from_idx >= len(queue) or to_idx < 0 or to_idx >= len(queue):
+        return jsonify({'error': 'Invalid index'}), 400
+
+    track = queue.pop(from_idx)
+    queue.insert(to_idx, track)
+    state['queue'] = queue
+    room_manager.save_room(room_id, state)
+    return jsonify(_with_participants(room_id, state))
+
+
 @rooms_bp.route('/api/rooms/<room_id>/skip', methods=['POST'])
 @_require_auth
 def skip_track(room_id):
@@ -411,14 +445,25 @@ def pause(room_id):
 @rooms_bp.route('/api/search')
 @_require_auth
 def search():
-    """Search Spotify for tracks."""
+    """Search Spotify for tracks. Supports ?type=track|artist|album to filter."""
     q = request.args.get('q', '').strip()
     if not q:
         return jsonify({'tracks': []})
+    search_type = request.args.get('type', 'track')
+    if search_type not in ('track', 'artist', 'album'):
+        search_type = 'track'
     user = _get_user()
     token_data = spotify_service.get_valid_token(user)
     if not token_data:
         return jsonify({'error': 'Token expired'}), 401
     session['user'] = token_data
-    tracks = spotify_service.search_tracks(token_data['access_token'], q)
-    return jsonify({'tracks': tracks})
+
+    if search_type == 'track':
+        tracks = spotify_service.search_tracks(token_data['access_token'], q)
+        return jsonify({'tracks': tracks})
+    elif search_type == 'artist':
+        tracks = spotify_service.search_tracks(token_data['access_token'], f'artist:{q}')
+        return jsonify({'tracks': tracks})
+    elif search_type == 'album':
+        tracks = spotify_service.search_tracks(token_data['access_token'], f'album:{q}')
+        return jsonify({'tracks': tracks})

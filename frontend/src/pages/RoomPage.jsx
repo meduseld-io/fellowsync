@@ -6,6 +6,7 @@ import { getSocket } from '../services/socket';
 import { syncPlayback } from '../services/spotifyPlayer';
 import HelpModal from '../components/HelpModal';
 import Footer from '../components/Footer';
+import ToastContainer, { showToast } from '../components/Toast';
 import { getAvatarForUser } from '../utils/avatars';
 import './RoomPage.css';
 
@@ -22,8 +23,11 @@ export default function RoomPage() {
   const [deviceWarning, setDeviceWarning] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [queueError, setQueueError] = useState('');
+  const [searchFilter, setSearchFilter] = useState('track');
+  const [dragIndex, setDragIndex] = useState(null);
   const searchTimeout = useRef(null);
   const socketRef = useRef(null);
+  const prevParticipantsRef = useRef({});
 
   const intentionalLeave = useRef(false);
 
@@ -39,7 +43,10 @@ export default function RoomPage() {
     async function init() {
       try {
         const data = await api.getRoom(roomId);
-        if (mounted) setRoom(data);
+        if (mounted) {
+          prevParticipantsRef.current = data.participants || {};
+          setRoom(data);
+        }
       } catch (e) {
         console.error('Failed to load room:', e);
         if (mounted) setError('Room not found');
@@ -50,9 +57,25 @@ export default function RoomPage() {
       socketRef.current = socket;
       socket.emit('join_room', { room_id: roomId });
 
-      socket.on('room_state', (state) => { if (mounted) setRoom(state); });
+      socket.on('room_state', (state) => {
+        if (!mounted) return;
+        // Toast for participant changes
+        const prev = prevParticipantsRef.current;
+        const next = state.participants || {};
+        Object.keys(next).forEach((uid) => {
+          if (!prev[uid]) showToast(`${next[uid]} joined the room`);
+        });
+        Object.keys(prev).forEach((uid) => {
+          if (!next[uid]) showToast(`${prev[uid]} left the room`);
+        });
+        prevParticipantsRef.current = next;
+        setRoom(state);
+      });
       socket.on('playback_sync', (state) => { if (mounted) setRoom(state); });
-      socket.on('queue_updated', (state) => { if (mounted) setRoom(state); });
+      socket.on('queue_updated', (state) => {
+        if (!mounted) return;
+        setRoom(state);
+      });
       socket.on('error', (data) => console.error('Socket error:', data.message));
     }
 
@@ -93,7 +116,7 @@ export default function RoomPage() {
     searchTimeout.current = setTimeout(async () => {
       setSearching(true);
       try {
-        const data = await api.search(query);
+        const data = await api.search(query, searchFilter);
         setSearchResults(data.tracks || []);
       } catch (e) {
         console.error('Search failed:', e);
@@ -102,7 +125,7 @@ export default function RoomPage() {
         setSearching(false);
       }
     }, 400);
-  }, []);
+  }, [searchFilter]);
 
   const handleAddTrack = async (track, playNext = false) => {
     setQueueError('');
@@ -111,6 +134,7 @@ export default function RoomPage() {
       setRoom(updated);
       setSearchQuery('');
       setSearchResults([]);
+      showToast(`${track.name} added to queue`);
     } catch (e) {
       console.error('Failed to add track to queue:', e);
       if (e.message && e.message.includes('consecutive')) {
@@ -122,11 +146,41 @@ export default function RoomPage() {
 
   const handleRemoveTrack = async (index) => {
     try {
+      const trackName = queue[index]?.name || 'Track';
       const updated = await api.removeFromQueue(roomId, index);
       setRoom(updated);
+      showToast(`${trackName} removed from queue`);
     } catch (e) {
       console.error('Failed to remove track from queue:', e);
     }
+  };
+
+  const handleDragStart = (index) => {
+    setDragIndex(index);
+  };
+
+  const handleDragOver = (e, index) => {
+    e.preventDefault();
+    if (dragIndex === null || dragIndex === index) return;
+  };
+
+  const handleDrop = async (e, toIndex) => {
+    e.preventDefault();
+    if (dragIndex === null || dragIndex === toIndex) {
+      setDragIndex(null);
+      return;
+    }
+    try {
+      const updated = await api.reorderQueue(roomId, dragIndex, toIndex);
+      setRoom(updated);
+    } catch (err) {
+      console.error('Failed to reorder queue:', err);
+    }
+    setDragIndex(null);
+  };
+
+  const handleDragEnd = () => {
+    setDragIndex(null);
   };
 
   const handleSkip = async () => {
@@ -239,6 +293,7 @@ export default function RoomPage() {
 
   return (
     <div className="room-page">
+      <ToastContainer />
       <div className="room-header">
         <div>
           <h1>Fellow<span style={{ color: '#4ade80' }}>Sync</span></h1>
@@ -273,7 +328,13 @@ export default function RoomPage() {
             <div className="now-playing-art-placeholder">🎵</div>
           )}
           <div className="now-playing-info">
-            <h3>{currentTrack ? currentTrack.name : 'Nothing playing'}</h3>
+            <h3>
+              {currentTrack ? (
+                currentTrack.spotify_url ? (
+                  <a href={currentTrack.spotify_url} target="_blank" rel="noopener noreferrer" className="now-playing-link">{currentTrack.name}</a>
+                ) : currentTrack.name
+              ) : 'Nothing playing'}
+            </h3>
             <p>{currentTrack ? currentTrack.artist : 'Add tracks to the queue to get started'}</p>
             {currentTrack?.queued_by && (
               <p style={{ fontSize: '0.8rem', color: 'var(--green)', marginTop: '2px' }}>
@@ -319,10 +380,21 @@ export default function RoomPage() {
           {/* Search */}
           <div className="panel" style={{ marginBottom: '1.5rem' }}>
             <h2>Add Track</h2>
+            <div className="search-filters">
+              {['track', 'artist', 'album'].map((type) => (
+                <button
+                  key={type}
+                  className={`search-filter-btn${searchFilter === type ? ' active' : ''}`}
+                  onClick={() => { setSearchFilter(type); if (searchQuery.trim()) handleSearch(searchQuery); }}
+                >
+                  {type.charAt(0).toUpperCase() + type.slice(1)}
+                </button>
+              ))}
+            </div>
             <div className="search-box">
               <input
                 type="text"
-                placeholder="Search Spotify..."
+                placeholder={`Search by ${searchFilter}...`}
                 value={searchQuery}
                 onChange={(e) => handleSearch(e.target.value)}
               />
@@ -361,7 +433,16 @@ export default function RoomPage() {
             ) : (
               <ul className="queue-list">
                 {queue.map((track, i) => (
-                  <li key={`${track.uri}-${i}`} className="queue-item">
+                  <li
+                    key={`${track.uri}-${i}`}
+                    className={`queue-item${dragIndex === i ? ' dragging' : ''}`}
+                    draggable={isHost}
+                    onDragStart={isHost ? () => handleDragStart(i) : undefined}
+                    onDragOver={isHost ? (e) => handleDragOver(e, i) : undefined}
+                    onDrop={isHost ? (e) => handleDrop(e, i) : undefined}
+                    onDragEnd={isHost ? handleDragEnd : undefined}
+                  >
+                    {isHost && <span className="drag-handle">⠿</span>}
                     {track.album_art && <img src={track.album_art} alt="" />}
                     <div className="queue-item-info">
                       <div className="track-name">{track.name}</div>

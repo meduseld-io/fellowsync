@@ -133,6 +133,7 @@ def search_tracks(access_token, query, limit=10):
                 'album': t['album']['name'],
                 'album_art': t['album']['images'][0]['url'] if t['album']['images'] else None,
                 'duration_ms': t['duration_ms'],
+                'spotify_url': t['external_urls'].get('spotify', ''),
             }
             for t in items
         ]
@@ -155,6 +156,7 @@ def get_track_info(access_token, uri):
             'album': t['album']['name'],
             'album_art': t['album']['images'][0]['url'] if t['album']['images'] else None,
             'duration_ms': t['duration_ms'],
+            'spotify_url': t['external_urls'].get('spotify', ''),
         }
     except Exception as e:
         logger.error("Failed to get track info for %s: %s", uri, e)

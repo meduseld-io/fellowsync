@@ -27,11 +27,12 @@ export const api = {
   joinRoom: (roomId) => request(`/api/rooms/${roomId}/join`, { method: 'POST' }),
   addToQueue: (roomId, track, playNext = false) => request(`/api/rooms/${roomId}/queue`, { method: 'POST', body: JSON.stringify({ track, play_next: playNext }) }),
   removeFromQueue: (roomId, index) => request(`/api/rooms/${roomId}/queue/${index}`, { method: 'DELETE' }),
+  reorderQueue: (roomId, fromIndex, toIndex) => request(`/api/rooms/${roomId}/queue/reorder`, { method: 'PUT', body: JSON.stringify({ from_index: fromIndex, to_index: toIndex }) }),
   skipTrack: (roomId) => request(`/api/rooms/${roomId}/skip`, { method: 'POST' }),
   play: (roomId) => request(`/api/rooms/${roomId}/play`, { method: 'POST' }),
   pause: (roomId) => request(`/api/rooms/${roomId}/pause`, { method: 'POST' }),
   sync: (roomId) => request(`/api/rooms/${roomId}/sync`, { method: 'POST' }),
   updateSettings: (roomId, settings) => request(`/api/rooms/${roomId}/settings`, { method: 'PUT', body: JSON.stringify(settings) }),
   promoteHost: (roomId, userId) => request(`/api/rooms/${roomId}/promote`, { method: 'POST', body: JSON.stringify({ user_id: userId }) }),
-  search: (q) => request(`/api/search?q=${encodeURIComponent(q)}`),
+  search: (q, type = 'track') => request(`/api/search?q=${encodeURIComponent(q)}&type=${type}`),
 };
