@@ -23,6 +23,9 @@ function AppRoutes() {
       const color = getAvatarColor(user.spotify_user_id);
       setFavicon(color);
       document.documentElement.style.setProperty('--fella-color', AVATAR_HEX[color] || '#4ade80');
+    } else {
+      setFavicon('green');
+      document.documentElement.style.setProperty('--fella-color', '#4ade80');
     }
   }, [user]);
 
