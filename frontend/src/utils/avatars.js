@@ -38,5 +38,24 @@ export function getAvatarColor(userId) {
 export function setAvatarOverride(color) {
   if (AVATAR_COLORS.includes(color)) {
     localStorage.setItem('fellowsync_avatar', color);
+    setFavicon(color);
   }
+}
+
+export function setFavicon(color) {
+  const link = document.getElementById('favicon');
+  if (!link) return;
+  const img = new Image();
+  img.onload = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 32;
+    canvas.height = 32;
+    const ctx = canvas.getContext('2d');
+    const scale = Math.min(32 / img.width, 32 / img.height);
+    const w = img.width * scale;
+    const h = img.height * scale;
+    ctx.drawImage(img, (32 - w) / 2, (32 - h) / 2, w, h);
+    link.href = canvas.toDataURL('image/png');
+  };
+  img.src = `/avatars/${color}.png`;
 }

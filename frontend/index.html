@@ -8,14 +8,14 @@
     <script>
       (function() {
         var fellas = ['green', 'pink', 'yellow', 'purple', 'blue'];
-        var pick = fellas[Math.floor(Math.random() * fellas.length)];
+        var saved = localStorage.getItem('fellowsync_avatar');
+        var pick = (saved && fellas.indexOf(saved) !== -1) ? saved : 'green';
         var img = new Image();
         img.onload = function() {
           var canvas = document.createElement('canvas');
           canvas.width = 32;
           canvas.height = 32;
           var ctx = canvas.getContext('2d');
-          // Scale to fit within 32x32 maintaining aspect ratio
           var scale = Math.min(32 / img.width, 32 / img.height);
           var w = img.width * scale;
           var h = img.height * scale;

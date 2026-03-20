@@ -1,9 +1,11 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import LoginPage from './pages/LoginPage';
 import CallbackPage from './pages/CallbackPage';
 import LobbyPage from './pages/LobbyPage';
 import RoomPage from './pages/RoomPage';
+import { getAvatarColor, setFavicon } from './utils/avatars';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -14,6 +16,12 @@ function ProtectedRoute({ children }) {
 
 function AppRoutes() {
   const { user, loading } = useAuth();
+
+  useEffect(() => {
+    if (user?.spotify_user_id) {
+      setFavicon(getAvatarColor(user.spotify_user_id));
+    }
+  }, [user]);
 
   if (loading) {
     return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>Loading...</div>;
