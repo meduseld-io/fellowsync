@@ -174,4 +174,13 @@
   display: flex;
   gap: 8px;
   margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.admin-nav {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 1.25rem;
 }

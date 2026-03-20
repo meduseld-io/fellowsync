@@ -63,13 +63,9 @@ export default function AdminPage() {
       <div className="admin-card">
         <h1>Fellow<span style={{ color: 'var(--fella-color)' }}>Sync</span> Admin</h1>
 
-        <div className="admin-links">
-          <a href="https://developer.spotify.com/dashboard" target="_blank" rel="noreferrer" className="admin-link-btn">
-            Spotify Developer Dashboard
-          </a>
-          <a href="https://github.com/meduseld-io/fellowsync" target="_blank" rel="noreferrer" className="admin-link-btn">
-            GitHub Repo
-          </a>
+        <div className="admin-nav">
+          <button className="btn-secondary" onClick={() => navigate('/lobby')}>Back to Lobby</button>
+          <button className="btn-secondary" onClick={loadRooms} disabled={loading}>Refresh</button>
         </div>
 
         <h2>
@@ -111,8 +107,12 @@ export default function AdminPage() {
       </div>
 
       <div className="admin-footer-actions">
-        <button className="btn-secondary" onClick={() => navigate('/lobby')}>Back to Lobby</button>
-        <button className="btn-secondary" onClick={loadRooms} disabled={loading}>Refresh</button>
+        <a href="https://developer.spotify.com/dashboard" target="_blank" rel="noreferrer" className="admin-link-btn">
+          Spotify Developer Dashboard
+        </a>
+        <a href="https://github.com/meduseld-io/fellowsync" target="_blank" rel="noreferrer" className="admin-link-btn">
+          GitHub Repo
+        </a>
       </div>
       <Footer />
     </div>
