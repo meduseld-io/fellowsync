@@ -25,7 +25,7 @@ export const api = {
   createRoom: (options = {}) => request('/api/rooms', { method: 'POST', body: JSON.stringify(options) }),
   getRoom: (roomId) => request(`/api/rooms/${roomId}`),
   joinRoom: (roomId) => request(`/api/rooms/${roomId}/join`, { method: 'POST' }),
-  addToQueue: (roomId, track) => request(`/api/rooms/${roomId}/queue`, { method: 'POST', body: JSON.stringify({ track }) }),
+  addToQueue: (roomId, track, playNext = false) => request(`/api/rooms/${roomId}/queue`, { method: 'POST', body: JSON.stringify({ track, play_next: playNext }) }),
   skipTrack: (roomId) => request(`/api/rooms/${roomId}/skip`, { method: 'POST' }),
   play: (roomId) => request(`/api/rooms/${roomId}/play`, { method: 'POST' }),
   pause: (roomId) => request(`/api/rooms/${roomId}/pause`, { method: 'POST' }),

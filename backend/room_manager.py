@@ -126,7 +126,7 @@ def get_all_tokens(room_id):
     return tokens
 
 
-def add_to_queue(room_id, track_info):
+def add_to_queue(room_id, track_info, play_next=False):
     """Add a track to the room's queue. Enforces max_consecutive and hear_me_out rules. Returns updated state or (None, error_string)."""
     state = get_room(room_id)
     if not state:
@@ -150,7 +150,10 @@ def add_to_queue(room_id, track_info):
         if consecutive >= max_consec:
             return 'consecutive_limit'
 
-    state['queue'].append(track_info)
+    if play_next:
+        state['queue'].insert(0, track_info)
+    else:
+        state['queue'].append(track_info)
 
     # In hear-me-out mode, reorder queue to round-robin by user
     if state.get('hear_me_out'):

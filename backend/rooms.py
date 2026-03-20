@@ -177,7 +177,11 @@ def add_to_queue(room_id):
     track_info['queued_by'] = user['display_name']
     track_info['queued_by_id'] = user['spotify_user_id']
 
-    updated = room_manager.add_to_queue(room_id, track_info)
+    play_next = data.get('play_next', False)
+    if play_next:
+        track_info['play_next'] = True
+
+    updated = room_manager.add_to_queue(room_id, track_info, play_next=play_next)
     if updated == 'consecutive_limit':
         return jsonify({'error': 'You have reached the maximum consecutive songs limit. Let someone else queue a track.'}), 429
     if not updated:

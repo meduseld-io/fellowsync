@@ -104,10 +104,10 @@ export default function RoomPage() {
     }, 400);
   }, []);
 
-  const handleAddTrack = async (track) => {
+  const handleAddTrack = async (track, playNext = false) => {
     setQueueError('');
     try {
-      const updated = await api.addToQueue(roomId, track);
+      const updated = await api.addToQueue(roomId, track, playNext);
       setRoom(updated);
       setSearchQuery('');
       setSearchResults([]);
@@ -320,7 +320,10 @@ export default function RoomPage() {
                       <div className="track-name">{track.name}</div>
                       <div className="track-artist">{track.artist}</div>
                     </div>
-                    <button className="btn-add" onClick={() => handleAddTrack(track)}>+ Add</button>
+                    <div className="search-item-actions">
+                      <button className="btn-add-next" onClick={() => handleAddTrack(track, true)}>▶ Next</button>
+                      <button className="btn-add" onClick={() => handleAddTrack(track)}>+ Add</button>
+                    </div>
                   </li>
                 ))}
               </ul>
@@ -347,7 +350,9 @@ export default function RoomPage() {
                       <div className="track-artist">{track.artist}</div>
                     </div>
                     {track.queued_by && (
-                      <span className="queued-by">Added by {track.queued_by}</span>
+                      <span className="queued-by">
+                        {track.play_next ? `Plays next · ${track.queued_by}` : `Added by ${track.queued_by}`}
+                      </span>
                     )}
                   </li>
                 ))}

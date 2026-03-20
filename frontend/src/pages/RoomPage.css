@@ -396,3 +396,23 @@
   object-fit: contain;
   flex-shrink: 0;
 }
+
+.search-item-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.btn-add-next {
+  background: transparent;
+  border: 1px solid var(--green);
+  color: var(--green);
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.btn-add-next:hover {
+  background: rgba(74, 222, 128, 0.1);
+}
