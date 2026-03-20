@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import Footer from '../components/Footer';
+import { getAvatarForUser } from '../utils/avatars';
 import './LobbyPage.css';
 
 export default function LobbyPage() {
@@ -50,7 +51,7 @@ export default function LobbyPage() {
         <img src="/logo.png" alt="FellowSync" style={{ maxWidth: 280, width: '75%', height: 'auto', marginBottom: '0.5rem' }} />
         <h1>Fellow<span style={{ color: '#4ade80' }}>Sync</span></h1>
         <div className="lobby-user">
-          {user?.avatar && <img src={user.avatar} alt="" />}
+          <img src={getAvatarForUser(user?.spotify_user_id || '')} alt="" style={{ width: 28, height: 28, borderRadius: '50%' }} />
           <span>{user?.display_name}</span>
         </div>
 

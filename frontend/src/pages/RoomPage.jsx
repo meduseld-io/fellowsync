@@ -6,6 +6,7 @@ import { getSocket } from '../services/socket';
 import { syncPlayback } from '../services/spotifyPlayer';
 import HelpModal from '../components/HelpModal';
 import Footer from '../components/Footer';
+import { getAvatarForUser } from '../utils/avatars';
 import './RoomPage.css';
 
 export default function RoomPage() {
@@ -367,6 +368,7 @@ export default function RoomPage() {
             <ul className="participants-list">
               {Object.entries(participants).map(([uid, name]) => (
                 <li key={uid} className="participant">
+                  <img className="participant-avatar" src={getAvatarForUser(uid)} alt="" />
                   <span>{name}</span>
                   {uid === room.host_id && <span className="host-badge">Host</span>}
                 </li>
