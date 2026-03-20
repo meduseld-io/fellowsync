@@ -11,7 +11,7 @@ export const AVATAR_HEX = {
   yellow: '#facc15',
   purple: '#b78aff',
   blue: '#47b5ff',
-  dev: '#ff4757',
+  dev: '#ff8c00',
 };
 
 /**
