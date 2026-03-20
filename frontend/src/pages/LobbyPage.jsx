@@ -63,6 +63,7 @@ export default function LobbyPage() {
             src={`/avatars/${selectedAvatar}.png`}
             alt=""
             className="lobby-fella clickable"
+            data-fella-tooltip="Click to change your fella!"
             onClick={() => setShowAvatarPicker(!showAvatarPicker)}
           />
           {showAvatarPicker && (

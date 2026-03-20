@@ -46,10 +46,28 @@
 .lobby-fella.clickable {
   cursor: pointer;
   transition: transform 0.15s;
+  position: relative;
 }
 
 .lobby-fella.clickable:hover {
   transform: scale(1.1);
+}
+
+.lobby-fella.clickable:hover::after {
+  content: attr(data-fella-tooltip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  z-index: 10;
+  pointer-events: none;
 }
 
 .avatar-picker {
