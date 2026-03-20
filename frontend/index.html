@@ -9,7 +9,20 @@
       (function() {
         var fellas = ['green', 'pink', 'yellow', 'purple', 'blue'];
         var pick = fellas[Math.floor(Math.random() * fellas.length)];
-        document.getElementById('favicon').href = '/avatars/' + pick + '.png';
+        var img = new Image();
+        img.onload = function() {
+          var canvas = document.createElement('canvas');
+          canvas.width = 32;
+          canvas.height = 32;
+          var ctx = canvas.getContext('2d');
+          // Scale to fit within 32x32 maintaining aspect ratio
+          var scale = Math.min(32 / img.width, 32 / img.height);
+          var w = img.width * scale;
+          var h = img.height * scale;
+          ctx.drawImage(img, (32 - w) / 2, (32 - h) / 2, w, h);
+          document.getElementById('favicon').href = canvas.toDataURL('image/png');
+        };
+        img.src = '/avatars/' + pick + '.png';
       })();
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
