@@ -10,7 +10,7 @@ Built with Flask, React, Redis, and the Spotify Web API.
 
 ## Features
 
-- **Spotify OAuth** — login with your Spotify Premium account
+- **Spotify OAuth** — login with your Spotify account (Premium required for playback)
 - **Room system** — create or join rooms with a 6-character code
 - **Shared queue** — everyone can search and add tracks
 - **Play next** — add a track to the front of the queue instead of the back
@@ -25,8 +25,8 @@ Built with Flask, React, Redis, and the Spotify Web API.
 - **Max consecutive limit** — optionally limit how many songs one person can queue in a row (1/2/3/unlimited)
 - **In-room settings** — host can change mode and consecutive limit while the room is active
 - **Promote to host** — host can transfer control to another listener
-- **Character avatars** — each user gets a deterministic "fella" avatar based on their Spotify ID
-- **Random favicon** — a random fella is picked as the browser tab icon on each page load
+- **Character avatars** — each user gets a deterministic "fella" avatar, with an in-lobby picker to choose your color
+- **Personalized theme** — UI accent color matches your selected fella
 - **Rate limiting** — per-user rate limits on queue, skip, play, pause, and sync actions
 - **Drag-to-reorder** — host can drag queue items to rearrange the play order
 - **Toast notifications** — slide-in notifications for joins, leaves, and queue changes
@@ -105,6 +105,7 @@ Built with Flask, React, Redis, and the Spotify Web API.
 | `SECRET_KEY` | No | `dev-secret-key` | Flask session secret |
 | `FRONTEND_URL` | No | `http://localhost:5173` | Frontend origin for CORS |
 | `FELLOWSYNC_ENV` | No | `development` | Set to `production` to disable debug mode |
+| `ADMIN_USER_IDS` | No | — | Comma-separated Spotify user IDs for admin access |
 
 ## Production Deployment
 
@@ -158,9 +159,16 @@ Frontend (React + Vite)          Backend (Flask + SocketIO)
                                     └─────────────┘
 ```
 
+## Important Notes
+
+- All listeners need **Spotify Premium** — the Spotify Web API does not support playback control on free accounts.
+- Spotify apps start in **Development Mode**, which limits access to 25 users. You must add each user's Spotify email to the allowlist in the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard). To remove this limit, submit a quota extension request to Spotify.
+
 ## Contributing
 
-FellowSync is open source and maintained by [Meduseld](https://github.com/meduseld-io). Issues and pull requests are welcome.
+FellowSync is open source under the [GNU Affero General Public License v3.0](LICENSE). This means any modified version you deploy as a network service must also make its source code available to users.
+
+Contributions are welcome — feel free to open issues or submit pull requests on [GitHub](https://github.com/meduseld-io/fellowsync).
 
 ## License
 
