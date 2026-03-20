@@ -5,7 +5,7 @@ import LoginPage from './pages/LoginPage';
 import CallbackPage from './pages/CallbackPage';
 import LobbyPage from './pages/LobbyPage';
 import RoomPage from './pages/RoomPage';
-import { getAvatarColor, setFavicon } from './utils/avatars';
+import { getAvatarColor, setFavicon, AVATAR_HEX } from './utils/avatars';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -19,7 +19,9 @@ function AppRoutes() {
 
   useEffect(() => {
     if (user?.spotify_user_id) {
-      setFavicon(getAvatarColor(user.spotify_user_id));
+      const color = getAvatarColor(user.spotify_user_id);
+      setFavicon(color);
+      document.documentElement.style.setProperty('--fella-color', AVATAR_HEX[color] || '#4ade80');
     }
   }, [user]);
 

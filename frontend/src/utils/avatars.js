@@ -47,6 +47,7 @@ export function setAvatarOverride(color) {
   if (AVATAR_COLORS.includes(color)) {
     localStorage.setItem('fellowsync_avatar', color);
     setFavicon(color);
+    document.documentElement.style.setProperty('--fella-color', AVATAR_HEX[color] || '#4ade80');
   }
 }
 

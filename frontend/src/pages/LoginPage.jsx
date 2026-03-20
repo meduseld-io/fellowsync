@@ -9,7 +9,7 @@ export default function LoginPage() {
     <div className="login-page">
       <div className="login-card">
         <img src="/logo.png" alt="FellowSync" style={{ maxWidth: 320, width: '80%', height: 'auto', marginBottom: '1rem' }} />
-        <h1>Fellow<span style={{ color: '#4ade80' }}>Sync</span></h1>
+        <h1>Fellow<span style={{ color: 'var(--fella-color)' }}>Sync</span></h1>
         <p>Listen together with friends using Spotify.</p>
         <button className="btn-spotify" onClick={login}>
           <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">

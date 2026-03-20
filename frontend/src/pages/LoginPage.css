@@ -4,6 +4,7 @@
   align-items: center;
   min-height: 100dvh;
   min-height: 100vh;
+  padding: 2rem;
   padding-top: env(safe-area-inset-top, 0px);
 }
 
@@ -13,6 +14,7 @@
 }
 
 .login-page > .fs-footer {
+  margin-top: 1.5rem;
   flex-shrink: 0;
 }
 

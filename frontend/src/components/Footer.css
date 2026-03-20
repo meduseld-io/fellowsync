@@ -1,7 +1,7 @@
 .fs-footer {
   text-align: center;
   padding: 0.75rem 0;
-  border-top: 1px solid rgba(74, 222, 128, 0.2);
+  border-top: 1px solid color-mix(in srgb, var(--fella-color) 20%, transparent);
   width: 100%;
 }
 
@@ -16,7 +16,7 @@
 }
 
 .fs-footer a {
-  color: #4ade80;
+  color: var(--fella-color);
   text-decoration: none;
 }
 

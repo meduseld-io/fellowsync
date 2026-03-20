@@ -3,16 +3,16 @@
   margin-top: 0.75rem;
   padding: 10px;
   border-radius: 10px;
-  background: rgba(74, 222, 128, 0.1);
-  border: 1px solid #4ade80;
-  color: #4ade80;
+  background: color-mix(in srgb, var(--fella-color) 10%, transparent);
+  border: 1px solid var(--fella-color);
+  color: var(--fella-color);
   font-size: 0.85rem;
   font-weight: 500;
   cursor: pointer;
 }
 
 .help-btn:hover:not(:disabled) {
-  background: rgba(74, 222, 128, 0.2);
+  background: color-mix(in srgb, var(--fella-color) 20%, transparent);
 }
 
 .help-overlay {
@@ -44,7 +44,7 @@
 
 .help-modal h3 {
   font-size: 0.95rem;
-  color: var(--green);
+  color: var(--fella-color);
   margin-top: 1.25rem;
   margin-bottom: 0.4rem;
 }

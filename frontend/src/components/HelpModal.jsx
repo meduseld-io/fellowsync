@@ -11,7 +11,7 @@ export default function HelpModal() {
       {open && (
         <div className="help-overlay" onClick={() => setOpen(false)}>
           <div className="help-modal" onClick={(e) => e.stopPropagation()}>
-            <h2>How to use Fellow<span style={{ color: '#4ade80' }}>Sync</span></h2>
+            <h2>How to use Fellow<span style={{ color: 'var(--fella-color)' }}>Sync</span></h2>
 
             <h3>Getting Started</h3>
             <p>FellowSync lets you listen to music together with friends in real time. Everyone needs a Spotify Premium account and the Spotify app open on a device.</p>

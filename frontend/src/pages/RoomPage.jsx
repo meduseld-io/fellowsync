@@ -7,7 +7,7 @@ import { syncPlayback } from '../services/spotifyPlayer';
 import HelpModal from '../components/HelpModal';
 import Footer from '../components/Footer';
 import ToastContainer, { showToast } from '../components/Toast';
-import { getAvatarForUser, getAvatarColor, AVATAR_HEX } from '../utils/avatars';
+import { getAvatarForUser } from '../utils/avatars';
 import './RoomPage.css';
 
 export default function RoomPage() {
@@ -290,10 +290,9 @@ export default function RoomPage() {
   const participants = room.participants || {};
   const queue = room.queue || [];
   const currentTrack = room.current_track_info;
-  const fellaColor = AVATAR_HEX[getAvatarColor(user?.spotify_user_id || '')] || '#4ade80';
 
   return (
-    <div className="room-page" style={{ '--fella-color': fellaColor }}>
+    <div className="room-page">
       <ToastContainer />
       <div className="room-header">
         <div>

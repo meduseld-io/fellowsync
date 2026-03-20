@@ -15,6 +15,7 @@
   --text-muted: #888;
   --green: #1db954;
   --green-hover: #1ed760;
+  --fella-color: #4ade80;
   --accent: #b3a125;
   --danger: #e74c3c;
 }
@@ -54,17 +55,17 @@ input {
 }
 
 input:focus {
-  border-color: var(--green);
+  border-color: var(--fella-color);
 }
 
 .btn-primary {
-  background: var(--green);
+  background: var(--fella-color);
   color: #fff;
   font-weight: 600;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: var(--green-hover);
+  filter: brightness(1.15);
 }
 
 .btn-secondary {
