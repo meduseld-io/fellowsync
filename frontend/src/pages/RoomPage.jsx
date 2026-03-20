@@ -361,8 +361,25 @@ export default function RoomPage() {
           </div>
         </div>
 
-        {/* Right column: Participants + Help */}
+        {/* Right column: Last Played + Participants + Help */}
         <div style={{ alignSelf: 'start' }}>
+          {room.last_track_info && (
+            <div className="panel last-played-panel" style={{ marginBottom: '1.5rem' }}>
+              <h2>Last Played</h2>
+              <div className="last-played-content">
+                {room.last_track_info.album_art && (
+                  <img className="last-played-art" src={room.last_track_info.album_art} alt="" />
+                )}
+                <div className="last-played-info">
+                  <div className="track-name">{room.last_track_info.name}</div>
+                  <div className="track-artist">{room.last_track_info.artist}</div>
+                  {room.last_track_info.queued_by && (
+                    <div className="last-played-by">Added by {room.last_track_info.queued_by}</div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
           <div className="panel">
             <h2>
               Listeners

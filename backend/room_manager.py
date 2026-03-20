@@ -44,6 +44,7 @@ def create_room(host_id, host_name, max_consecutive=0, hear_me_out=False):
         'queue': [],
         'current_track': None,
         'current_track_info': None,
+        'last_track_info': None,
         'position_ms': 0,
         'is_playing': False,
         'last_update': time.time(),
@@ -193,6 +194,10 @@ def skip_track(room_id):
     state = get_room(room_id)
     if not state:
         return None
+    # Save current track as last played before advancing
+    if state.get('current_track_info'):
+        state['last_track_info'] = state['current_track_info']
+
     if state['queue']:
         next_track = state['queue'].pop(0)
         state['current_track'] = next_track['uri']

@@ -300,6 +300,48 @@
   flex-shrink: 0;
 }
 
+/* Last Played */
+.last-played-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.last-played-art {
+  width: 48px;
+  height: 48px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.last-played-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.last-played-info .track-name {
+  font-size: 0.85rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.last-played-info .track-artist {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.last-played-by {
+  font-size: 0.72rem;
+  color: var(--green);
+  margin-top: 2px;
+}
+
 /* Participants */
 .participants-list {
   list-style: none;
