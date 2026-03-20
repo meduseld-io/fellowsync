@@ -376,6 +376,12 @@
   color: var(--text-muted);
   cursor: pointer;
   white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.participant:hover .btn-promote {
+  opacity: 1;
 }
 
 .btn-promote:hover {
