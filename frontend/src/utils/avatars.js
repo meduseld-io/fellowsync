@@ -2,10 +2,10 @@ export const AVATAR_COLORS = ['green', 'pink', 'yellow', 'purple', 'blue'];
 
 export const AVATAR_HEX = {
   green: '#4ade80',
-  pink: '#f472b6',
+  pink: '#ff6eb4',
   yellow: '#facc15',
-  purple: '#a78bfa',
-  blue: '#60a5fa',
+  purple: '#b78aff',
+  blue: '#47b5ff',
 };
 
 /**
