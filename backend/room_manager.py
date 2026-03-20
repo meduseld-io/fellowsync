@@ -90,8 +90,9 @@ def add_participant(room_id, user_id, display_name):
 
 
 def remove_participant(room_id, user_id):
-    """Remove a user from the room."""
+    """Remove a user from the room and clean up their token."""
     _redis.hdel(_participants_key(room_id), user_id)
+    _redis.hdel(_tokens_key(room_id), user_id)
 
 
 def get_participants(room_id):

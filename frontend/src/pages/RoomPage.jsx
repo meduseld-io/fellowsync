@@ -26,12 +26,11 @@ export default function RoomPage() {
   const [searchFilter, setSearchFilter] = useState('track');
   const [dragIndex, setDragIndex] = useState(null);
   const [vibeInput, setVibeInput] = useState('');
+  const [showHostTransfer, setShowHostTransfer] = useState(false);
   const searchTimeout = useRef(null);
   const vibeTimeout = useRef(null);
   const socketRef = useRef(null);
   const prevParticipantsRef = useRef({});
-
-  const intentionalLeave = useRef(false);
 
   // Scroll to top on mount
   useEffect(() => {
@@ -62,7 +61,6 @@ export default function RoomPage() {
 
       socket.on('room_state', (state) => {
         if (!mounted) return;
-        // Toast for participant changes
         const prev = prevParticipantsRef.current;
         const next = state.participants || {};
         Object.keys(next).forEach((uid) => {
@@ -87,9 +85,8 @@ export default function RoomPage() {
     return () => {
       mounted = false;
       if (socketRef.current) {
-        if (intentionalLeave.current) {
-          socketRef.current.emit('leave_room', { room_id: roomId });
-        }
+        // Always leave the socket room on unmount to stop receiving broadcasts
+        socketRef.current.emit('leave_room', { room_id: roomId });
         socketRef.current.off('room_state');
         socketRef.current.off('playback_sync');
         socketRef.current.off('queue_updated');
@@ -104,16 +101,6 @@ export default function RoomPage() {
       setVibeInput(room.vibe || '');
     }
   }, [room?.vibe]);
-
-  // Sync playback when room state changes
-  useEffect(() => {
-    if (!room || !room.current_track) return;
-    // We don't have the user's access token on the client side directly,
-    // so sync is triggered via the backend broadcasting to all clients.
-    // Each client calls Spotify API with their own token stored in session.
-    // For MVP, we rely on the backend to coordinate — client-side sync
-    // would require passing tokens to the frontend (future enhancement).
-  }, [room?.current_track, room?.is_playing, room?.position_ms]);
 
   // Search with debounce
   const handleSearch = useCallback((query) => {
@@ -290,10 +277,25 @@ export default function RoomPage() {
   };
 
   const handleLeave = () => {
-    intentionalLeave.current = true;
-    if (socketRef.current) {
-      socketRef.current.emit('leave_room', { room_id: roomId });
+    const isCurrentHost = user?.spotify_user_id === room?.host_id;
+    const otherParticipants = Object.keys(room?.participants || {}).filter(uid => uid !== user?.spotify_user_id);
+
+    // If host and there are other people, ask them to pick a new host first
+    if (isCurrentHost && otherParticipants.length > 0) {
+      setShowHostTransfer(true);
+      return;
     }
+
+    navigate('/lobby');
+  };
+
+  const handleTransferAndLeave = async (newHostId) => {
+    try {
+      await api.promoteHost(roomId, newHostId);
+    } catch (e) {
+      console.error('Failed to transfer host before leaving:', e);
+    }
+    setShowHostTransfer(false);
     navigate('/lobby');
   };
 
@@ -321,10 +323,36 @@ export default function RoomPage() {
   const participantAvatars = room.participant_avatars || {};
   const queue = room.queue || [];
   const currentTrack = room.current_track_info;
+  const otherParticipants = Object.entries(participants).filter(([uid]) => uid !== user?.spotify_user_id);
 
   return (
     <div className="room-page">
       <ToastContainer />
+
+      {/* Host transfer modal */}
+      {showHostTransfer && (
+        <div className="modal-overlay" onClick={() => setShowHostTransfer(false)}>
+          <div className="modal-content host-transfer-modal" onClick={(e) => e.stopPropagation()}>
+            <h3>Transfer Host</h3>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1rem' }}>
+              Choose a new host before leaving the room.
+            </p>
+            <ul className="host-transfer-list">
+              {otherParticipants.map(([uid, name]) => (
+                <li key={uid} className="host-transfer-item" onClick={() => handleTransferAndLeave(uid)}>
+                  <img className="participant-avatar" src={getAvatarForUser(uid, participantAvatars)} alt="" />
+                  <span>{name}</span>
+                  {isAdmin(uid) && <span className="dev-badge">Dev</span>}
+                </li>
+              ))}
+            </ul>
+            <button className="btn-secondary" onClick={() => setShowHostTransfer(false)} style={{ marginTop: '1rem', width: '100%' }}>
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="room-header">
         <div>
           <h1>Fellow<span style={{ color: 'var(--fella-color)' }}>Sync</span></h1>
