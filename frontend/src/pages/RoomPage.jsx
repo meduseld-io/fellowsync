@@ -25,7 +25,9 @@ export default function RoomPage() {
   const [queueError, setQueueError] = useState('');
   const [searchFilter, setSearchFilter] = useState('track');
   const [dragIndex, setDragIndex] = useState(null);
+  const [vibeInput, setVibeInput] = useState('');
   const searchTimeout = useRef(null);
+  const vibeTimeout = useRef(null);
   const socketRef = useRef(null);
   const prevParticipantsRef = useRef({});
 
@@ -95,6 +97,13 @@ export default function RoomPage() {
       }
     };
   }, [roomId]);
+
+  // Sync vibe input from room state (when another host sets it or on initial load)
+  useEffect(() => {
+    if (room?.vibe !== undefined && !vibeTimeout.current) {
+      setVibeInput(room.vibe || '');
+    }
+  }, [room?.vibe]);
 
   // Sync playback when room state changes
   useEffect(() => {
@@ -251,6 +260,16 @@ export default function RoomPage() {
     }
   };
 
+  const handleVibeChange = (value) => {
+    const trimmed = value.slice(0, 50);
+    setVibeInput(trimmed);
+    if (vibeTimeout.current) clearTimeout(vibeTimeout.current);
+    vibeTimeout.current = setTimeout(() => {
+      vibeTimeout.current = null;
+      handleUpdateSettings({ vibe: trimmed });
+    }, 600);
+  };
+
   const handlePromote = async (userId) => {
     try {
       const updated = await api.promoteHost(roomId, userId);
@@ -302,6 +321,7 @@ export default function RoomPage() {
           <div className="room-modes">
             {room.hear_me_out && <span className="mode-badge hear-me-out">🎤 Hear Me Out</span>}
             {room.max_consecutive > 0 && <span className="mode-badge">Max {room.max_consecutive} in a row</span>}
+            {room.vibe && <span className="mode-badge vibe-badge">🎶 {room.vibe}</span>}
           </div>
         </div>
         <div className="room-header-actions">
@@ -535,6 +555,17 @@ export default function RoomPage() {
                     <option value={2}>2</option>
                     <option value={3}>3</option>
                   </select>
+                </div>
+                <div className="setting-row">
+                  <label>Vibe</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Chill indie, 90s hip-hop..."
+                    value={vibeInput}
+                    onChange={(e) => handleVibeChange(e.target.value)}
+                    maxLength={50}
+                    style={{ flex: 1 }}
+                  />
                 </div>
               </div>
             </div>

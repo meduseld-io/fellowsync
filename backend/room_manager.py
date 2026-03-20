@@ -51,6 +51,7 @@ def create_room(host_id, host_name, max_consecutive=0, hear_me_out=False):
         'skip_votes': [],
         'max_consecutive': max_consecutive,
         'hear_me_out': hear_me_out,
+        'vibe': '',
     }
     _redis.set(_room_key(room_id), json.dumps(state), ex=ROOM_TTL)
     _redis.hset(_participants_key(room_id), host_id, host_name)

@@ -314,6 +314,10 @@ def update_settings(room_id):
         if state['hear_me_out'] and state['queue']:
             state['queue'] = room_manager._round_robin_queue(state['queue'])
 
+    if 'vibe' in data:
+        vibe = str(data['vibe'] or '').strip()[:50]
+        state['vibe'] = vibe
+
     room_manager.save_room(room_id, state)
     broadcast_room_state(room_id, state)
     return jsonify(_with_participants(room_id, state))
