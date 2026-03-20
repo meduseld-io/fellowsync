@@ -21,7 +21,6 @@ export default function RoomPage() {
   const [deviceWarning, setDeviceWarning] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [queueError, setQueueError] = useState('');
-  const [showSettings, setShowSettings] = useState(false);
   const searchTimeout = useRef(null);
   const socketRef = useRef(null);
 
@@ -376,42 +375,31 @@ export default function RoomPage() {
           </div>
           {isHost && (
             <div className="panel" style={{ marginTop: '1.5rem' }}>
-              <h2
-                className="settings-toggle"
-                onClick={() => setShowSettings(!showSettings)}
-                style={{ cursor: 'pointer' }}
-              >
-                ⚙ Settings
-                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 400 }}>
-                  {showSettings ? '▲' : '▼'}
-                </span>
-              </h2>
-              {showSettings && (
-                <div className="room-settings">
-                  <div className="setting-row">
-                    <label>Mode</label>
-                    <select
-                      value={room.hear_me_out ? 'hear_me_out' : 'normal'}
-                      onChange={(e) => handleUpdateSettings({ hear_me_out: e.target.value === 'hear_me_out' })}
-                    >
-                      <option value="normal">Normal</option>
-                      <option value="hear_me_out">Hear Me Out</option>
-                    </select>
-                  </div>
-                  <div className="setting-row">
-                    <label>Max in a row</label>
-                    <select
-                      value={room.max_consecutive || 0}
-                      onChange={(e) => handleUpdateSettings({ max_consecutive: Number(e.target.value) })}
-                    >
-                      <option value={0}>Unlimited</option>
-                      <option value={1}>1</option>
-                      <option value={2}>2</option>
-                      <option value={3}>3</option>
-                    </select>
-                  </div>
+              <h2>⚙ Settings</h2>
+              <div className="room-settings">
+                <div className="setting-row">
+                  <label>Mode</label>
+                  <select
+                    value={room.hear_me_out ? 'hear_me_out' : 'normal'}
+                    onChange={(e) => handleUpdateSettings({ hear_me_out: e.target.value === 'hear_me_out' })}
+                  >
+                    <option value="normal">Normal</option>
+                    <option value="hear_me_out">Hear Me Out</option>
+                  </select>
                 </div>
-              )}
+                <div className="setting-row">
+                  <label>Max in a row</label>
+                  <select
+                    value={room.max_consecutive || 0}
+                    onChange={(e) => handleUpdateSettings({ max_consecutive: Number(e.target.value) })}
+                  >
+                    <option value={0}>Unlimited</option>
+                    <option value={1}>1</option>
+                    <option value={2}>2</option>
+                    <option value={3}>3</option>
+                  </select>
+                </div>
+              </div>
             </div>
           )}
           <HelpModal />
