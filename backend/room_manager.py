@@ -98,6 +98,17 @@ def get_participants(room_id):
     return _redis.hgetall(_participants_key(room_id))
 
 
+def get_participant_avatars(room_id):
+    """Return dict of {user_id: avatar_color} for all participants in a room."""
+    participants = _redis.hgetall(_participants_key(room_id))
+    avatars = {}
+    for uid in participants:
+        avatar = _redis.get(f'user_avatar:{uid}')
+        if avatar:
+            avatars[uid] = avatar
+    return avatars
+
+
 def store_user_token(room_id, user_id, token_data):
     """Store a user's Spotify token data for this room."""
     _redis.hset(_tokens_key(room_id), user_id, json.dumps(token_data))

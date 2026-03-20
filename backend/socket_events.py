@@ -53,8 +53,7 @@ def init_socketio(sio):
             'expires_at': user['expires_at'],
         })
 
-        participants = room_manager.get_participants(room_id)
-        sio.emit('room_state', {**state, 'participants': participants}, room=room_id)
+        sio.emit('room_state', _room_payload(room_id, state), room=room_id)
 
         # Auto-sync: if room is playing, sync this user's Spotify to the current track
         if state.get('is_playing') and state.get('current_track'):
@@ -97,7 +96,7 @@ def init_socketio(sio):
 
         state = room_manager.get_room(room_id)
         if state:
-            sio.emit('room_state', {**state, 'participants': participants}, room=room_id)
+            sio.emit('room_state', _room_payload(room_id, state), room=room_id)
 
     @sio.on('add_track')
     def on_add_track(data):
@@ -111,8 +110,7 @@ def init_socketio(sio):
 
         state = room_manager.add_to_queue(room_id, track)
         if state:
-            participants = room_manager.get_participants(room_id)
-            sio.emit('queue_updated', {**state, 'participants': participants}, room=room_id)
+            sio.emit('queue_updated', _room_payload(room_id, state), room=room_id)
 
     @sio.on('skip_track')
     def on_skip_track(data):
@@ -129,26 +127,29 @@ def init_socketio(sio):
 
         updated = room_manager.skip_track(room_id)
         if updated:
-            participants = room_manager.get_participants(room_id)
-            sio.emit('playback_sync', {**updated, 'participants': participants}, room=room_id)
+            sio.emit('playback_sync', _room_payload(room_id, updated), room=room_id)
+
+
+def _room_payload(room_id, state):
+    """Build a room state payload with participants and avatars."""
+    participants = room_manager.get_participants(room_id)
+    avatars = room_manager.get_participant_avatars(room_id)
+    return {**state, 'participants': participants, 'participant_avatars': avatars}
 
 
 def broadcast_sync(room_id, state):
     """Broadcast a playback sync event to all users in a room."""
     if socketio:
-        participants = room_manager.get_participants(room_id)
-        socketio.emit('playback_sync', {**state, 'participants': participants}, room=room_id)
+        socketio.emit('playback_sync', _room_payload(room_id, state), room=room_id)
 
 
 def broadcast_queue(room_id, state):
     """Broadcast a queue update to all users in a room."""
     if socketio:
-        participants = room_manager.get_participants(room_id)
-        socketio.emit('queue_updated', {**state, 'participants': participants}, room=room_id)
+        socketio.emit('queue_updated', _room_payload(room_id, state), room=room_id)
 
 
 def broadcast_room_state(room_id, state):
     """Broadcast a full room state update (settings, host change, etc.)."""
     if socketio:
-        participants = room_manager.get_participants(room_id)
-        socketio.emit('room_state', {**state, 'participants': participants}, room=room_id)
+        socketio.emit('room_state', _room_payload(room_id, state), room=room_id)

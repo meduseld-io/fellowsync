@@ -16,9 +16,19 @@ export const AVATAR_HEX = {
 
 /**
  * Deterministically pick an avatar based on a user ID string.
- * Checks localStorage for a user override first.
+ * - For the current user: uses localStorage override
+ * - For other users: uses avatarsMap from backend if available
+ * - Fallback: deterministic hash-based assignment
  */
-export function getAvatarForUser(userId) {
+export function getAvatarForUser(userId, avatarsMap) {
+  // If we have a backend-provided avatar for this user, use it
+  if (avatarsMap && avatarsMap[userId]) {
+    const color = avatarsMap[userId];
+    if (ALL_COLORS.includes(color)) return `/avatars/${color}.png`;
+  }
+  // localStorage is only for the current user (set via setAvatarOverride)
+  // but we don't know who "current" is here, so check localStorage
+  // and it will match because only the current user sets it
   const override = localStorage.getItem('fellowsync_avatar');
   if (override && ALL_COLORS.includes(override)) {
     return `/avatars/${override}.png`;

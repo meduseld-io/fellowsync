@@ -289,6 +289,7 @@ export default function RoomPage() {
 
   const isHost = user?.spotify_user_id === room.host_id;
   const participants = room.participants || {};
+  const participantAvatars = room.participant_avatars || {};
   const queue = room.queue || [];
   const currentTrack = room.current_track_info;
 
@@ -496,7 +497,7 @@ export default function RoomPage() {
             <ul className="participants-list">
               {Object.entries(participants).map(([uid, name]) => (
                 <li key={uid} className="participant">
-                  <img className="participant-avatar" src={getAvatarForUser(uid)} alt="" />
+                  <img className="participant-avatar" src={getAvatarForUser(uid, participantAvatars)} alt="" />
                   <span>{name}</span>
                   {uid === room.host_id && <span className="host-badge">Host</span>}
                   {isAdmin(uid) && <span className="dev-badge">Dev</span>}

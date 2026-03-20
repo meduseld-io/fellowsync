@@ -39,9 +39,10 @@ def _check_rate_limit(user_id, action):
 
 
 def _with_participants(room_id, state):
-    """Attach participants to a room state dict."""
+    """Attach participants and their avatars to a room state dict."""
     participants = room_manager.get_participants(room_id)
-    return {**state, 'participants': participants}
+    avatars = room_manager.get_participant_avatars(room_id)
+    return {**state, 'participants': participants, 'participant_avatars': avatars}
 
 
 def _trigger_playback_for_room(room_id, state):
