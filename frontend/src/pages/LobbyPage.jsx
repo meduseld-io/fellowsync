@@ -61,7 +61,7 @@ export default function LobbyPage() {
         <div className="lobby-user">
           <span>{user?.display_name}</span>
           <span
-            className="lobby-fella-wrap"
+            className={`lobby-fella-wrap${showAvatarPicker ? ' picker-open' : ''}`}
             data-fella-tooltip="Click to change your fella!"
             onClick={() => setShowAvatarPicker(!showAvatarPicker)}
           >

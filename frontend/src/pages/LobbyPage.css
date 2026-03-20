@@ -62,7 +62,7 @@
 .lobby-fella-wrap:hover::after {
   content: attr(data-fella-tooltip);
   position: absolute;
-  bottom: calc(100% + 6px);
+  top: calc(100% + 6px);
   left: 50%;
   transform: translateX(-50%);
   background: var(--surface);
@@ -74,6 +74,10 @@
   white-space: nowrap;
   z-index: 10;
   pointer-events: none;
+}
+
+.lobby-fella-wrap.picker-open:hover::after {
+  display: none;
 }
 
 .avatar-picker {
