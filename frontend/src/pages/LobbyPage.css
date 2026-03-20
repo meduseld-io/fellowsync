@@ -30,17 +30,17 @@
 
 .lobby-user {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
+  gap: 6px;
   margin: 1rem 0 2rem;
   color: var(--text-muted);
 }
 
-.lobby-user img {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
+.lobby-fella {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
 }
 
 .lobby-actions {
