@@ -105,7 +105,7 @@ export default function LobbyPage() {
             <label htmlFor="mode">
               Mode
             </label>
-            <span className="tooltip-icon" data-tooltip="Normal: free-for-all queue. Hear Me Out: alternates songs between users so everyone gets a turn.">?</span>
+            <span className="tooltip-icon">?<span className="tooltip-bubble"><strong>Normal:</strong> free-for-all queue. <strong>Hear Me Out:</strong> alternates songs between users so everyone gets a turn.</span></span>
             <select
               id="mode"
               value={mode}
