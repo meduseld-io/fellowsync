@@ -20,6 +20,7 @@ RATE_LIMIT_SECONDS = {
     'sync': 3,
     'settings': 1,
     'promote': 2,
+    'remove': 1,
 }
 
 
@@ -188,6 +189,35 @@ def add_to_queue(room_id):
     if not updated:
         return jsonify({'error': 'Room not found'}), 404
     return jsonify(_with_participants(room_id, updated))
+
+
+@rooms_bp.route('/api/rooms/<room_id>/queue/<int:index>', methods=['DELETE'])
+@_require_auth
+def remove_from_queue(room_id, index):
+    """Remove a track from the queue. Users can remove their own tracks, host can remove any."""
+    user = _get_user()
+    if not _check_rate_limit(user['spotify_user_id'], 'remove'):
+        return jsonify({'error': 'Too fast, slow down'}), 429
+
+    state = room_manager.get_room(room_id)
+    if not state:
+        return jsonify({'error': 'Room not found'}), 404
+
+    queue = state.get('queue', [])
+    if index < 0 or index >= len(queue):
+        return jsonify({'error': 'Invalid queue index'}), 400
+
+    track = queue[index]
+    is_host = user['spotify_user_id'] == state['host_id']
+    is_owner = track.get('queued_by_id') == user['spotify_user_id']
+
+    if not is_host and not is_owner:
+        return jsonify({'error': 'You can only remove your own tracks'}), 403
+
+    queue.pop(index)
+    state['queue'] = queue
+    room_manager.save_room(room_id, state)
+    return jsonify(_with_participants(room_id, state))
 
 
 @rooms_bp.route('/api/rooms/<room_id>/skip', methods=['POST'])

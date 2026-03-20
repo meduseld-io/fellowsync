@@ -120,6 +120,15 @@ export default function RoomPage() {
     }
   };
 
+  const handleRemoveTrack = async (index) => {
+    try {
+      const updated = await api.removeFromQueue(roomId, index);
+      setRoom(updated);
+    } catch (e) {
+      console.error('Failed to remove track from queue:', e);
+    }
+  };
+
   const handleSkip = async () => {
     try {
       const updated = await api.skipTrack(roomId);
@@ -358,6 +367,9 @@ export default function RoomPage() {
                       <div className="track-name">{track.name}</div>
                       <div className="track-artist">{track.artist}</div>
                     </div>
+                    {(isHost || track.queued_by_id === user?.spotify_user_id) && (
+                      <button className="btn-remove" onClick={() => handleRemoveTrack(i)}>✕</button>
+                    )}
                     {track.queued_by && (
                       <span className="queued-by">
                         {track.play_next ? `Plays next · ${track.queued_by}` : `Added by ${track.queued_by}`}
