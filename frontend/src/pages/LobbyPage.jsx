@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import Footer from '../components/Footer';
 import { getAvatarForUser, getAvatarColor, setAvatarOverride, AVATAR_COLORS, AVATAR_HEX } from '../utils/avatars';
+import { isAdmin } from '../utils/admin';
 import './LobbyPage.css';
 
 export default function LobbyPage() {
@@ -140,6 +141,9 @@ export default function LobbyPage() {
         </div>
 
         <div className="lobby-footer">
+          {isAdmin(user?.spotify_user_id) && (
+            <Link to="/admin" className="btn-admin">Admin</Link>
+          )}
           <button className="btn-logout" onClick={logout}>Logout</button>
         </div>
       </div>

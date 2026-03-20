@@ -467,3 +467,54 @@ def search():
     elif search_type == 'album':
         tracks = spotify_service.search_tracks(token_data['access_token'], f'album:{q}')
         return jsonify({'tracks': tracks})
+
+
+def _require_admin(f):
+    """Decorator to require admin authentication."""
+    from functools import wraps
+
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        user = _get_user()
+        if not user:
+            return jsonify({'error': 'Not authenticated'}), 401
+        if user.get('spotify_user_id') not in Config.ADMIN_USER_IDS:
+            return jsonify({'error': 'Forbidden'}), 403
+        return f(*args, **kwargs)
+    return wrapper
+
+
+@rooms_bp.route('/api/admin/rooms')
+@_require_admin
+def admin_list_rooms():
+    """List all active rooms with details."""
+    room_ids = room_manager.get_all_active_rooms()
+    rooms = []
+    for rid in room_ids:
+        state = room_manager.get_room(rid)
+        if not state:
+            continue
+        participants = room_manager.get_participants(rid)
+        rooms.append({
+            'room_id': rid,
+            'host_id': state.get('host_id'),
+            'participant_count': len(participants),
+            'participants': participants,
+            'queue_length': len(state.get('queue', [])),
+            'current_track': state.get('current_track_info', {}).get('name') if state.get('current_track_info') else None,
+            'is_playing': state.get('is_playing', False),
+            'hear_me_out': state.get('hear_me_out', False),
+            'max_consecutive': state.get('max_consecutive', 0),
+        })
+    return jsonify({'rooms': rooms})
+
+
+@rooms_bp.route('/api/admin/rooms/<room_id>', methods=['DELETE'])
+@_require_admin
+def admin_delete_room(room_id):
+    """Force-delete a room."""
+    state = room_manager.get_room(room_id)
+    if not state:
+        return jsonify({'error': 'Room not found'}), 404
+    room_manager.delete_room(room_id)
+    return jsonify({'success': True})

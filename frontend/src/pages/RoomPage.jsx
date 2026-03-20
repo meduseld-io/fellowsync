@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { getSocket } from '../services/socket';
@@ -8,6 +8,7 @@ import HelpModal from '../components/HelpModal';
 import Footer from '../components/Footer';
 import ToastContainer, { showToast } from '../components/Toast';
 import { getAvatarForUser } from '../utils/avatars';
+import { isAdmin } from '../utils/admin';
 import './RoomPage.css';
 
 export default function RoomPage() {
@@ -303,6 +304,9 @@ export default function RoomPage() {
           </div>
         </div>
         <div className="room-header-actions">
+          {isAdmin(user?.spotify_user_id) && (
+            <Link to="/admin" className="btn-admin">Admin</Link>
+          )}
           <span className="room-code" onClick={handleCopyCode}>
             {copied ? '✓ Copied' : roomId}
           </span>

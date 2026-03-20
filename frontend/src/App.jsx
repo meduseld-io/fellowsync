@@ -5,6 +5,7 @@ import LoginPage from './pages/LoginPage';
 import CallbackPage from './pages/CallbackPage';
 import LobbyPage from './pages/LobbyPage';
 import RoomPage from './pages/RoomPage';
+import AdminPage from './pages/AdminPage';
 import { getAvatarColor, setFavicon, AVATAR_HEX } from './utils/avatars';
 
 function ProtectedRoute({ children }) {
@@ -35,6 +36,7 @@ function AppRoutes() {
       <Route path="/callback" element={<CallbackPage />} />
       <Route path="/lobby" element={<ProtectedRoute><LobbyPage /></ProtectedRoute>} />
       <Route path="/room/:roomId" element={<ProtectedRoute><RoomPage /></ProtectedRoute>} />
+      <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

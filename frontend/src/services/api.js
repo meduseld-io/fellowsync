@@ -35,4 +35,8 @@ export const api = {
   updateSettings: (roomId, settings) => request(`/api/rooms/${roomId}/settings`, { method: 'PUT', body: JSON.stringify(settings) }),
   promoteHost: (roomId, userId) => request(`/api/rooms/${roomId}/promote`, { method: 'POST', body: JSON.stringify({ user_id: userId }) }),
   search: (q, type = 'track') => request(`/api/search?q=${encodeURIComponent(q)}&type=${type}`),
+
+  // Admin
+  adminListRooms: () => request('/api/admin/rooms'),
+  adminDeleteRoom: (roomId) => request(`/api/admin/rooms/${roomId}`, { method: 'DELETE' }),
 };

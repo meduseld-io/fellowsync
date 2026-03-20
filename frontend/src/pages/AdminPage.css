@@ -1,0 +1,177 @@
+.admin-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100dvh;
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.admin-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 600px;
+  width: 100%;
+}
+
+.admin-card h1 {
+  font-size: 1.4rem;
+  margin-bottom: 1.25rem;
+}
+
+.admin-card h2 {
+  font-size: 1rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.room-count {
+  font-size: 0.8rem;
+  background: var(--fella-color);
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.admin-links {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.admin-link-btn {
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--fella-color) 10%, transparent);
+  border: 1px solid var(--fella-color);
+  color: var(--fella-color);
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: background 0.15s;
+}
+
+.admin-link-btn:hover {
+  background: color-mix(in srgb, var(--fella-color) 20%, transparent);
+}
+
+.admin-muted {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.admin-error {
+  color: var(--danger);
+  font-size: 0.9rem;
+}
+
+.admin-room {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+.admin-room-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.admin-room-code {
+  font-family: monospace;
+  font-size: 0.95rem;
+  letter-spacing: 2px;
+  font-weight: 600;
+}
+
+.admin-room-status {
+  font-size: 0.78rem;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.admin-room-status.playing {
+  background: color-mix(in srgb, var(--fella-color) 15%, transparent);
+  color: var(--fella-color);
+}
+
+.admin-room-status.idle {
+  background: rgba(136, 136, 136, 0.15);
+  color: var(--text-muted);
+}
+
+.btn-delete-room {
+  margin-left: auto;
+  padding: 3px 10px;
+  font-size: 0.75rem;
+  border-radius: 6px;
+  background: rgba(248, 113, 113, 0.1);
+  border: 1px solid #f87171;
+  color: #f87171;
+  cursor: pointer;
+}
+
+.btn-delete-room:hover {
+  background: rgba(248, 113, 113, 0.25);
+}
+
+.admin-room-details {
+  display: flex;
+  gap: 12px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  flex-wrap: wrap;
+}
+
+.admin-badge {
+  font-size: 0.72rem;
+  padding: 1px 8px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--fella-color) 10%, transparent);
+  color: var(--fella-color);
+}
+
+.admin-badge.hmo {
+  background: rgba(168, 85, 247, 0.1);
+  color: #a855f7;
+}
+
+.admin-room-track {
+  font-size: 0.82rem;
+  color: var(--text);
+  margin-top: 6px;
+}
+
+.admin-room-participants {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.admin-participant {
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text-muted);
+}
+
+.admin-participant.host {
+  color: var(--fella-color);
+  border: 1px solid color-mix(in srgb, var(--fella-color) 30%, transparent);
+}
+
+.admin-footer-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 1.5rem;
+}

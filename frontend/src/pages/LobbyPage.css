@@ -239,3 +239,19 @@
   z-index: 10;
   pointer-events: none;
 }
+
+.btn-admin {
+  display: inline-block;
+  background: none;
+  color: var(--fella-color);
+  font-size: 0.85rem;
+  padding: 6px 12px;
+  text-decoration: none;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--fella-color) 30%, transparent);
+  transition: background 0.15s;
+}
+
+.btn-admin:hover {
+  background: color-mix(in srgb, var(--fella-color) 10%, transparent);
+}

@@ -595,3 +595,19 @@
   color: var(--fella-color);
   text-decoration: underline;
 }
+
+.btn-admin {
+  display: inline-block;
+  background: none;
+  color: var(--fella-color);
+  font-size: 0.8rem;
+  padding: 5px 12px;
+  text-decoration: none;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--fella-color) 30%, transparent);
+  transition: background 0.15s;
+}
+
+.btn-admin:hover {
+  background: color-mix(in srgb, var(--fella-color) 10%, transparent);
+}
