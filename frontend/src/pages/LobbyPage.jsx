@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import Footer from '../components/Footer';
-import { getAvatarForUser } from '../utils/avatars';
+import { getAvatarForUser, getAvatarColor, setAvatarOverride, AVATAR_COLORS } from '../utils/avatars';
 import './LobbyPage.css';
 
 export default function LobbyPage() {
@@ -14,6 +14,13 @@ export default function LobbyPage() {
   const [creating, setCreating] = useState(false);
   const [maxConsecutive, setMaxConsecutive] = useState(0);
   const [mode, setMode] = useState('normal');
+  const [showAvatarPicker, setShowAvatarPicker] = useState(false);
+  const [selectedAvatar, setSelectedAvatar] = useState(() => getAvatarColor(user?.spotify_user_id || ''));
+
+  const handlePickAvatar = (color) => {
+    setAvatarOverride(color);
+    setSelectedAvatar(color);
+  };
 
   const handleCreate = async () => {
     setCreating(true);
@@ -52,7 +59,25 @@ export default function LobbyPage() {
         <h1>Fellow<span style={{ color: '#4ade80' }}>Sync</span></h1>
         <div className="lobby-user">
           <span>{user?.display_name}</span>
-          <img src={getAvatarForUser(user?.spotify_user_id || '')} alt="" className="lobby-fella" />
+          <img
+            src={`/avatars/${selectedAvatar}.png`}
+            alt=""
+            className="lobby-fella clickable"
+            onClick={() => setShowAvatarPicker(!showAvatarPicker)}
+          />
+          {showAvatarPicker && (
+            <div className="avatar-picker">
+              {AVATAR_COLORS.map((color) => (
+                <img
+                  key={color}
+                  src={`/avatars/${color}.png`}
+                  alt={color}
+                  className={`avatar-option${selectedAvatar === color ? ' selected' : ''}`}
+                  onClick={() => handlePickAvatar(color)}
+                />
+              ))}
+            </div>
+          )}
         </div>
 
         {error && <p style={{ color: 'var(--danger)', marginBottom: '1rem', fontSize: '0.9rem' }}>{error}</p>}
