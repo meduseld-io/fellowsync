@@ -1,4 +1,4 @@
-const AVATARS = ['green', 'pink', 'yellow', 'orange', 'purple', 'blue'];
+const AVATARS = ['green', 'pink', 'yellow', 'purple', 'blue'];
 
 /**
  * Deterministically pick an avatar based on a user ID string.
