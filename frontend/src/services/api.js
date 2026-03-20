@@ -30,5 +30,6 @@ export const api = {
   play: (roomId) => request(`/api/rooms/${roomId}/play`, { method: 'POST' }),
   pause: (roomId) => request(`/api/rooms/${roomId}/pause`, { method: 'POST' }),
   sync: (roomId) => request(`/api/rooms/${roomId}/sync`, { method: 'POST' }),
+  updateSettings: (roomId, settings) => request(`/api/rooms/${roomId}/settings`, { method: 'PUT', body: JSON.stringify(settings) }),
   search: (q) => request(`/api/search?q=${encodeURIComponent(q)}`),
 };

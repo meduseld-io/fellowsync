@@ -2,13 +2,17 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   min-height: 100dvh;
   min-height: 100vh;
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.login-page > .login-card {
+  margin-top: auto;
+  margin-bottom: auto;
 }
 
 .login-page > .fs-footer {
-  margin-top: auto;
   flex-shrink: 0;
 }
 

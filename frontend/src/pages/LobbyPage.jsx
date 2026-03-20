@@ -12,7 +12,7 @@ export default function LobbyPage() {
   const [error, setError] = useState('');
   const [creating, setCreating] = useState(false);
   const [maxConsecutive, setMaxConsecutive] = useState(0);
-  const [hearMeOut, setHearMeOut] = useState(false);
+  const [mode, setMode] = useState('normal');
 
   const handleCreate = async () => {
     setCreating(true);
@@ -20,7 +20,7 @@ export default function LobbyPage() {
     try {
       const room = await api.createRoom({
         max_consecutive: maxConsecutive,
-        hear_me_out: hearMeOut,
+        hear_me_out: mode === 'hear_me_out',
       });
       navigate(`/room/${room.room_id}`);
     } catch (e) {
@@ -68,23 +68,21 @@ export default function LobbyPage() {
               <option value={1}>1</option>
               <option value={2}>2</option>
               <option value={3}>3</option>
-              <option value={5}>5</option>
             </select>
           </div>
           <div className="option-row">
-            <label htmlFor="hearMeOut">
-              Hear Me Out
-              <span className="tooltip-icon" data-tooltip="Alternates songs between users so everyone gets a turn, regardless of queue order.">?</span>
+            <label htmlFor="mode">
+              Mode
+              <span className="tooltip-icon" data-tooltip="Normal: free-for-all queue. Hear Me Out: alternates songs between users so everyone gets a turn.">?</span>
             </label>
-            <button
-              id="hearMeOut"
-              type="button"
-              className={`toggle-btn${hearMeOut ? ' active' : ''}`}
-              onClick={() => setHearMeOut(!hearMeOut)}
-              aria-pressed={hearMeOut}
+            <select
+              id="mode"
+              value={mode}
+              onChange={(e) => setMode(e.target.value)}
             >
-              {hearMeOut ? 'ON' : 'OFF'}
-            </button>
+              <option value="normal">Normal</option>
+              <option value="hear_me_out">Hear Me Out</option>
+            </select>
           </div>
         </div>
 

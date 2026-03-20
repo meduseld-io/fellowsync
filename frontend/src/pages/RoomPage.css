@@ -361,3 +361,31 @@
   background: rgba(248, 113, 113, 0.1);
   border-radius: 6px;
 }
+
+/* Room settings (host only) */
+.room-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.setting-row label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.setting-row select {
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 0.85rem;
+}

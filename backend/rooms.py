@@ -179,6 +179,37 @@ def skip_track(room_id):
     return jsonify(resp)
 
 
+@rooms_bp.route('/api/rooms/<room_id>/settings', methods=['PUT'])
+@_require_auth
+def update_settings(room_id):
+    """Update room settings (host only)."""
+    state = room_manager.get_room(room_id)
+    if not state:
+        return jsonify({'error': 'Room not found'}), 404
+
+    user = _get_user()
+    if user['spotify_user_id'] != state['host_id']:
+        return jsonify({'error': 'Only the host can change settings'}), 403
+
+    data = request.json or {}
+
+    if 'max_consecutive' in data:
+        try:
+            val = int(data['max_consecutive'])
+            state['max_consecutive'] = max(0, val)
+        except (TypeError, ValueError):
+            pass
+
+    if 'hear_me_out' in data:
+        state['hear_me_out'] = bool(data['hear_me_out'])
+        # Re-sort queue if enabling hear_me_out
+        if state['hear_me_out'] and state['queue']:
+            state['queue'] = room_manager._round_robin_queue(state['queue'])
+
+    room_manager.save_room(room_id, state)
+    return jsonify(_with_participants(room_id, state))
+
+
 @rooms_bp.route('/api/rooms/<room_id>/play', methods=['POST'])
 @_require_auth
 def play(room_id):
