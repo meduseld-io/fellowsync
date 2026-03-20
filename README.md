@@ -28,6 +28,10 @@ Built with Flask, React, Redis, and the Spotify Web API.
 - **Character avatars** — each user gets a deterministic "fella" avatar based on their Spotify ID
 - **Random favicon** — a random fella is picked as the browser tab icon on each page load
 - **Rate limiting** — per-user rate limits on queue, skip, play, pause, and sync actions
+- **Drag-to-reorder** — host can drag queue items to rearrange the play order
+- **Toast notifications** — slide-in notifications for joins, leaves, and queue changes
+- **Now playing link** — click the current track name to open it in Spotify
+- **Search filters** — search by track, artist, or album name
 - **Room cleanup** — empty rooms are automatically deleted after 5 minutes
 
 ## Requirements
