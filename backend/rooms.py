@@ -259,6 +259,27 @@ def reorder_queue(room_id):
     return jsonify(_with_participants(room_id, state))
 
 
+@rooms_bp.route('/api/rooms/<room_id>/queue', methods=['DELETE'])
+@_require_auth
+def clear_queue(room_id):
+    """Clear the entire queue (host only)."""
+    user = _get_user()
+    if not _check_rate_limit(user['spotify_user_id'], 'remove'):
+        return jsonify({'error': 'Too fast, slow down'}), 429
+
+    state = room_manager.get_room(room_id)
+    if not state:
+        return jsonify({'error': 'Room not found'}), 404
+
+    if user['spotify_user_id'] != state['host_id']:
+        return jsonify({'error': 'Only the host can clear the queue'}), 403
+
+    state['queue'] = []
+    room_manager.save_room(room_id, state)
+    broadcast_queue(room_id, state)
+    return jsonify(_with_participants(room_id, state))
+
+
 @rooms_bp.route('/api/rooms/<room_id>/skip', methods=['POST'])
 @_require_auth
 def skip_track(room_id):

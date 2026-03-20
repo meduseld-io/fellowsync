@@ -154,6 +154,16 @@ export default function RoomPage() {
     }
   };
 
+  const handleClearQueue = async () => {
+    try {
+      const updated = await api.clearQueue(roomId);
+      setRoom(updated);
+      showToast('Queue cleared');
+    } catch (e) {
+      console.error('Failed to clear queue:', e);
+    }
+  };
+
   const handleRemoveTrack = async (index) => {
     try {
       const trackName = queue[index]?.name || 'Track';
@@ -451,9 +461,16 @@ export default function RoomPage() {
           <div className="panel">
             <h2>
               Queue
-              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 400 }}>
-                {queue.length} track{queue.length !== 1 ? 's' : ''}
-              </span>
+              {isHost && queue.length > 0 ? (
+                <span className="queue-count-clear" onClick={handleClearQueue}>
+                  <span className="queue-count-text">{queue.length} track{queue.length !== 1 ? 's' : ''}</span>
+                  <span className="queue-clear-text">Clear queue</span>
+                </span>
+              ) : (
+                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 400 }}>
+                  {queue.length} track{queue.length !== 1 ? 's' : ''}
+                </span>
+              )}
             </h2>
             {queue.length === 0 ? (
               <p className="queue-empty">Queue is empty. Search and add tracks above.</p>

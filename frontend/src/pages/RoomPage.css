@@ -632,3 +632,30 @@
 .btn-admin:hover {
   background: color-mix(in srgb, var(--fella-color) 10%, transparent);
 }
+
+.queue-count-clear {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 400;
+  cursor: pointer;
+  border-radius: 6px;
+  padding: 2px 8px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.queue-count-clear:hover {
+  background: rgba(248, 113, 113, 0.15);
+  color: #f87171;
+}
+
+.queue-count-clear .queue-clear-text {
+  display: none;
+}
+
+.queue-count-clear:hover .queue-count-text {
+  display: none;
+}
+
+.queue-count-clear:hover .queue-clear-text {
+  display: inline;
+}
