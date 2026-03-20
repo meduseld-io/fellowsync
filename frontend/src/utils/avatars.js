@@ -16,31 +16,36 @@ export const AVATAR_HEX = {
 
 /**
  * Deterministically pick an avatar based on a user ID string.
- * - For the current user: uses localStorage override
- * - For other users: uses avatarsMap from backend if available
- * - Fallback: deterministic hash-based assignment
+ * - When avatarsMap is provided (room context): use backend data, fall back to hash
+ * - When avatarsMap is NOT provided (lobby/self): use localStorage override, fall back to hash
  */
 export function getAvatarForUser(userId, avatarsMap) {
-  // If we have a backend-provided avatar for this user, use it
-  if (avatarsMap && avatarsMap[userId]) {
-    const color = avatarsMap[userId];
-    if (ALL_COLORS.includes(color)) return `/avatars/${color}.png`;
+  // Room context: use backend-provided avatars only
+  if (avatarsMap) {
+    if (avatarsMap[userId]) {
+      const color = avatarsMap[userId];
+      if (ALL_COLORS.includes(color)) return `/avatars/${color}.png`;
+    }
+    // No backend avatar for this user — use deterministic hash (not localStorage)
+    if (isAdmin(userId)) return '/avatars/dev.png';
+    return `/avatars/${_hashColor(userId)}.png`;
   }
-  // localStorage is only for the current user (set via setAvatarOverride)
-  // but we don't know who "current" is here, so check localStorage
-  // and it will match because only the current user sets it
+  // No avatarsMap (lobby/self context): use localStorage override
   const override = localStorage.getItem('fellowsync_avatar');
   if (override && ALL_COLORS.includes(override)) {
     return `/avatars/${override}.png`;
   }
   if (isAdmin(userId)) return '/avatars/dev.png';
+  return `/avatars/${_hashColor(userId)}.png`;
+}
+
+function _hashColor(userId) {
   let hash = 0;
   for (let i = 0; i < userId.length; i++) {
     hash = ((hash << 5) - hash) + userId.charCodeAt(i);
     hash |= 0;
   }
-  const index = Math.abs(hash) % AVATAR_COLORS.length;
-  return `/avatars/${AVATAR_COLORS[index]}.png`;
+  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
 }
 
 /**
@@ -52,13 +57,7 @@ export function getAvatarColor(userId) {
     return override;
   }
   if (isAdmin(userId)) return 'dev';
-  let hash = 0;
-  for (let i = 0; i < userId.length; i++) {
-    hash = ((hash << 5) - hash) + userId.charCodeAt(i);
-    hash |= 0;
-  }
-  const index = Math.abs(hash) % AVATAR_COLORS.length;
-  return AVATAR_COLORS[index];
+  return _hashColor(userId);
 }
 
 export function setAvatarOverride(color) {
