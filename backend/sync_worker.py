@@ -9,6 +9,28 @@ from socket_events import broadcast_sync
 logger = logging.getLogger(__name__)
 
 
+def _trigger_playback_for_room(room_id, state):
+    """Tell all participants' Spotify clients to play the current track."""
+    if not state.get('current_track') or not state.get('is_playing'):
+        return
+    tokens = room_manager.get_all_tokens(room_id)
+    expected_ms = state['position_ms'] + (time.time() - state['last_update']) * 1000
+    for user_id, token_data in tokens.items():
+        refreshed = spotify_service.get_valid_token(token_data)
+        if not refreshed:
+            logger.error("Could not get valid token for user %s in room %s during auto-advance", user_id, room_id)
+            continue
+        if refreshed is not token_data:
+            room_manager.store_user_token(room_id, user_id, refreshed)
+        result = spotify_service.play_track(
+            refreshed['access_token'],
+            state['current_track'],
+            position_ms=max(0, int(expected_ms)),
+        )
+        if result.get('error'):
+            logger.error("Auto-advance playback failed for user %s: %s", user_id, result.get('message', result['error']))
+
+
 EMPTY_ROOM_TTL = 300  # Clean up empty rooms after 5 minutes
 
 
@@ -60,6 +82,7 @@ def _check_room(room_id):
         logger.info("Track ended in room %s, advancing queue", room_id)
         updated = room_manager.skip_track(room_id)
         if updated:
+            _trigger_playback_for_room(room_id, updated)
             broadcast_sync(room_id, updated)
 
 
