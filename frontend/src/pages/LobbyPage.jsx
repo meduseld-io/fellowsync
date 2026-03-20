@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import Footer from '../components/Footer';
-import { getAvatarForUser, getAvatarColor, setAvatarOverride, getPickerColors, AVATAR_HEX } from '../utils/avatars';
+import { getAvatarForUser, getAvatarColor, setAvatarOverride, saveAvatarToBackend, getPickerColors, AVATAR_HEX } from '../utils/avatars';
 import { isAdmin } from '../utils/admin';
 import './LobbyPage.css';
 
@@ -20,6 +20,7 @@ export default function LobbyPage() {
 
   const handlePickAvatar = (color) => {
     setAvatarOverride(color);
+    saveAvatarToBackend(color);
     setSelectedAvatar(color);
   };
 

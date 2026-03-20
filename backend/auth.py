@@ -6,6 +6,7 @@ import urllib.parse
 import requests
 from flask import Blueprint, request, jsonify, redirect, session
 from config import Config
+import room_manager
 
 logger = logging.getLogger(__name__)
 auth_bp = Blueprint('auth', __name__)
@@ -101,3 +102,27 @@ def logout():
     """Clear session."""
     session.clear()
     return jsonify({'ok': True})
+
+
+@auth_bp.route('/api/auth/avatar')
+def get_avatar():
+    """Return the user's saved avatar color."""
+    user = session.get('user')
+    if not user:
+        return jsonify({'error': 'Not authenticated'}), 401
+    color = room_manager.get_user_avatar(user['spotify_user_id'])
+    return jsonify({'avatar': color})
+
+
+@auth_bp.route('/api/auth/avatar', methods=['PUT'])
+def set_avatar():
+    """Save the user's avatar color choice."""
+    user = session.get('user')
+    if not user:
+        return jsonify({'error': 'Not authenticated'}), 401
+    data = request.json or {}
+    color = data.get('color')
+    if not color:
+        return jsonify({'error': 'Missing color'}), 400
+    room_manager.set_user_avatar(user['spotify_user_id'], color)
+    return jsonify({'ok': True, 'avatar': color})

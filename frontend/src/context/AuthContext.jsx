@@ -1,11 +1,24 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { api } from '../services/api';
+import { setAvatarOverride } from '../utils/avatars';
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Load saved avatar from backend after user is set
+  useEffect(() => {
+    if (!user?.spotify_user_id) return;
+    api.getAvatar()
+      .then((data) => {
+        if (data.avatar) {
+          setAvatarOverride(data.avatar);
+        }
+      })
+      .catch((e) => console.error('Failed to load saved avatar:', e));
+  }, [user?.spotify_user_id]);
 
   useEffect(() => {
     api.getMe()

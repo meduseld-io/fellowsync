@@ -267,3 +267,15 @@ def get_all_active_rooms():
         if len(parts) == 2 and len(parts[1]) == 6:
             room_ids.append(parts[1])
     return room_ids
+
+
+# --- User avatar preferences (persisted across sessions) ---
+
+def get_user_avatar(spotify_user_id):
+    """Get a user's saved avatar color, or None."""
+    return _redis.get(f'user_avatar:{spotify_user_id}')
+
+
+def set_user_avatar(spotify_user_id, color):
+    """Save a user's avatar color choice."""
+    _redis.set(f'user_avatar:{spotify_user_id}', color)

@@ -40,4 +40,8 @@ export const api = {
   adminListRooms: () => request('/api/admin/rooms'),
   adminDeleteRoom: (roomId) => request(`/api/admin/rooms/${roomId}`, { method: 'DELETE' }),
   adminDeleteAllRooms: () => request('/api/admin/rooms', { method: 'DELETE' }),
+
+  // Avatar
+  getAvatar: () => request('/api/auth/avatar'),
+  setAvatar: (color) => request('/api/auth/avatar', { method: 'PUT', body: JSON.stringify({ color }) }),
 };

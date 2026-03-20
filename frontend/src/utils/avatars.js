@@ -60,6 +60,15 @@ export function setAvatarOverride(color) {
 }
 
 /**
+ * Save avatar choice to the backend (fire-and-forget).
+ */
+export function saveAvatarToBackend(color) {
+  import('../services/api.js').then(({ api }) => {
+    api.setAvatar(color).catch((e) => console.error('Failed to save avatar to backend:', e));
+  });
+}
+
+/**
  * Get the list of avatar colors available in the picker.
  * Admin users get the exclusive red option.
  */
