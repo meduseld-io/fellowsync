@@ -59,13 +59,17 @@ export default function LobbyPage() {
         <h1>Fellow<span style={{ color: '#4ade80' }}>Sync</span></h1>
         <div className="lobby-user">
           <span>{user?.display_name}</span>
-          <img
-            src={`/avatars/${selectedAvatar}.png`}
-            alt=""
-            className="lobby-fella clickable"
+          <span
+            className="lobby-fella-wrap"
             data-fella-tooltip="Click to change your fella!"
             onClick={() => setShowAvatarPicker(!showAvatarPicker)}
-          />
+          >
+            <img
+              src={`/avatars/${selectedAvatar}.png`}
+              alt=""
+              className="lobby-fella clickable"
+            />
+          </span>
           {showAvatarPicker && (
             <div className="avatar-picker">
               {AVATAR_COLORS.map((color) => (

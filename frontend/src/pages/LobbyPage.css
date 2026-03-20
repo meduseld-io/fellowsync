@@ -44,17 +44,22 @@
   margin-top: 6px;
 }
 
-.lobby-fella.clickable {
-  cursor: pointer;
-  transition: transform 0.15s;
+.lobby-fella-wrap {
   position: relative;
+  cursor: pointer;
+  display: inline-block;
 }
 
-.lobby-fella.clickable:hover {
+.lobby-fella-wrap:hover .lobby-fella {
   transform: scale(1.1);
 }
 
-.lobby-fella.clickable:hover::after {
+.lobby-fella.clickable {
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.lobby-fella-wrap:hover::after {
   content: attr(data-fella-tooltip);
   position: absolute;
   bottom: calc(100% + 6px);
