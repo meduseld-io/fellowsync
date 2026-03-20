@@ -1,3 +1,5 @@
+import { isAdmin } from './admin';
+
 export const AVATAR_COLORS = ['green', 'pink', 'yellow', 'purple', 'blue'];
 
 /** All valid colors including admin-only ones */
@@ -21,6 +23,7 @@ export function getAvatarForUser(userId) {
   if (override && ALL_COLORS.includes(override)) {
     return `/avatars/${override}.png`;
   }
+  if (isAdmin(userId)) return '/avatars/dev.png';
   let hash = 0;
   for (let i = 0; i < userId.length; i++) {
     hash = ((hash << 5) - hash) + userId.charCodeAt(i);
@@ -38,6 +41,7 @@ export function getAvatarColor(userId) {
   if (override && ALL_COLORS.includes(override)) {
     return override;
   }
+  if (isAdmin(userId)) return 'dev';
   let hash = 0;
   for (let i = 0; i < userId.length; i++) {
     hash = ((hash << 5) - hash) + userId.charCodeAt(i);
