@@ -61,6 +61,24 @@
   .room-grid > div {
     min-width: 0;
   }
+
+  .btn-sync {
+    padding: 4px 10px;
+    font-size: 0.7rem;
+  }
+
+  .playback-controls button .btn-label {
+    display: none;
+  }
+
+  .playback-controls button {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+  }
+
+  .now-playing-info h3 {
+    padding-right: 60px;
+  }
 }
 
 /* Now Playing */

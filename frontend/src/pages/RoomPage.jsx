@@ -345,14 +345,14 @@ export default function RoomPage() {
             {isHost && (
               <div className="playback-controls">
                 {room.is_playing ? (
-                  <button className="btn-secondary" onClick={handlePause}>⏸ Pause</button>
+                  <button className="btn-secondary" onClick={handlePause}>⏸<span className="btn-label"> Pause</span></button>
                 ) : (
                   <button className="btn-primary" onClick={handlePlay} disabled={!currentTrack && queue.length === 0}>
-                    ▶ Play
+                    ▶<span className="btn-label"> Play</span>
                   </button>
                 )}
                 <button className="btn-secondary" onClick={handleSkip} disabled={queue.length === 0 && !currentTrack}>
-                  ⏭ Skip
+                  ⏭<span className="btn-label"> Skip</span>
                 </button>
               </div>
             )}
@@ -362,7 +362,7 @@ export default function RoomPage() {
                   className={`btn-secondary${room.skip_votes?.includes(user?.spotify_user_id) ? ' voted' : ''}`}
                   onClick={handleSkip}
                 >
-                  ⏭ Vote Skip {room.skip_votes?.length > 0 && `(${room.skip_votes.length}/${Math.ceil(Object.keys(participants).length * 0.5)})`}
+                  ⏭<span className="btn-label"> Vote Skip</span> {room.skip_votes?.length > 0 && `(${room.skip_votes.length}/${Math.ceil(Object.keys(participants).length * 0.5)})`}
                 </button>
               </div>
             )}
