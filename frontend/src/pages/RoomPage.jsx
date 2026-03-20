@@ -329,9 +329,9 @@ export default function RoomPage() {
         <div>
           <h1>Fellow<span style={{ color: 'var(--fella-color)' }}>Sync</span></h1>
           <div className="room-modes">
-            {room.hear_me_out && <span className="mode-badge hear-me-out">🎤 Hear Me Out</span>}
-            {room.max_consecutive > 0 && <span className="mode-badge">Max {room.max_consecutive} in a row</span>}
-            {room.vibe && <span className="mode-badge vibe-badge">🎶 {room.vibe}</span>}
+            {room.hear_me_out && <span className="mode-badge hear-me-out" data-tooltip="Songs alternate between users so everyone gets a turn">🎤 Hear Me Out</span>}
+            {room.max_consecutive > 0 && <span className="mode-badge" data-tooltip={`Limits how many songs one person can queue in a row (${room.max_consecutive})`}>Max {room.max_consecutive} in a row</span>}
+            {room.vibe && <span className="mode-badge vibe-badge" data-tooltip="The vibe the host has set for this room">🎶 {room.vibe}</span>}
           </div>
         </div>
         <div className="room-header-actions">
