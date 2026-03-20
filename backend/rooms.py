@@ -518,3 +518,15 @@ def admin_delete_room(room_id):
         return jsonify({'error': 'Room not found'}), 404
     room_manager.delete_room(room_id)
     return jsonify({'success': True})
+
+
+@rooms_bp.route('/api/admin/rooms', methods=['DELETE'])
+@_require_admin
+def admin_delete_all_rooms():
+    """Delete all active rooms."""
+    room_ids = room_manager.get_all_active_rooms()
+    count = 0
+    for rid in room_ids:
+        room_manager.delete_room(rid)
+        count += 1
+    return jsonify({'success': True, 'deleted': count})

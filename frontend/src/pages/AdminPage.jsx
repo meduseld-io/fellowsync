@@ -46,6 +46,16 @@ export default function AdminPage() {
     }
   };
 
+  const handleDeleteAll = async () => {
+    if (!confirm(`Delete all ${rooms.length} rooms?`)) return;
+    try {
+      await api.adminDeleteAllRooms();
+      setRooms([]);
+    } catch (e) {
+      console.error('Failed to delete all rooms:', e);
+    }
+  };
+
   if (!admin) return null;
 
   return (
@@ -62,7 +72,12 @@ export default function AdminPage() {
           </a>
         </div>
 
-        <h2>Active Rooms <span className="room-count">{rooms.length}</span></h2>
+        <h2>
+          Active Rooms <span className="room-count">{rooms.length}</span>
+          {rooms.length > 0 && (
+            <button className="btn-delete-room" style={{ marginLeft: 'auto' }} onClick={handleDeleteAll}>Delete All</button>
+          )}
+        </h2>
 
         {loading && <p className="admin-muted">Loading...</p>}
         {error && <p className="admin-error">{error}</p>}

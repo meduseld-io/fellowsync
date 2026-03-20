@@ -39,4 +39,5 @@ export const api = {
   // Admin
   adminListRooms: () => request('/api/admin/rooms'),
   adminDeleteRoom: (roomId) => request(`/api/admin/rooms/${roomId}`, { method: 'DELETE' }),
+  adminDeleteAllRooms: () => request('/api/admin/rooms', { method: 'DELETE' }),
 };

@@ -66,9 +66,16 @@ def init_socketio(sio):
 
         leave_room(room_id)
         room_manager.remove_participant(room_id, user['spotify_user_id'])
+        participants = room_manager.get_participants(room_id)
+
+        # Auto-delete room if no participants remain
+        if not participants:
+            logger.info("Room %s is empty after last participant left, deleting", room_id)
+            room_manager.delete_room(room_id)
+            return
+
         state = room_manager.get_room(room_id)
         if state:
-            participants = room_manager.get_participants(room_id)
             sio.emit('room_state', {**state, 'participants': participants}, room=room_id)
 
     @sio.on('add_track')
