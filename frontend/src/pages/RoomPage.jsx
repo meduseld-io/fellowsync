@@ -7,7 +7,7 @@ import { syncPlayback } from '../services/spotifyPlayer';
 import HelpModal from '../components/HelpModal';
 import Footer from '../components/Footer';
 import ToastContainer, { showToast } from '../components/Toast';
-import { getAvatarForUser } from '../utils/avatars';
+import { getAvatarForUser, getAvatarColor, AVATAR_HEX } from '../utils/avatars';
 import './RoomPage.css';
 
 export default function RoomPage() {
@@ -290,13 +290,14 @@ export default function RoomPage() {
   const participants = room.participants || {};
   const queue = room.queue || [];
   const currentTrack = room.current_track_info;
+  const fellaColor = AVATAR_HEX[getAvatarColor(user?.spotify_user_id || '')] || '#4ade80';
 
   return (
-    <div className="room-page">
+    <div className="room-page" style={{ '--fella-color': fellaColor }}>
       <ToastContainer />
       <div className="room-header">
         <div>
-          <h1>Fellow<span style={{ color: '#4ade80' }}>Sync</span></h1>
+          <h1>Fellow<span style={{ color: 'var(--fella-color)' }}>Sync</span></h1>
           <div className="room-modes">
             {room.hear_me_out && <span className="mode-badge hear-me-out">🎤 Hear Me Out</span>}
             {room.max_consecutive > 0 && <span className="mode-badge">Max {room.max_consecutive} in a row</span>}
@@ -337,7 +338,7 @@ export default function RoomPage() {
             </h3>
             <p>{currentTrack ? currentTrack.artist : 'Add tracks to the queue to get started'}</p>
             {currentTrack?.queued_by && (
-              <p style={{ fontSize: '0.8rem', color: 'var(--green)', marginTop: '2px' }}>
+              <p style={{ fontSize: '0.8rem', color: 'var(--fella-color)', marginTop: '2px' }}>
                 Added by {currentTrack.queued_by}
               </p>
             )}
