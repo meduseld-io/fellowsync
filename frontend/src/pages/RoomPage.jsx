@@ -499,6 +499,7 @@ export default function RoomPage() {
                   <img className="participant-avatar" src={getAvatarForUser(uid)} alt="" />
                   <span>{name}</span>
                   {uid === room.host_id && <span className="host-badge">Host</span>}
+                  {isAdmin(uid) && <span className="dev-badge">Dev</span>}
                   {isHost && uid !== room.host_id && (
                     <button className="btn-promote" onClick={() => handlePromote(uid)}>
                       Make Host
