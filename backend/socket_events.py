@@ -124,3 +124,10 @@ def broadcast_queue(room_id, state):
     if socketio:
         participants = room_manager.get_participants(room_id)
         socketio.emit('queue_updated', {**state, 'participants': participants}, room=room_id)
+
+
+def broadcast_room_state(room_id, state):
+    """Broadcast a full room state update (settings, host change, etc.)."""
+    if socketio:
+        participants = room_manager.get_participants(room_id)
+        socketio.emit('room_state', {**state, 'participants': participants}, room=room_id)

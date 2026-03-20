@@ -6,6 +6,7 @@ from flask import Blueprint, request, jsonify, session
 from config import Config
 import room_manager
 import spotify_service
+from socket_events import broadcast_sync, broadcast_queue, broadcast_room_state
 
 logger = logging.getLogger(__name__)
 rooms_bp = Blueprint('rooms', __name__)
@@ -189,6 +190,7 @@ def add_to_queue(room_id):
         return jsonify({'error': 'You have reached the maximum consecutive songs limit. Let someone else queue a track.'}), 429
     if not updated:
         return jsonify({'error': 'Room not found'}), 404
+    broadcast_queue(room_id, updated)
     return jsonify(_with_participants(room_id, updated))
 
 
@@ -218,6 +220,7 @@ def remove_from_queue(room_id, index):
     queue.pop(index)
     state['queue'] = queue
     room_manager.save_room(room_id, state)
+    broadcast_queue(room_id, state)
     return jsonify(_with_participants(room_id, state))
 
 
@@ -251,6 +254,7 @@ def reorder_queue(room_id):
     queue.insert(to_idx, track)
     state['queue'] = queue
     room_manager.save_room(room_id, state)
+    broadcast_queue(room_id, state)
     return jsonify(_with_participants(room_id, state))
 
 
@@ -273,6 +277,7 @@ def skip_track(room_id):
     if skipped:
         _trigger_playback_for_room(room_id, updated)
 
+    broadcast_sync(room_id, updated)
     resp = _with_participants(room_id, updated)
     resp['skipped'] = skipped
     return jsonify(resp)
@@ -309,6 +314,7 @@ def update_settings(room_id):
             state['queue'] = room_manager._round_robin_queue(state['queue'])
 
     room_manager.save_room(room_id, state)
+    broadcast_room_state(room_id, state)
     return jsonify(_with_participants(room_id, state))
 
 
@@ -341,6 +347,7 @@ def promote_host(room_id):
 
     state['host_id'] = new_host_id
     room_manager.save_room(room_id, state)
+    broadcast_room_state(room_id, state)
     return jsonify(_with_participants(room_id, state))
 
 
@@ -371,6 +378,7 @@ def play(room_id):
         room_manager.save_room(room_id, state)
 
     playback_errors = _trigger_playback_for_room(room_id, state)
+    broadcast_sync(room_id, state)
     resp = _with_participants(room_id, state)
     if playback_errors:
         resp['playback_errors'] = playback_errors
@@ -439,6 +447,7 @@ def pause(room_id):
     state['last_update'] = time.time()
     room_manager.save_room(room_id, state)
     _pause_playback_for_room(room_id)
+    broadcast_sync(room_id, state)
     return jsonify(_with_participants(room_id, state))
 
 
