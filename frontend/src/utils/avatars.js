@@ -1,5 +1,13 @@
 export const AVATAR_COLORS = ['green', 'pink', 'yellow', 'purple', 'blue'];
 
+export const AVATAR_HEX = {
+  green: '#4ade80',
+  pink: '#f472b6',
+  yellow: '#facc15',
+  purple: '#a78bfa',
+  blue: '#60a5fa',
+};
+
 /**
  * Deterministically pick an avatar based on a user ID string.
  * Checks localStorage for a user override first.
