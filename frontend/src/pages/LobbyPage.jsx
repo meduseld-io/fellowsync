@@ -51,7 +51,7 @@ export default function LobbyPage() {
         <img src="/logo.png" alt="FellowSync" style={{ maxWidth: 280, width: '75%', height: 'auto', marginBottom: '0.5rem' }} />
         <h1>Fellow<span style={{ color: '#4ade80' }}>Sync</span></h1>
         <div className="lobby-user">
-          <img src={getAvatarForUser(user?.spotify_user_id || '')} alt="" style={{ width: 28, height: 28, borderRadius: '50%' }} />
+          <img src={getAvatarForUser(user?.spotify_user_id || '')} alt="" style={{ width: 36, height: 36 }} />
           <span>{user?.display_name}</span>
         </div>
 
