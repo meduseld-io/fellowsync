@@ -1,7 +1,7 @@
 export const AVATAR_COLORS = ['green', 'pink', 'yellow', 'purple', 'blue'];
 
 /** All valid colors including admin-only ones */
-const ALL_COLORS = [...AVATAR_COLORS, 'red'];
+const ALL_COLORS = [...AVATAR_COLORS, 'dev'];
 
 export const AVATAR_HEX = {
   green: '#4ade80',
@@ -9,7 +9,7 @@ export const AVATAR_HEX = {
   yellow: '#facc15',
   purple: '#b78aff',
   blue: '#47b5ff',
-  red: '#ff4757',
+  dev: '#ff4757',
 };
 
 /**
@@ -60,7 +60,7 @@ export function setAvatarOverride(color) {
  * Admin users get the exclusive red option.
  */
 export function getPickerColors(isAdminUser) {
-  return isAdminUser ? [...AVATAR_COLORS, 'red'] : AVATAR_COLORS;
+  return isAdminUser ? [...AVATAR_COLORS, 'dev'] : AVATAR_COLORS;
 }
 
 export function setFavicon(color) {
