@@ -366,6 +366,23 @@
   border-radius: 10px;
 }
 
+.btn-promote {
+  margin-left: auto;
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn-promote:hover {
+  border-color: var(--green);
+  color: var(--green);
+}
+
 
 .playback-controls button.voted {
   border-color: var(--green);

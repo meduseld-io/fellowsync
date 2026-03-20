@@ -187,6 +187,15 @@ export default function RoomPage() {
     }
   };
 
+  const handlePromote = async (userId) => {
+    try {
+      const updated = await api.promoteHost(roomId, userId);
+      setRoom(updated);
+    } catch (e) {
+      console.error('Failed to promote user to host:', e);
+    }
+  };
+
   const handleLeave = () => {
     intentionalLeave.current = true;
     if (socketRef.current) {
@@ -393,6 +402,11 @@ export default function RoomPage() {
                   <img className="participant-avatar" src={getAvatarForUser(uid)} alt="" />
                   <span>{name}</span>
                   {uid === room.host_id && <span className="host-badge">Host</span>}
+                  {isHost && uid !== room.host_id && (
+                    <button className="btn-promote" onClick={() => handlePromote(uid)}>
+                      Make Host
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>

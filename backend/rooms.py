@@ -19,6 +19,7 @@ RATE_LIMIT_SECONDS = {
     'pause': 2,
     'sync': 3,
     'settings': 1,
+    'promote': 2,
 }
 
 
@@ -243,6 +244,38 @@ def update_settings(room_id):
         if state['hear_me_out'] and state['queue']:
             state['queue'] = room_manager._round_robin_queue(state['queue'])
 
+    room_manager.save_room(room_id, state)
+    return jsonify(_with_participants(room_id, state))
+
+
+@rooms_bp.route('/api/rooms/<room_id>/promote', methods=['POST'])
+@_require_auth
+def promote_host(room_id):
+    """Transfer host role to another participant (host only)."""
+    user = _get_user()
+    if not _check_rate_limit(user['spotify_user_id'], 'promote'):
+        return jsonify({'error': 'Too fast, slow down'}), 429
+
+    state = room_manager.get_room(room_id)
+    if not state:
+        return jsonify({'error': 'Room not found'}), 404
+
+    if user['spotify_user_id'] != state['host_id']:
+        return jsonify({'error': 'Only the host can transfer host'}), 403
+
+    data = request.json or {}
+    new_host_id = data.get('user_id')
+    if not new_host_id:
+        return jsonify({'error': 'Missing user_id'}), 400
+
+    participants = room_manager.get_participants(room_id)
+    if new_host_id not in participants:
+        return jsonify({'error': 'User is not in this room'}), 400
+
+    if new_host_id == state['host_id']:
+        return jsonify({'error': 'User is already the host'}), 400
+
+    state['host_id'] = new_host_id
     room_manager.save_room(room_id, state)
     return jsonify(_with_participants(room_id, state))
 
