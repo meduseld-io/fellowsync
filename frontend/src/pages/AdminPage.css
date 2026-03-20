@@ -16,9 +16,18 @@
   width: 100%;
 }
 
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 1.25rem;
+}
+
 .admin-card h1 {
   font-size: 1.4rem;
-  margin-bottom: 1.25rem;
+  margin: 0;
+  white-space: nowrap;
 }
 
 .admin-card h2 {
@@ -182,5 +191,5 @@
 .admin-nav {
   display: flex;
   gap: 8px;
-  margin-bottom: 1.25rem;
+  flex-shrink: 0;
 }

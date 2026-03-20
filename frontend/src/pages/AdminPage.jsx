@@ -61,11 +61,12 @@ export default function AdminPage() {
   return (
     <div className="admin-page">
       <div className="admin-card">
-        <h1>Fellow<span style={{ color: 'var(--fella-color)' }}>Sync</span> Admin</h1>
-
-        <div className="admin-nav">
-          <button className="btn-secondary" onClick={() => navigate('/lobby')}>Back to Lobby</button>
-          <button className="btn-secondary" onClick={loadRooms} disabled={loading}>Refresh</button>
+        <div className="admin-header">
+          <h1>Fellow<span style={{ color: 'var(--fella-color)' }}>Sync</span> Admin</h1>
+          <div className="admin-nav">
+            <button className="btn-secondary" onClick={() => navigate('/lobby')}>Back to Lobby</button>
+            <button className="btn-secondary" onClick={loadRooms} disabled={loading}>Refresh</button>
+          </div>
         </div>
 
         <h2>
