@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="fellowsync.png" alt="FellowSync" width="250">
+  <img src="frontend/public/logo.png" alt="FellowSync" width="250">
 </p>
 
 # FellowSync — Spotify Jam Rooms

@@ -3,7 +3,6 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { getSocket } from '../services/socket';
-import { syncPlayback } from '../services/spotifyPlayer';
 import HelpModal from '../components/HelpModal';
 import Footer from '../components/Footer';
 import ToastContainer, { showToast } from '../components/Toast';
