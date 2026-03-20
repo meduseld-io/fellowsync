@@ -328,12 +328,14 @@ export default function RoomPage() {
           {isAdmin(user?.spotify_user_id) && (
             <Link to="/admin" className="btn-admin">Admin</Link>
           )}
-          <span className="room-code" onClick={handleCopyCode}>
-            {copied ? '✓ Copied' : roomId}
-          </span>
-          <button className="btn-secondary" onClick={handleLeave} style={{ padding: '8px 14px', fontSize: '0.85rem' }}>
-            Leave
-          </button>
+          <div className="room-header-right">
+            <span className="room-code" onClick={handleCopyCode}>
+              {copied ? '✓ Copied' : roomId}
+            </span>
+            <button className="btn-secondary" onClick={handleLeave} style={{ padding: '8px 14px', fontSize: '0.85rem' }}>
+              Leave
+            </button>
+          </div>
         </div>
       </div>
 

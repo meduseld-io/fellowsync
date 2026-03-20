@@ -47,6 +47,19 @@
   align-items: center;
 }
 
+.room-header-right {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+@media (max-width: 600px) {
+  .room-header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
 .room-grid {
   display: grid;
   grid-template-columns: 1fr 300px;
