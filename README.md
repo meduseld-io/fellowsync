@@ -13,11 +13,21 @@ Built with Flask, React, Redis, and the Spotify Web API.
 - **Spotify OAuth** — login with your Spotify Premium account
 - **Room system** — create or join rooms with a 6-character code
 - **Shared queue** — everyone can search and add tracks
+- **Play next** — add a track to the front of the queue instead of the back
+- **Remove from queue** — remove your own tracks, or any track if you're the host
 - **Synced playback** — host controls play/pause/skip, all listeners stay in sync
 - **Re-sync button** — fell out of sync? One click to catch back up
 - **Vote to skip** — non-host listeners can vote to skip (50% threshold)
 - **Track attribution** — see who queued each song
+- **Last played** — see what track just finished playing
 - **Auto-advance** — queue automatically moves to the next track when a song ends
+- **Room modes** — Normal (free-for-all) or Hear Me Out (round-robin turns)
+- **Max consecutive limit** — optionally limit how many songs one person can queue in a row (1/2/3/unlimited)
+- **In-room settings** — host can change mode and consecutive limit while the room is active
+- **Promote to host** — host can transfer control to another listener
+- **Character avatars** — each user gets a deterministic "fella" avatar based on their Spotify ID
+- **Random favicon** — a random fella is picked as the browser tab icon on each page load
+- **Rate limiting** — per-user rate limits on queue, skip, play, pause, and sync actions
 - **Room cleanup** — empty rooms are automatically deleted after 5 minutes
 
 ## Requirements
