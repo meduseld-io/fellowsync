@@ -164,4 +164,4 @@ FellowSync is open source and maintained by [Meduseld](https://github.com/meduse
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+AGPL-3.0 — see [LICENSE](LICENSE).
