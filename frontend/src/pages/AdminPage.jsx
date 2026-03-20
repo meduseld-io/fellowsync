@@ -20,6 +20,7 @@ export default function AdminPage() {
       navigate('/lobby');
       return;
     }
+    document.title = 'FellowSync - Admin';
     loadRooms();
   }, [admin]);
 

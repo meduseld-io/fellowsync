@@ -34,6 +34,7 @@ export default function RoomPage() {
   // Scroll to top on mount
   useEffect(() => {
     window.scrollTo(0, 0);
+    document.title = 'FellowSync - Room';
   }, []);
 
   // Load room and connect socket

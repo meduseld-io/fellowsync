@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
@@ -17,6 +17,8 @@ export default function LobbyPage() {
   const [mode, setMode] = useState('normal');
   const [showAvatarPicker, setShowAvatarPicker] = useState(false);
   const [selectedAvatar, setSelectedAvatar] = useState(() => getAvatarColor(user?.spotify_user_id || ''));
+
+  useEffect(() => { document.title = 'FellowSync - Lobby'; }, []);
 
   const handlePickAvatar = (color) => {
     setAvatarOverride(color);

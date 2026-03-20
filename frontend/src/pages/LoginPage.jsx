@@ -1,9 +1,12 @@
+import { useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import Footer from '../components/Footer';
 import './LoginPage.css';
 
 export default function LoginPage() {
   const { login } = useAuth();
+
+  useEffect(() => { document.title = 'FellowSync - Login'; }, []);
 
   return (
     <div className="login-page">
