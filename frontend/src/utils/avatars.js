@@ -1,11 +1,15 @@
 export const AVATAR_COLORS = ['green', 'pink', 'yellow', 'purple', 'blue'];
 
+/** All valid colors including admin-only ones */
+const ALL_COLORS = [...AVATAR_COLORS, 'red'];
+
 export const AVATAR_HEX = {
   green: '#4ade80',
   pink: '#ff6eb4',
   yellow: '#facc15',
   purple: '#b78aff',
   blue: '#47b5ff',
+  red: '#ff4757',
 };
 
 /**
@@ -14,7 +18,7 @@ export const AVATAR_HEX = {
  */
 export function getAvatarForUser(userId) {
   const override = localStorage.getItem('fellowsync_avatar');
-  if (override && AVATAR_COLORS.includes(override)) {
+  if (override && ALL_COLORS.includes(override)) {
     return `/avatars/${override}.png`;
   }
   let hash = 0;
@@ -31,7 +35,7 @@ export function getAvatarForUser(userId) {
  */
 export function getAvatarColor(userId) {
   const override = localStorage.getItem('fellowsync_avatar');
-  if (override && AVATAR_COLORS.includes(override)) {
+  if (override && ALL_COLORS.includes(override)) {
     return override;
   }
   let hash = 0;
@@ -44,11 +48,19 @@ export function getAvatarColor(userId) {
 }
 
 export function setAvatarOverride(color) {
-  if (AVATAR_COLORS.includes(color)) {
+  if (ALL_COLORS.includes(color)) {
     localStorage.setItem('fellowsync_avatar', color);
     setFavicon(color);
     document.documentElement.style.setProperty('--fella-color', AVATAR_HEX[color] || '#4ade80');
   }
+}
+
+/**
+ * Get the list of avatar colors available in the picker.
+ * Admin users get the exclusive red option.
+ */
+export function getPickerColors(isAdminUser) {
+  return isAdminUser ? [...AVATAR_COLORS, 'red'] : AVATAR_COLORS;
 }
 
 export function setFavicon(color) {
