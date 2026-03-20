@@ -1,5 +1,6 @@
 """WebSocket event handlers for real-time room communication."""
 
+import time
 import logging
 from flask import session
 from flask_socketio import SocketIO, emit, join_room, leave_room
@@ -54,6 +55,26 @@ def init_socketio(sio):
 
         participants = room_manager.get_participants(room_id)
         sio.emit('room_state', {**state, 'participants': participants}, room=room_id)
+
+        # Auto-sync: if room is playing, sync this user's Spotify to the current track
+        if state.get('is_playing') and state.get('current_track'):
+            user_id = user['spotify_user_id']
+            token_data = room_manager.get_user_token(room_id, user_id)
+            if token_data:
+                refreshed = spotify_service.get_valid_token(token_data)
+                if refreshed:
+                    if refreshed is not token_data:
+                        room_manager.store_user_token(room_id, user_id, refreshed)
+                    expected_ms = state['position_ms'] + (time.time() - state['last_update']) * 1000
+                    result = spotify_service.play_track(
+                        refreshed['access_token'],
+                        state['current_track'],
+                        position_ms=max(0, int(expected_ms)),
+                    )
+                    if result.get('error'):
+                        logger.error("Auto-sync failed for user %s on join: %s", user_id, result.get('message', result['error']))
+                else:
+                    logger.error("Could not get valid token for auto-sync, user %s", user_id)
 
     @sio.on('leave_room')
     def on_leave_room(data):
