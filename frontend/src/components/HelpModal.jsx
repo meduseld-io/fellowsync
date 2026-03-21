@@ -23,7 +23,7 @@ export default function HelpModal() {
             <p>Use the search bar to find songs on Spotify. You can search by track, artist, or album. Click "+ Add" to add to the end of the queue, or "▶ Next" to play it next. Everyone in the room can add tracks.</p>
 
             <h3>Room Modes & Settings</h3>
-            <p>The host can configure these when creating a room or from the in-room settings panel:</p>
+            <p>The host configures room settings when creating a room or from the ⚙ Settings button in-room. All settings open in a popup modal.</p>
             <p><strong>Normal</strong> — free-for-all queue, anyone can add as many tracks as they want.</p>
             <p><strong>Hear Me Out</strong> — alternates songs between users so everyone gets a turn.</p>
             <p><strong>DJ Mode</strong> — only the host can add songs. Everyone else just listens. Perfect for curated sessions or themed nights.</p>
@@ -42,7 +42,7 @@ export default function HelpModal() {
             <p>Make sure Spotify is open and active on one of your devices. If you see a "no device" warning, play any song briefly in Spotify first, then come back.</p>
 
             <h3>Sync & Skipping</h3>
-            <p>Hit the "Sync!" button if your playback drifts out of position. The host can skip tracks instantly. Other listeners can vote to skip — once 50% of the room votes, the track is skipped automatically.</p>
+            <p>Hit the "Sync!" button if your playback drifts out of position. The host can skip tracks instantly. Other listeners can vote to skip — once enough of the room votes (threshold set by the host), the track is skipped automatically.</p>
 
             <h3>Host Controls</h3>
             <p>The host can drag to reorder the queue, remove any track, promote another listener to host, and clear the entire queue. If the host leaves, they'll be asked to pick a new host first.</p>
