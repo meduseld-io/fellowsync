@@ -1,5 +1,6 @@
 """Room REST API routes."""
 
+import re
 import time
 import logging
 from flask import Blueprint, request, jsonify, session
@@ -43,6 +44,19 @@ def _with_participants(room_id, state):
     participants = room_manager.get_participants(room_id)
     avatars = room_manager.get_participant_avatars(room_id)
     return {**state, 'participants': participants, 'participant_avatars': avatars}
+
+
+def _extract_playlist_id(url):
+    """Extract a Spotify playlist ID from a URL or URI."""
+    # spotify:playlist:XXXXX
+    m = re.search(r'spotify:playlist:([a-zA-Z0-9]+)', url)
+    if m:
+        return m.group(1)
+    # https://open.spotify.com/playlist/XXXXX?si=...
+    m = re.search(r'open\.spotify\.com/playlist/([a-zA-Z0-9]+)', url)
+    if m:
+        return m.group(1)
+    return None
 
 
 def _trigger_playback_for_room(room_id, state):
@@ -114,6 +128,7 @@ def create_room():
     dj_mode = data.get('dj_mode', False)
     blind_mode = data.get('blind_mode', False)
     shuffle_mode = data.get('shuffle_mode', False)
+    skip_threshold = data.get('skip_threshold', 0.5)
 
     # Validate
     try:
@@ -123,11 +138,18 @@ def create_room():
     except (TypeError, ValueError):
         max_consecutive = 0
 
+    try:
+        skip_threshold = float(skip_threshold)
+        if skip_threshold not in (0.25, 0.5, 0.75, 1.0):
+            skip_threshold = 0.5
+    except (TypeError, ValueError):
+        skip_threshold = 0.5
+
     state = room_manager.create_room(
         user['spotify_user_id'], user['display_name'],
         max_consecutive=max_consecutive, hear_me_out=bool(hear_me_out),
         vibe=vibe, dj_mode=bool(dj_mode), blind_mode=bool(blind_mode),
-        shuffle_mode=bool(shuffle_mode),
+        shuffle_mode=bool(shuffle_mode), skip_threshold=skip_threshold,
     )
     # Store host's token
     room_manager.store_user_token(state['room_id'], user['spotify_user_id'], {
@@ -368,6 +390,34 @@ def update_settings(room_id):
 
     if 'shuffle_mode' in data:
         state['shuffle_mode'] = bool(data['shuffle_mode'])
+
+    if 'skip_threshold' in data:
+        try:
+            val = float(data['skip_threshold'])
+            if val in (0.25, 0.5, 0.75, 1.0):
+                state['skip_threshold'] = val
+        except (TypeError, ValueError):
+            pass
+
+    if 'auto_playlist_url' in data:
+        url = str(data['auto_playlist_url'] or '').strip()
+        if not url:
+            # Clear auto-playlist
+            state['auto_playlist'] = []
+            state['auto_playlist_index'] = 0
+            state['auto_playlist_name'] = ''
+        else:
+            # Extract playlist ID from URL or URI
+            playlist_id = _extract_playlist_id(url)
+            if playlist_id:
+                token_data = spotify_service.get_valid_token(user)
+                if token_data:
+                    tracks, name = spotify_service.get_playlist_tracks(token_data['access_token'], playlist_id)
+                    if tracks:
+                        state['auto_playlist'] = tracks
+                        state['auto_playlist_index'] = 0
+                        state['auto_playlist_name'] = name or 'Playlist'
+                        room_manager.log_activity(room_id, user['display_name'], 'set auto-playlist', name or playlist_id)
 
     room_manager.save_room(room_id, state)
     room_manager.log_activity(room_id, user['display_name'], 'updated settings')

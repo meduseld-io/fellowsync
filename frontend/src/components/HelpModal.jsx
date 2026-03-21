@@ -31,6 +31,8 @@ export default function HelpModal() {
             <p><strong>DJ Mode</strong> — only the host can add songs. Everyone else just listens. Perfect for curated sessions or themed nights.</p>
             <p><strong>Blind Mode</strong> — upcoming songs in the queue are hidden from listeners. You won't know what's next until it plays. The host can still see everything.</p>
             <p><strong>Shuffle</strong> — when a track ends, the next one is picked randomly from the queue instead of playing in order.</p>
+            <p><strong>Skip votes</strong> — sets the percentage of listeners that must vote to skip before a track is skipped (25%, 50%, 75%, or unanimous). The host can always skip instantly.</p>
+            <p><strong>Auto-playlist</strong> — paste a Spotify playlist URL and when the queue runs empty, the next track from that playlist will automatically be queued. Keeps the music going when nobody's actively adding songs.</p>
 
             <h3>Playback</h3>
             <p>The host controls Play and Pause. When a track plays, FellowSync tells each person's Spotify app to play the same song at the same position — keeping everyone in sync.</p>

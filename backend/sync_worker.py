@@ -80,6 +80,19 @@ def _check_room(room_id):
     # Track has ended (with 2s buffer for network latency)
     if elapsed_ms >= duration_ms - 2000:
         logger.info("Track ended in room %s, advancing queue", room_id)
+
+        # Auto-queue from playlist if queue is empty
+        if not state['queue'] and state.get('auto_playlist'):
+            idx = state.get('auto_playlist_index', 0)
+            playlist = state['auto_playlist']
+            if idx < len(playlist):
+                track = dict(playlist[idx])
+                track['queued_by'] = 'Auto-playlist'
+                track['queued_by_id'] = '__auto__'
+                state['queue'].append(track)
+                state['auto_playlist_index'] = idx + 1
+                room_manager.save_room(room_id, state)
+
         updated = room_manager.skip_track(room_id)
         if updated:
             _trigger_playback_for_room(room_id, updated)

@@ -171,3 +171,36 @@ def get_track_info(access_token, uri):
     except Exception as e:
         logger.error("Failed to get track info for %s: %s", uri, e)
         return None
+
+
+def get_playlist_tracks(access_token, playlist_id, limit=100):
+    """Fetch tracks from a Spotify playlist. Returns (tracks_list, playlist_name) or ([], None)."""
+    try:
+        resp = requests.get(
+            f'{API_BASE}/playlists/{playlist_id}',
+            headers=_headers(access_token),
+            params={'fields': 'name,tracks.items(track(uri,name,artists,album,duration_ms,external_urls))'},
+            timeout=15,
+        )
+        resp.raise_for_status()
+        data = resp.json()
+        name = data.get('name', '')
+        items = data.get('tracks', {}).get('items', [])
+        tracks = []
+        for item in items[:limit]:
+            t = item.get('track')
+            if not t or not t.get('uri'):
+                continue
+            tracks.append({
+                'uri': t['uri'],
+                'name': t['name'],
+                'artist': ', '.join(a['name'] for a in t.get('artists', [])),
+                'album': t.get('album', {}).get('name', ''),
+                'album_art': t['album']['images'][0]['url'] if t.get('album', {}).get('images') else None,
+                'duration_ms': t.get('duration_ms', 0),
+                'spotify_url': t.get('external_urls', {}).get('spotify', ''),
+            })
+        return tracks, name
+    except Exception as e:
+        logger.error("Failed to fetch playlist %s: %s", playlist_id, e)
+        return [], None

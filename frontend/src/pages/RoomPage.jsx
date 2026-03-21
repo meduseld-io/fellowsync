@@ -29,6 +29,7 @@ export default function RoomPage() {
   const [showHostTransfer, setShowHostTransfer] = useState(false);
   const [activityLog, setActivityLog] = useState([]);
   const [showActivity, setShowActivity] = useState(false);
+  const [playlistUrl, setPlaylistUrl] = useState('');
   const searchTimeout = useRef(null);
   const vibeTimeout = useRef(null);
   const socketRef = useRef(null);
@@ -450,7 +451,7 @@ export default function RoomPage() {
                   className={`btn-secondary${room.skip_votes?.includes(user?.spotify_user_id) ? ' voted' : ''}`}
                   onClick={handleSkip}
                 >
-                  ⏭<span className="btn-label"> Vote Skip</span> {room.skip_votes?.length > 0 && `(${room.skip_votes.length}/${Math.ceil(Object.keys(participants).length * 0.5)})`}
+                  ⏭<span className="btn-label"> Vote Skip</span> {room.skip_votes?.length > 0 && `(${room.skip_votes.length}/${Math.ceil(Object.keys(participants).length * (room.skip_threshold || 0.5))})`}
                 </button>
               </div>
             )}
@@ -712,6 +713,53 @@ export default function RoomPage() {
                     <option value="off">Off</option>
                     <option value="on">On</option>
                   </select>
+                </div>
+                <div className="setting-row">
+                  <label>Skip votes</label>
+                  <select
+                    value={room.skip_threshold || 0.5}
+                    onChange={(e) => handleUpdateSettings({ skip_threshold: Number(e.target.value) })}
+                  >
+                    <option value={0.25}>25%</option>
+                    <option value={0.5}>50%</option>
+                    <option value={0.75}>75%</option>
+                    <option value={1.0}>Unanimous</option>
+                  </select>
+                </div>
+                <div className="setting-row auto-playlist-row">
+                  <label>Auto-playlist</label>
+                  <div className="auto-playlist-input">
+                    <input
+                      type="text"
+                      placeholder="Paste Spotify playlist URL..."
+                      value={playlistUrl}
+                      onChange={(e) => setPlaylistUrl(e.target.value)}
+                      style={{ flex: 1 }}
+                    />
+                    <button
+                      className="btn-add"
+                      onClick={() => {
+                        handleUpdateSettings({ auto_playlist_url: playlistUrl });
+                        setPlaylistUrl('');
+                      }}
+                      disabled={!playlistUrl.trim()}
+                      style={{ padding: '4px 10px', fontSize: '0.78rem' }}
+                    >
+                      Set
+                    </button>
+                  </div>
+                  {room.auto_playlist_name && (
+                    <div className="auto-playlist-status">
+                      <span>📋 {room.auto_playlist_name} ({room.auto_playlist?.length || 0} tracks, #{(room.auto_playlist_index || 0) + 1} next)</span>
+                      <button
+                        className="btn-remove"
+                        onClick={() => handleUpdateSettings({ auto_playlist_url: '' })}
+                        style={{ fontSize: '0.7rem', padding: '2px 6px' }}
+                      >
+                        Clear
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

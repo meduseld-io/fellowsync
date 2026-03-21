@@ -548,6 +548,27 @@
   color: #34d399;
 }
 
+.auto-playlist-row {
+  flex-wrap: wrap;
+}
+
+.auto-playlist-input {
+  display: flex;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+.auto-playlist-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  font-size: 0.78rem;
+  color: var(--fella-color);
+  margin-top: 4px;
+}
+
 .dj-mode-notice {
   color: #fbbf24;
   font-size: 0.9rem;

@@ -19,6 +19,7 @@ export default function LobbyPage() {
   const [djMode, setDjMode] = useState(false);
   const [blindMode, setBlindMode] = useState(false);
   const [shuffleMode, setShuffleMode] = useState(false);
+  const [skipThreshold, setSkipThreshold] = useState(0.5);
   const [showAvatarPicker, setShowAvatarPicker] = useState(false);
   const [selectedAvatar, setSelectedAvatar] = useState(() => getAvatarColor(user?.spotify_user_id || ''));
 
@@ -41,6 +42,7 @@ export default function LobbyPage() {
         dj_mode: djMode,
         blind_mode: blindMode,
         shuffle_mode: shuffleMode,
+        skip_threshold: skipThreshold,
       });
       navigate(`/room/${room.room_id}`);
     } catch (e) {
@@ -126,6 +128,20 @@ export default function LobbyPage() {
               <option value={1}>1</option>
               <option value={2}>2</option>
               <option value={3}>3</option>
+            </select>
+          </div>
+          <div className="option-row">
+            <label htmlFor="skipThreshold">Skip votes</label>
+            <span className="tooltip-icon">?<span className="tooltip-bubble">Percentage of listeners that must vote to skip before a track is skipped. The host can always skip instantly.</span></span>
+            <select
+              id="skipThreshold"
+              value={skipThreshold}
+              onChange={(e) => setSkipThreshold(Number(e.target.value))}
+            >
+              <option value={0.25}>25%</option>
+              <option value={0.5}>50%</option>
+              <option value={0.75}>75%</option>
+              <option value={1.0}>Unanimous</option>
             </select>
           </div>
           <div className="option-row">

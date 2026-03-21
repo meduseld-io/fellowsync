@@ -36,7 +36,7 @@ def generate_room_code():
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
 
 
-def create_room(host_id, host_name, max_consecutive=0, hear_me_out=False, vibe='', dj_mode=False, blind_mode=False, shuffle_mode=False):
+def create_room(host_id, host_name, max_consecutive=0, hear_me_out=False, vibe='', dj_mode=False, blind_mode=False, shuffle_mode=False, skip_threshold=0.5):
     """Create a new room and return its state."""
     room_id = generate_room_code()
     while _redis.exists(_room_key(room_id)):
@@ -59,6 +59,10 @@ def create_room(host_id, host_name, max_consecutive=0, hear_me_out=False, vibe='
         'dj_mode': dj_mode,
         'blind_mode': blind_mode,
         'shuffle_mode': shuffle_mode,
+        'skip_threshold': skip_threshold,
+        'auto_playlist': [],
+        'auto_playlist_index': 0,
+        'auto_playlist_name': '',
     }
     _redis.set(_room_key(room_id), json.dumps(state), ex=ROOM_TTL)
     _redis.hset(_participants_key(room_id), host_id, host_name)
@@ -277,7 +281,8 @@ def vote_skip(room_id, user_id):
         return state, False
 
     vote_ratio = len(state['skip_votes']) / participant_count
-    if vote_ratio >= SKIP_THRESHOLD:
+    threshold = state.get('skip_threshold', SKIP_THRESHOLD)
+    if vote_ratio >= threshold:
         updated = skip_track(room_id)
         return updated, True
 
