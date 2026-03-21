@@ -62,15 +62,25 @@ def get_current_playback(access_token):
 
 
 def get_active_device(access_token):
-    """Return the user's active device id, or None."""
+    """Return the user's active device id, or None.
+
+    Only returns a device that is currently active. Prefers personal devices
+    (Smartphone, Computer) over ambient ones (TV, Speaker, CastAudio) to avoid
+    hijacking hotel TVs, smart speakers, etc.
+    """
     try:
         resp = requests.get(f'{API_BASE}/me/player/devices', headers=_headers(access_token), timeout=10)
         resp.raise_for_status()
         devices = resp.json().get('devices', [])
-        for d in devices:
-            if d.get('is_active'):
+        active = [d for d in devices if d.get('is_active')]
+        if not active:
+            return None
+        # Prefer personal device types over ambient/shared ones
+        preferred_types = {'Smartphone', 'Computer'}
+        for d in active:
+            if d.get('type') in preferred_types:
                 return d['id']
-        return devices[0]['id'] if devices else None
+        return active[0]['id']
     except Exception as e:
         logger.error("Failed to get active device: %s", e)
         return None
