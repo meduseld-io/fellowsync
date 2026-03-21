@@ -110,6 +110,7 @@ export default function LobbyPage() {
         {showSettings && (
           <div className="modal-overlay" onClick={() => setShowSettings(false)}>
             <div className="modal-content settings-modal" onClick={(e) => e.stopPropagation()}>
+              <button className="modal-close-btn" onClick={() => setShowSettings(false)} aria-label="Close">✕</button>
               <h3>⚙ Room Settings</h3>
               <div className="room-settings">
                 <div className="setting-row">
