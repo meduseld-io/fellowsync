@@ -31,6 +31,10 @@ def _activity_key(room_id):
     return f'room:{room_id}:activity'
 
 
+def _stats_key(room_id):
+    return f'room:{room_id}:stats'
+
+
 def generate_room_code():
     """Generate a 6-character alphanumeric room code."""
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
@@ -65,6 +69,7 @@ def create_room(host_id, host_name, max_consecutive=0, hear_me_out=False, vibe='
         'auto_playlist_name': '',
         'reactions_enabled': False,
         'reactions': {},
+        'stats_enabled': False,
     }
     _redis.set(_room_key(room_id), json.dumps(state), ex=ROOM_TTL)
     _redis.hset(_participants_key(room_id), host_id, host_name)
@@ -91,11 +96,12 @@ def save_room(room_id, state):
     _redis.expire(_participants_key(room_id), ROOM_TTL)
     _redis.expire(_tokens_key(room_id), ROOM_TTL)
     _redis.expire(_activity_key(room_id), ROOM_TTL)
+    _redis.expire(_stats_key(room_id), ROOM_TTL)
 
 
 def delete_room(room_id):
     """Remove a room entirely."""
-    _redis.delete(_room_key(room_id), _participants_key(room_id), _tokens_key(room_id), _activity_key(room_id))
+    _redis.delete(_room_key(room_id), _participants_key(room_id), _tokens_key(room_id), _activity_key(room_id), _stats_key(room_id))
 
 
 def add_participant(room_id, user_id, display_name):
@@ -241,6 +247,8 @@ def skip_track(room_id):
         state['is_playing'] = True
         state['last_update'] = time.time()
         state['skip_votes'] = []
+        # Record stats
+        record_track_played(room_id, next_track)
     else:
         state['current_track'] = None
         state['current_track_info'] = None
@@ -265,6 +273,7 @@ def vote_skip(room_id, user_id):
 
     # Host skip is instant
     if user_id == state['host_id']:
+        record_skip(room_id, skipped_by_vote=False)
         updated = skip_track(room_id)
         return updated, True
 
@@ -288,6 +297,7 @@ def vote_skip(room_id, user_id):
     vote_ratio = len(state['skip_votes']) / participant_count
     threshold = state.get('skip_threshold', SKIP_THRESHOLD)
     if vote_ratio >= threshold:
+        record_skip(room_id, skipped_by_vote=True)
         updated = skip_track(room_id)
         return updated, True
 
@@ -375,3 +385,74 @@ def get_activity(room_id):
         except Exception as e:
             logger.error("Failed to parse activity entry in room %s: %s", room_id, e)
     return entries
+
+
+# --- Listening stats ---
+
+def record_track_played(room_id, track_info):
+    """Record a track being played for stats. Only records if stats_enabled."""
+    state = get_room(room_id)
+    if not state or not state.get('stats_enabled'):
+        return
+
+    key = _stats_key(room_id)
+    raw = _redis.get(key)
+    try:
+        stats = json.loads(raw) if raw else _empty_stats()
+    except Exception as e:
+        logger.error("Failed to parse stats for room %s: %s", room_id, e)
+        stats = _empty_stats()
+
+    queued_by = track_info.get('queued_by', 'Unknown')
+    queued_by_id = track_info.get('queued_by_id', 'unknown')
+
+    stats['tracks_played'] += 1
+    stats['queued_by_count'][queued_by_id] = stats['queued_by_count'].get(queued_by_id, 0) + 1
+    stats['user_names'][queued_by_id] = queued_by
+
+    _redis.set(key, json.dumps(stats), ex=ROOM_TTL)
+
+
+def record_skip(room_id, skipped_by_vote=False):
+    """Record a skip event for stats."""
+    state = get_room(room_id)
+    if not state or not state.get('stats_enabled'):
+        return
+
+    key = _stats_key(room_id)
+    raw = _redis.get(key)
+    try:
+        stats = json.loads(raw) if raw else _empty_stats()
+    except Exception as e:
+        logger.error("Failed to parse stats for room %s: %s", room_id, e)
+        stats = _empty_stats()
+
+    stats['skips'] += 1
+    if skipped_by_vote:
+        stats['vote_skips'] += 1
+
+    _redis.set(key, json.dumps(stats), ex=ROOM_TTL)
+
+
+def get_stats(room_id):
+    """Return the listening stats for a room."""
+    key = _stats_key(room_id)
+    raw = _redis.get(key)
+    if not raw:
+        return _empty_stats()
+    try:
+        return json.loads(raw)
+    except Exception as e:
+        logger.error("Failed to parse stats for room %s: %s", room_id, e)
+        return _empty_stats()
+
+
+def _empty_stats():
+    return {
+        'tracks_played': 0,
+        'skips': 0,
+        'vote_skips': 0,
+        'queued_by_count': {},
+        'user_names': {},
+        'started_at': time.time(),
+    }

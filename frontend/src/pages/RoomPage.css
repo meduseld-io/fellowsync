@@ -619,6 +619,40 @@
   100% { opacity: 0; transform: translateY(-60px) translateX(var(--drift, 10px)); }
 }
 
+.stats-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+}
+
+.stat-label {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.stat-value {
+  color: var(--text);
+  font-size: 0.85rem;
+}
+
+.stat-user {
+  color: var(--fella-color);
+  font-size: 0.82rem;
+}
+
+.stat-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 0;
+}
+
 .dj-mode-notice {
   color: #fbbf24;
   font-size: 0.9rem;

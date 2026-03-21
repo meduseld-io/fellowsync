@@ -396,6 +396,9 @@ def update_settings(room_id):
         if not state['reactions_enabled']:
             state['reactions'] = {}
 
+    if 'stats_enabled' in data:
+        state['stats_enabled'] = bool(data['stats_enabled'])
+
     if 'skip_threshold' in data:
         try:
             val = float(data['skip_threshold'])
@@ -625,6 +628,17 @@ def react(room_id):
 
     broadcast_room_state(room_id, updated)
     return jsonify(_with_participants(room_id, updated))
+
+
+@rooms_bp.route('/api/rooms/<room_id>/stats', methods=['GET'])
+@_require_auth
+def get_stats(room_id):
+    """Get listening stats for a room."""
+    state = room_manager.get_room(room_id)
+    if not state:
+        return jsonify({'error': 'Room not found'}), 404
+    stats = room_manager.get_stats(room_id)
+    return jsonify({'stats': stats})
 
 
 def _require_admin(f):

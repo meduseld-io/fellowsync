@@ -31,6 +31,8 @@ export default function RoomPage() {
   const [showActivity, setShowActivity] = useState(false);
   const [playlistUrl, setPlaylistUrl] = useState('');
   const [floatingEmojis, setFloatingEmojis] = useState([]);
+  const [stats, setStats] = useState(null);
+  const [showStats, setShowStats] = useState(false);
   const searchTimeout = useRef(null);
   const vibeTimeout = useRef(null);
   const socketRef = useRef(null);
@@ -329,6 +331,20 @@ export default function RoomPage() {
   const toggleActivity = () => {
     if (!showActivity) fetchActivity();
     setShowActivity((v) => !v);
+  };
+
+  const fetchStats = async () => {
+    try {
+      const data = await api.getStats(roomId);
+      setStats(data.stats || null);
+    } catch (e) {
+      console.error('Failed to fetch stats:', e);
+    }
+  };
+
+  const toggleStats = () => {
+    if (!showStats) fetchStats();
+    setShowStats((v) => !v);
   };
 
   const formatTime = (ts) => {
@@ -682,6 +698,52 @@ export default function RoomPage() {
               )}
             </div>
           )}
+          {room.stats_enabled && (
+            <div className="panel" style={{ marginTop: '1.5rem' }}>
+              <h2 className="activity-header" onClick={toggleStats} style={{ cursor: 'pointer', userSelect: 'none' }}>
+                📊 Session Stats
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 400 }}>
+                  {showStats ? '▾' : '▸'}
+                </span>
+              </h2>
+              {showStats && stats && (
+                <div className="stats-panel">
+                  <div className="stat-row">
+                    <span className="stat-label">Tracks played</span>
+                    <span className="stat-value">{stats.tracks_played}</span>
+                  </div>
+                  <div className="stat-row">
+                    <span className="stat-label">Skips</span>
+                    <span className="stat-value">{stats.skips} {stats.vote_skips > 0 && `(${stats.vote_skips} by vote)`}</span>
+                  </div>
+                  <div className="stat-row">
+                    <span className="stat-label">Session time</span>
+                    <span className="stat-value">{(() => {
+                      const mins = Math.floor((Date.now() / 1000 - stats.started_at) / 60);
+                      return mins < 60 ? `${mins}m` : `${Math.floor(mins / 60)}h ${mins % 60}m`;
+                    })()}</span>
+                  </div>
+                  {Object.keys(stats.queued_by_count).length > 0 && (
+                    <>
+                      <div className="stat-divider" />
+                      <div className="stat-label" style={{ marginBottom: '4px' }}>Top queuers</div>
+                      {Object.entries(stats.queued_by_count)
+                        .sort(([, a], [, b]) => b - a)
+                        .map(([uid, count]) => (
+                          <div key={uid} className="stat-row">
+                            <span className="stat-user">{stats.user_names[uid] || uid}</span>
+                            <span className="stat-value">{count} track{count !== 1 ? 's' : ''}</span>
+                          </div>
+                        ))}
+                    </>
+                  )}
+                  <button className="btn-secondary" onClick={fetchStats} style={{ marginTop: '0.5rem', width: '100%', fontSize: '0.78rem', padding: '4px' }}>
+                    Refresh
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
           {isHost && (
             <div className="panel" style={{ marginTop: '1.5rem' }}>
               <h2>⚙ Settings</h2>
@@ -734,6 +796,16 @@ export default function RoomPage() {
                   <select
                     value={room.reactions_enabled ? 'on' : 'off'}
                     onChange={(e) => handleUpdateSettings({ reactions_enabled: e.target.value === 'on' })}
+                  >
+                    <option value="off">Off</option>
+                    <option value="on">On</option>
+                  </select>
+                </div>
+                <div className="setting-row">
+                  <label>Stats</label>
+                  <select
+                    value={room.stats_enabled ? 'on' : 'off'}
+                    onChange={(e) => handleUpdateSettings({ stats_enabled: e.target.value === 'on' })}
                   >
                     <option value="off">Off</option>
                     <option value="on">On</option>

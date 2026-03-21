@@ -34,6 +34,7 @@ export default function HelpModal() {
             <p><strong>Skip votes</strong> — sets the percentage of listeners that must vote to skip before a track is skipped (25%, 50%, 75%, or unanimous). The host can always skip instantly.</p>
             <p><strong>Auto-playlist</strong> — paste a Spotify playlist URL and when the queue runs empty, the next track from that playlist will automatically be queued. Keeps the music going when nobody's actively adding songs.</p>
             <p><strong>Reactions</strong> — when enabled, emoji reaction buttons appear below the now-playing card. Click to react to the current track (🔥 ❤️ 😴 💀 😂). One reaction per person, resets when the track changes.</p>
+            <p><strong>Stats</strong> — when enabled, a "Session Stats" panel appears showing tracks played, skips, session duration, and a leaderboard of who queued the most songs.</p>
 
             <h3>Playback</h3>
             <p>The host controls Play and Pause. When a track plays, FellowSync tells each person's Spotify app to play the same song at the same position — keeping everyone in sync.</p>

@@ -48,6 +48,9 @@ export const api = {
   // Reactions
   react: (roomId, emoji) => request(`/api/rooms/${roomId}/react`, { method: 'POST', body: JSON.stringify({ emoji }) }),
 
+  // Stats
+  getStats: (roomId) => request(`/api/rooms/${roomId}/stats`),
+
   // Avatar
   getAvatar: () => request('/api/auth/avatar'),
   setAvatar: (color) => request('/api/auth/avatar', { method: 'PUT', body: JSON.stringify({ color }) }),
