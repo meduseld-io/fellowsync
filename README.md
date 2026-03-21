@@ -110,6 +110,7 @@ All environment variables:
 | `FELLOWSYNC_ENV` | No | `development` | Set to `production` for production mode |
 | `ADMIN_USER_IDS` | No | — | Comma-separated Spotify user IDs for admin panel access |
 | `ENCRYPTION_KEY` | No | — | Fernet key for encrypting BYOK group secrets at rest. Generate with: `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"` |
+| `REQUIRE_BYOK` | No | `true` | When true, non-admin users must create or join a BYOK group before logging in. Set to `false` to allow direct login with the default Spotify app. |
 
 ### 4. Run Locally
 

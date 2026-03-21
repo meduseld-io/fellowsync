@@ -193,6 +193,45 @@ def list_all_groups():
     return groups
 
 
+def claim_pending_membership(group_id, real_user_id, display_name):
+    """Replace a __pending__ placeholder with the real user after OAuth login.
+
+    Updates both the member list and the leader_id if the leader was pending.
+    Also sets the user→group mapping for the real user ID.
+    """
+    group = get_group(group_id)
+    if not group:
+        return
+
+    members_key = _members_key(group_id)
+    members = _redis.hgetall(members_key)
+
+    # If real user is already a member, just update their name
+    if real_user_id in members:
+        _redis.hset(members_key, real_user_id, display_name)
+        _redis.set(f'{USER_GROUP_KEY}{real_user_id}', group_id)
+        return
+
+    # Replace __pending__ placeholder with real user
+    if '__pending__' in members:
+        _redis.hdel(members_key, '__pending__')
+        _redis.delete(f'{USER_GROUP_KEY}__pending__')
+        _redis.hset(members_key, real_user_id, display_name)
+        _redis.set(f'{USER_GROUP_KEY}{real_user_id}', group_id)
+
+        # If leader was pending, update leader to real user
+        if group.get('leader_id') == '__pending__':
+            group['leader_id'] = real_user_id
+            group['leader_name'] = display_name
+            _redis.set(_group_key(group_id), json.dumps(group))
+    else:
+        # No pending slot — just add them as a new member
+        _redis.hset(members_key, real_user_id, display_name)
+        _redis.set(f'{USER_GROUP_KEY}{real_user_id}', group_id)
+        group['member_count'] = len(_redis.hgetall(members_key))
+        _redis.set(_group_key(group_id), json.dumps(group))
+
+
 def _safe_group(group):
     """Return group dict without encrypted secret."""
     return {

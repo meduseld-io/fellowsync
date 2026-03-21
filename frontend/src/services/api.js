@@ -21,6 +21,7 @@ export const api = {
   exchangeCode: (code) => request('/api/auth/callback', { method: 'POST', body: JSON.stringify({ code }) }),
   getMe: () => request('/api/auth/me'),
   logout: () => request('/api/auth/logout', { method: 'POST' }),
+  getAuthConfig: () => request('/api/auth/config'),
 
   createRoom: (options = {}) => request('/api/rooms', { method: 'POST', body: JSON.stringify(options) }),
   getRoom: (roomId) => request(`/api/rooms/${roomId}`),

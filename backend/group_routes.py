@@ -28,9 +28,13 @@ def _require_auth(f):
 
 
 @groups_bp.route('/api/groups', methods=['POST'])
-@_require_auth
 def create_group():
-    """Create a new BYOK group. Caller becomes the leader."""
+    """Create a new BYOK group.
+
+    Works both pre-auth (from login page) and post-auth (from lobby).
+    If authenticated, the current user becomes leader. Otherwise, leader is set
+    to a placeholder and updated on first login through the group.
+    """
     user = _get_user()
     data = request.json or {}
 
@@ -43,10 +47,13 @@ def create_group():
     if not client_id or not client_secret:
         return jsonify({'error': 'Spotify Client ID and Client Secret are required'}), 400
 
+    leader_id = user['spotify_user_id'] if user else '__pending__'
+    leader_name = user['display_name'] if user else name
+
     group = groups.create_group(
         name=name,
-        leader_id=user['spotify_user_id'],
-        leader_name=user['display_name'],
+        leader_id=leader_id,
+        leader_name=leader_name,
         client_id=client_id,
         client_secret=client_secret,
     )
@@ -66,11 +73,17 @@ def my_group():
 
 
 @groups_bp.route('/api/groups/<group_id>/join', methods=['POST'])
-@_require_auth
 def join_group(group_id):
-    """Join an existing group."""
+    """Join an existing group.
+
+    Works both pre-auth (from login page) and post-auth (from lobby).
+    Pre-auth joins use a placeholder user ID that gets updated on first login.
+    """
     user = _get_user()
-    result = groups.join_group(group_id, user['spotify_user_id'], user['display_name'])
+    user_id = user['spotify_user_id'] if user else '__pending__'
+    display_name = user['display_name'] if user else 'Pending'
+
+    result = groups.join_group(group_id, user_id, display_name)
     if result == 'full':
         return jsonify({'error': 'Group is full (max 5 members)'}), 400
     if not result:

@@ -98,6 +98,17 @@ def callback():
         'group_id': group_id or None,
     }
 
+    # Enforce BYOK: non-admin users must authenticate through a group
+    if Config.REQUIRE_BYOK and not group_id:
+        is_admin = profile['id'] in Config.ADMIN_USER_IDS
+        if not is_admin:
+            session.pop('pending_group_id', None)
+            return jsonify({'error': 'A BYOK group is required. Create or join a group before logging in.'}), 403
+
+    # If user logged in through a group, claim any pending placeholder membership
+    if group_id:
+        groups.claim_pending_membership(group_id, profile['id'], profile.get('display_name', profile['id']))
+
     session['user'] = user_data
     session.pop('pending_group_id', None)
 
@@ -133,6 +144,12 @@ def logout():
     """Clear session."""
     session.clear()
     return jsonify({'ok': True})
+
+
+@auth_bp.route('/api/auth/config')
+def auth_config():
+    """Return public auth configuration for the frontend."""
+    return jsonify({'require_byok': Config.REQUIRE_BYOK})
 
 
 @auth_bp.route('/api/auth/avatar')
