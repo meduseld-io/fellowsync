@@ -21,7 +21,8 @@ Built with Flask, React, Redis, and the Spotify Web API.
 - **Track attribution** — see who queued each song
 - **Last played** — see what track just finished playing
 - **Auto-advance** — queue automatically moves to the next track when a song ends
-- **Room modes** — Normal (free-for-all), Hear Me Out (round-robin turns), DJ Mode (host-only queue), Blind Mode (queue hidden until tracks play), and Shuffle (random next track). Modes are mutually exclusive.
+- **Room modes** — Normal (free-for-all), Hear Me Out (round-robin turns), DJ Mode (host-only queue). Modes are mutually exclusive. Blind Mode is a separate toggle that hides the queue until tracks play, and can be combined with any mode.
+- **Shuffle queue** — host can shuffle the queue order with a 🔀 button
 - **Max consecutive limit** — optionally limit how many songs one person can queue in a row (1/2/3/unlimited)
 - **Configurable skip threshold** — host sets the vote-to-skip percentage (25%, 50%, 75%, or unanimous)
 - **In-room settings** — host can change all settings from a popup modal while the room is active
@@ -44,7 +45,9 @@ Built with Flask, React, Redis, and the Spotify Web API.
 - **Search filters** — search by track, artist, or album name
 - **Room cleanup** — empty rooms are automatically deleted after 5 minutes
 - **PWA support** — installable as a standalone app on mobile and desktop
-- **Admin panel** — admin users can view and delete all active rooms
+- **Reaction stats** — when both reactions and stats are enabled, the session stats panel shows emoji reaction counts
+- **iOS PWA install banner** — prompts iPhone Safari users to add FellowSync to their home screen
+- **Admin panel** — admin users can view, join, and delete all active rooms
 
 ## Setup
 
