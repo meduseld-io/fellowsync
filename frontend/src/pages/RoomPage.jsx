@@ -33,6 +33,7 @@ export default function RoomPage() {
   const [floatingEmojis, setFloatingEmojis] = useState([]);
   const [stats, setStats] = useState(null);
   const [showStats, setShowStats] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [progressMs, setProgressMs] = useState(0);
   const searchTimeout = useRef(null);
   const vibeTimeout = useRef(null);
@@ -430,6 +431,131 @@ export default function RoomPage() {
         </div>
       )}
 
+      {/* Settings modal */}
+      {showSettings && (
+        <div className="modal-overlay" onClick={() => setShowSettings(false)}>
+          <div className="modal-content settings-modal" onClick={(e) => e.stopPropagation()}>
+            <h3>⚙ Room Settings</h3>
+            <div className="room-settings">
+              <div className="setting-row">
+                <label>Mode</label>
+                <select
+                  value={room.dj_mode ? 'dj' : room.blind_mode ? 'blind' : room.shuffle_mode ? 'shuffle' : room.hear_me_out ? 'hear_me_out' : 'normal'}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    handleUpdateSettings({
+                      hear_me_out: v === 'hear_me_out',
+                      dj_mode: v === 'dj',
+                      blind_mode: v === 'blind',
+                      shuffle_mode: v === 'shuffle',
+                    });
+                  }}
+                >
+                  <option value="normal">Normal</option>
+                  <option value="hear_me_out">Hear Me Out</option>
+                  <option value="dj">DJ Mode</option>
+                  <option value="blind">Blind Mode</option>
+                  <option value="shuffle">Shuffle</option>
+                </select>
+              </div>
+              <div className="setting-row">
+                <label>Max in a row</label>
+                <select
+                  value={room.max_consecutive || 0}
+                  onChange={(e) => handleUpdateSettings({ max_consecutive: Number(e.target.value) })}
+                >
+                  <option value={0}>Unlimited</option>
+                  <option value={1}>1</option>
+                  <option value={2}>2</option>
+                  <option value={3}>3</option>
+                </select>
+              </div>
+              <div className="setting-row">
+                <label>Skip votes</label>
+                <select
+                  value={room.skip_threshold || 0.5}
+                  onChange={(e) => handleUpdateSettings({ skip_threshold: Number(e.target.value) })}
+                >
+                  <option value={0.25}>25%</option>
+                  <option value={0.5}>50%</option>
+                  <option value={0.75}>75%</option>
+                  <option value={1.0}>Unanimous</option>
+                </select>
+              </div>
+              <div className="setting-row">
+                <label>Vibe</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Metal, 90s hip-hop..."
+                  value={vibeInput}
+                  onChange={(e) => handleVibeChange(e.target.value)}
+                  maxLength={50}
+                  style={{ flex: 1 }}
+                />
+              </div>
+              <div className="setting-divider" />
+              <div className="setting-row">
+                <label>Reactions</label>
+                <button
+                  className={`toggle-switch${room.reactions_enabled ? ' on' : ''}`}
+                  onClick={() => handleUpdateSettings({ reactions_enabled: !room.reactions_enabled })}
+                  role="switch"
+                  aria-checked={room.reactions_enabled}
+                />
+              </div>
+              <div className="setting-row">
+                <label>Session Stats</label>
+                <button
+                  className={`toggle-switch${room.stats_enabled ? ' on' : ''}`}
+                  onClick={() => handleUpdateSettings({ stats_enabled: !room.stats_enabled })}
+                  role="switch"
+                  aria-checked={room.stats_enabled}
+                />
+              </div>
+              <div className="setting-divider" />
+              <div className="setting-row auto-playlist-row">
+                <label>Auto-playlist</label>
+                <div className="auto-playlist-input">
+                  <input
+                    type="text"
+                    placeholder="Paste Spotify playlist URL..."
+                    value={playlistUrl}
+                    onChange={(e) => setPlaylistUrl(e.target.value)}
+                    style={{ flex: 1 }}
+                  />
+                  <button
+                    className="btn-add"
+                    onClick={() => {
+                      handleUpdateSettings({ auto_playlist_url: playlistUrl });
+                      setPlaylistUrl('');
+                    }}
+                    disabled={!playlistUrl.trim()}
+                    style={{ padding: '4px 10px', fontSize: '0.78rem' }}
+                  >
+                    Set
+                  </button>
+                </div>
+                {room.auto_playlist_name && (
+                  <div className="auto-playlist-status">
+                    <span>📋 {room.auto_playlist_name} ({room.auto_playlist?.length || 0} tracks, #{(room.auto_playlist_index || 0) + 1} next)</span>
+                    <button
+                      className="btn-remove"
+                      onClick={() => handleUpdateSettings({ auto_playlist_url: '' })}
+                      style={{ fontSize: '0.7rem', padding: '2px 6px', position: 'static', opacity: 1, width: 'auto', height: 'auto' }}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+            <button className="btn-secondary" onClick={() => setShowSettings(false)} style={{ marginTop: '1.25rem', width: '100%' }}>
+              Done
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="room-header">
         <div>
           <h1>Fellow<span style={{ color: 'var(--fella-color)' }}>Sync</span></h1>
@@ -794,122 +920,9 @@ export default function RoomPage() {
             </div>
           )}
           {isHost && (
-            <div className="panel" style={{ marginTop: '1.5rem' }}>
-              <h2>⚙ Settings</h2>
-              <div className="room-settings">
-                <div className="setting-row">
-                  <label>Mode</label>
-                  <select
-                    value={room.dj_mode ? 'dj' : room.blind_mode ? 'blind' : room.shuffle_mode ? 'shuffle' : room.hear_me_out ? 'hear_me_out' : 'normal'}
-                    onChange={(e) => {
-                      const v = e.target.value;
-                      handleUpdateSettings({
-                        hear_me_out: v === 'hear_me_out',
-                        dj_mode: v === 'dj',
-                        blind_mode: v === 'blind',
-                        shuffle_mode: v === 'shuffle',
-                      });
-                    }}
-                  >
-                    <option value="normal">Normal</option>
-                    <option value="hear_me_out">Hear Me Out</option>
-                    <option value="dj">DJ Mode</option>
-                    <option value="blind">Blind Mode</option>
-                    <option value="shuffle">Shuffle</option>
-                  </select>
-                </div>
-                <div className="setting-row">
-                  <label>Max in a row</label>
-                  <select
-                    value={room.max_consecutive || 0}
-                    onChange={(e) => handleUpdateSettings({ max_consecutive: Number(e.target.value) })}
-                  >
-                    <option value={0}>Unlimited</option>
-                    <option value={1}>1</option>
-                    <option value={2}>2</option>
-                    <option value={3}>3</option>
-                  </select>
-                </div>
-                <div className="setting-row">
-                  <label>Vibe</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Metal, 90s hip-hop..."
-                    value={vibeInput}
-                    onChange={(e) => handleVibeChange(e.target.value)}
-                    maxLength={50}
-                    style={{ flex: 1 }}
-                  />
-                </div>
-                <div className="setting-row">
-                  <label>Reactions</label>
-                  <select
-                    value={room.reactions_enabled ? 'on' : 'off'}
-                    onChange={(e) => handleUpdateSettings({ reactions_enabled: e.target.value === 'on' })}
-                  >
-                    <option value="off">Off</option>
-                    <option value="on">On</option>
-                  </select>
-                </div>
-                <div className="setting-row">
-                  <label>Stats</label>
-                  <select
-                    value={room.stats_enabled ? 'on' : 'off'}
-                    onChange={(e) => handleUpdateSettings({ stats_enabled: e.target.value === 'on' })}
-                  >
-                    <option value="off">Off</option>
-                    <option value="on">On</option>
-                  </select>
-                </div>
-                <div className="setting-row">
-                  <label>Skip votes</label>
-                  <select
-                    value={room.skip_threshold || 0.5}
-                    onChange={(e) => handleUpdateSettings({ skip_threshold: Number(e.target.value) })}
-                  >
-                    <option value={0.25}>25%</option>
-                    <option value={0.5}>50%</option>
-                    <option value={0.75}>75%</option>
-                    <option value={1.0}>Unanimous</option>
-                  </select>
-                </div>
-                <div className="setting-row auto-playlist-row">
-                  <label>Auto-playlist</label>
-                  <div className="auto-playlist-input">
-                    <input
-                      type="text"
-                      placeholder="Paste Spotify playlist URL..."
-                      value={playlistUrl}
-                      onChange={(e) => setPlaylistUrl(e.target.value)}
-                      style={{ flex: 1 }}
-                    />
-                    <button
-                      className="btn-add"
-                      onClick={() => {
-                        handleUpdateSettings({ auto_playlist_url: playlistUrl });
-                        setPlaylistUrl('');
-                      }}
-                      disabled={!playlistUrl.trim()}
-                      style={{ padding: '4px 10px', fontSize: '0.78rem' }}
-                    >
-                      Set
-                    </button>
-                  </div>
-                  {room.auto_playlist_name && (
-                    <div className="auto-playlist-status">
-                      <span>📋 {room.auto_playlist_name} ({room.auto_playlist?.length || 0} tracks, #{(room.auto_playlist_index || 0) + 1} next)</span>
-                      <button
-                        className="btn-remove"
-                        onClick={() => handleUpdateSettings({ auto_playlist_url: '' })}
-                        style={{ fontSize: '0.7rem', padding: '2px 6px' }}
-                      >
-                        Clear
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
+            <button className="btn-settings-open" onClick={() => setShowSettings(true)} style={{ marginTop: '1.5rem', width: '100%' }}>
+              ⚙ Settings
+            </button>
           )}
           <HelpModal />
         </div>
