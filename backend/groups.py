@@ -252,3 +252,25 @@ def _safe_group(group):
         'member_count': group.get('member_count', 0),
         'created_at': group.get('created_at', 0),
     }
+
+
+def cleanup_empty_groups():
+    """Delete groups with no members. Intended to run once daily."""
+    keys = _redis.keys(f'{GROUP_PREFIX}*')
+    cleaned = 0
+    for key in keys:
+        raw = _redis.get(key)
+        if not raw:
+            continue
+        try:
+            group = json.loads(raw)
+            group_id = group['id']
+            members = _redis.hgetall(_members_key(group_id))
+            if not members:
+                logger.info("Cleaning up empty group %s (%s)", group_id, group.get('name', ''))
+                _delete_group(group_id)
+                cleaned += 1
+        except Exception as e:
+            logger.error("Failed to check group %s for cleanup: %s", key, e)
+    if cleaned:
+        logger.info("Cleaned up %d empty group(s)", cleaned)
