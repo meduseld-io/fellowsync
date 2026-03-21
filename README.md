@@ -23,16 +23,22 @@ Built with Flask, React, Redis, and the Spotify Web API.
 - **Auto-advance** — queue automatically moves to the next track when a song ends
 - **Room modes** — Normal (free-for-all) or Hear Me Out (round-robin turns)
 - **Max consecutive limit** — optionally limit how many songs one person can queue in a row (1/2/3/unlimited)
-- **In-room settings** — host can change mode and consecutive limit while the room is active
+- **In-room settings** — host can change mode, consecutive limit, and vibe while the room is active
+- **Vibe** — host can set a vibe label for the room (e.g. "Chill indie", "90s hip-hop") on creation or in-room
 - **Promote to host** — host can transfer control to another listener
+- **Host transfer on leave** — if the host leaves with others still in the room, they're prompted to pick a new host
+- **Activity log** — host and admin can view a timestamped log of all room actions (joins, leaves, queues, skips, etc.)
 - **Character avatars** — each user gets a deterministic "fella" avatar, with an in-lobby picker to choose your color
 - **Personalized theme** — UI accent color matches your selected fella
+- **Smart device targeting** — prefers your phone or computer over ambient devices (TVs, speakers) when syncing playback
 - **Rate limiting** — per-user rate limits on queue, skip, play, pause, and sync actions
 - **Drag-to-reorder** — host can drag queue items to rearrange the play order
 - **Toast notifications** — slide-in notifications for joins, leaves, and queue changes
 - **Now playing link** — click the current track name to open it in Spotify
 - **Search filters** — search by track, artist, or album name
 - **Room cleanup** — empty rooms are automatically deleted after 5 minutes
+- **PWA support** — installable as a standalone app on mobile and desktop
+- **Admin panel** — admin users can view and delete all active rooms
 
 ## Requirements
 
