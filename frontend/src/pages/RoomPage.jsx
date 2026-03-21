@@ -33,6 +33,7 @@ export default function RoomPage() {
   const [floatingEmojis, setFloatingEmojis] = useState([]);
   const [stats, setStats] = useState(null);
   const [showStats, setShowStats] = useState(false);
+  const [progressMs, setProgressMs] = useState(0);
   const searchTimeout = useRef(null);
   const vibeTimeout = useRef(null);
   const socketRef = useRef(null);
@@ -100,6 +101,22 @@ export default function RoomPage() {
       }
     };
   }, [roomId]);
+
+  // Tick progress bar every second
+  useEffect(() => {
+    if (!room?.is_playing || !room?.current_track_info?.duration_ms) {
+      setProgressMs(room?.position_ms || 0);
+      return;
+    }
+    // Calculate current position from server state
+    const calc = () => {
+      const elapsed = (Date.now() / 1000 - room.last_update) * 1000;
+      return Math.min(room.position_ms + elapsed, room.current_track_info.duration_ms);
+    };
+    setProgressMs(calc());
+    const id = setInterval(() => setProgressMs(calc()), 1000);
+    return () => clearInterval(id);
+  }, [room?.position_ms, room?.last_update, room?.is_playing, room?.current_track_info?.duration_ms]);
 
   // Sync vibe input from room state (when another host sets it or on initial load)
   useEffect(() => {
@@ -352,6 +369,13 @@ export default function RoomPage() {
     return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
+  const formatMs = (ms) => {
+    const totalSec = Math.max(0, Math.floor(ms / 1000));
+    const m = Math.floor(totalSec / 60);
+    const s = totalSec % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  };
+
   if (error) {
     return (
       <div className="room-page" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
@@ -506,6 +530,18 @@ export default function RoomPage() {
             )}
           </div>
         </div>
+        {currentTrack?.duration_ms && (
+          <div className="progress-bar-wrap">
+            <span className="progress-time">{formatMs(progressMs)}</span>
+            <div className="progress-track">
+              <div
+                className="progress-fill"
+                style={{ width: `${Math.min(100, (progressMs / currentTrack.duration_ms) * 100)}%` }}
+              />
+            </div>
+            <span className="progress-time">{formatMs(currentTrack.duration_ms)}</span>
+          </div>
+        )}
         {room.reactions_enabled && currentTrack && (
           <div className="reactions-bar">
             {floatingEmojis.map((fe) => (
