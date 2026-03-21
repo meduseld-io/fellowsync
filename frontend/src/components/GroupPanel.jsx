@@ -99,7 +99,6 @@ export default function GroupPanel() {
 
   // User is in a group
   if (group) {
-    const isLeader = group.leader_id === user?.spotify_user_id;
     const isAuthed = user?.group_id === group.id;
     const memberList = Object.entries(members);
 
@@ -129,7 +128,7 @@ export default function GroupPanel() {
         )}
         <div className="group-actions">
           <button className="btn-group-leave" onClick={handleLeave}>
-            {isLeader ? 'Disband Group' : 'Leave Group'}
+            Leave Group
           </button>
         </div>
       </div>

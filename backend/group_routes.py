@@ -95,7 +95,7 @@ def join_group(group_id):
 @groups_bp.route('/api/groups/<group_id>/leave', methods=['POST'])
 @_require_auth
 def leave_group(group_id):
-    """Leave a group. If the leader leaves, the group is deleted."""
+    """Leave a group. If no members remain, the group is deleted."""
     user = _get_user()
     success = groups.leave_group(group_id, user['spotify_user_id'])
     if not success:

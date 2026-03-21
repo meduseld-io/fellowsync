@@ -105,7 +105,10 @@ def join_group(group_id, user_id, display_name):
 
 
 def leave_group(group_id, user_id):
-    """Remove a user from a group. Deletes group if leader leaves."""
+    """Remove a user from a group. Deletes group if no members remain.
+
+    If the leader leaves but others remain, leadership transfers to the next member.
+    """
     group = get_group(group_id)
     if not group:
         return False
@@ -113,13 +116,19 @@ def leave_group(group_id, user_id):
     _redis.hdel(_members_key(group_id), user_id)
     _redis.delete(f'{USER_GROUP_KEY}{user_id}')
 
-    # If leader leaves, delete the whole group
-    if user_id == group.get('leader_id'):
+    members = _redis.hgetall(_members_key(group_id))
+
+    # No members left — delete the group
+    if not members:
         _delete_group(group_id)
         return True
 
-    # Update member count
-    members = _redis.hgetall(_members_key(group_id))
+    # If leader left, transfer to next member
+    if user_id == group.get('leader_id'):
+        new_leader_id, new_leader_name = next(iter(members.items()))
+        group['leader_id'] = new_leader_id
+        group['leader_name'] = new_leader_name
+
     group['member_count'] = len(members)
     _redis.set(_group_key(group_id), json.dumps(group))
     return True
