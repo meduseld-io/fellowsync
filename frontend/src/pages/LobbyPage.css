@@ -258,6 +258,7 @@
 
 .btn-admin {
   display: inline-block;
+  margin-top: 1rem;
   background: none;
   color: var(--fella-color);
   font-size: 0.85rem;
