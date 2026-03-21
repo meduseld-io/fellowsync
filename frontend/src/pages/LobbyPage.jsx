@@ -18,6 +18,7 @@ export default function LobbyPage() {
   const [vibe, setVibe] = useState('');
   const [djMode, setDjMode] = useState(false);
   const [blindMode, setBlindMode] = useState(false);
+  const [shuffleMode, setShuffleMode] = useState(false);
   const [showAvatarPicker, setShowAvatarPicker] = useState(false);
   const [selectedAvatar, setSelectedAvatar] = useState(() => getAvatarColor(user?.spotify_user_id || ''));
 
@@ -39,6 +40,7 @@ export default function LobbyPage() {
         vibe: vibe.trim(),
         dj_mode: djMode,
         blind_mode: blindMode,
+        shuffle_mode: shuffleMode,
       });
       navigate(`/room/${room.room_id}`);
     } catch (e) {
@@ -157,6 +159,18 @@ export default function LobbyPage() {
               id="blindMode"
               value={blindMode ? 'on' : 'off'}
               onChange={(e) => setBlindMode(e.target.value === 'on')}
+            >
+              <option value="off">Off</option>
+              <option value="on">On</option>
+            </select>
+          </div>
+          <div className="option-row">
+            <label htmlFor="shuffleMode">Shuffle</label>
+            <span className="tooltip-icon">?<span className="tooltip-bubble">When a track ends, the next one is picked randomly from the queue instead of playing in order.</span></span>
+            <select
+              id="shuffleMode"
+              value={shuffleMode ? 'on' : 'off'}
+              onChange={(e) => setShuffleMode(e.target.value === 'on')}
             >
               <option value="off">Off</option>
               <option value="on">On</option>

@@ -542,6 +542,12 @@
   color: #f472b6;
 }
 
+.mode-badge.shuffle-badge {
+  background: rgba(52, 211, 153, 0.1);
+  border-color: rgba(52, 211, 153, 0.3);
+  color: #34d399;
+}
+
 .dj-mode-notice {
   color: #fbbf24;
   font-size: 0.9rem;

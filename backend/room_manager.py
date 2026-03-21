@@ -36,7 +36,7 @@ def generate_room_code():
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
 
 
-def create_room(host_id, host_name, max_consecutive=0, hear_me_out=False, vibe='', dj_mode=False, blind_mode=False):
+def create_room(host_id, host_name, max_consecutive=0, hear_me_out=False, vibe='', dj_mode=False, blind_mode=False, shuffle_mode=False):
     """Create a new room and return its state."""
     room_id = generate_room_code()
     while _redis.exists(_room_key(room_id)):
@@ -58,6 +58,7 @@ def create_room(host_id, host_name, max_consecutive=0, hear_me_out=False, vibe='
         'vibe': str(vibe or '').strip()[:50],
         'dj_mode': dj_mode,
         'blind_mode': blind_mode,
+        'shuffle_mode': shuffle_mode,
     }
     _redis.set(_room_key(room_id), json.dumps(state), ex=ROOM_TTL)
     _redis.hset(_participants_key(room_id), host_id, host_name)
@@ -219,7 +220,12 @@ def skip_track(room_id):
         state['last_track_info'] = state['current_track_info']
 
     if state['queue']:
-        next_track = state['queue'].pop(0)
+        # Shuffle mode: pick a random track instead of the first one
+        if state.get('shuffle_mode') and len(state['queue']) > 1:
+            idx = random.randint(0, len(state['queue']) - 1)
+        else:
+            idx = 0
+        next_track = state['queue'].pop(idx)
         state['current_track'] = next_track['uri']
         state['current_track_info'] = next_track
         state['position_ms'] = 0

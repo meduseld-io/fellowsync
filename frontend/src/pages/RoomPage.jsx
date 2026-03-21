@@ -383,6 +383,7 @@ export default function RoomPage() {
             {room.vibe && <span className="mode-badge vibe-badge" data-tooltip="The vibe the host has set for this room">🎶 {room.vibe}</span>}
             {room.dj_mode && <span className="mode-badge dj-badge" data-tooltip="Only the host can add songs">🎧 DJ Mode</span>}
             {room.blind_mode && <span className="mode-badge blind-badge" data-tooltip="Upcoming songs are hidden until they play">🙈 Blind Mode</span>}
+            {room.shuffle_mode && <span className="mode-badge shuffle-badge" data-tooltip="Next track is picked randomly from the queue">🔀 Shuffle</span>}
           </div>
         </div>
         <div className="room-header-actions">
@@ -697,6 +698,16 @@ export default function RoomPage() {
                   <select
                     value={room.blind_mode ? 'on' : 'off'}
                     onChange={(e) => handleUpdateSettings({ blind_mode: e.target.value === 'on' })}
+                  >
+                    <option value="off">Off</option>
+                    <option value="on">On</option>
+                  </select>
+                </div>
+                <div className="setting-row">
+                  <label>Shuffle</label>
+                  <select
+                    value={room.shuffle_mode ? 'on' : 'off'}
+                    onChange={(e) => handleUpdateSettings({ shuffle_mode: e.target.value === 'on' })}
                   >
                     <option value="off">Off</option>
                     <option value="on">On</option>

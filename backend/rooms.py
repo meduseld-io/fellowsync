@@ -113,6 +113,7 @@ def create_room():
     vibe = data.get('vibe', '')
     dj_mode = data.get('dj_mode', False)
     blind_mode = data.get('blind_mode', False)
+    shuffle_mode = data.get('shuffle_mode', False)
 
     # Validate
     try:
@@ -126,6 +127,7 @@ def create_room():
         user['spotify_user_id'], user['display_name'],
         max_consecutive=max_consecutive, hear_me_out=bool(hear_me_out),
         vibe=vibe, dj_mode=bool(dj_mode), blind_mode=bool(blind_mode),
+        shuffle_mode=bool(shuffle_mode),
     )
     # Store host's token
     room_manager.store_user_token(state['room_id'], user['spotify_user_id'], {
@@ -363,6 +365,9 @@ def update_settings(room_id):
 
     if 'blind_mode' in data:
         state['blind_mode'] = bool(data['blind_mode'])
+
+    if 'shuffle_mode' in data:
+        state['shuffle_mode'] = bool(data['shuffle_mode'])
 
     room_manager.save_room(room_id, state)
     room_manager.log_activity(room_id, user['display_name'], 'updated settings')
