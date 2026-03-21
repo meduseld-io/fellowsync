@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>FellowSync</title>
     <link rel="icon" id="favicon" type="image/png" href="/avatars/green.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/logo.png" />
+    <meta name="theme-color" content="#4ade80" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <script>
       (function() {
         var fellas = ['green', 'pink', 'yellow', 'purple', 'blue', 'dev'];
@@ -32,5 +37,12 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js').catch(function(e) {
+          console.error('SW registration failed:', e);
+        });
+      }
+    </script>
   </body>
 </html>
