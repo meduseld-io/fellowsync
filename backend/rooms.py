@@ -391,6 +391,19 @@ def update_settings(room_id):
     if 'shuffle_mode' in data:
         state['shuffle_mode'] = bool(data['shuffle_mode'])
 
+    # Enforce mutual exclusivity: only one mode flag can be true
+    mode_flags = ['hear_me_out', 'dj_mode', 'blind_mode', 'shuffle_mode']
+    active = [f for f in mode_flags if state.get(f)]
+    if len(active) > 1:
+        # Keep the most recently set one (last in the request)
+        for f in mode_flags:
+            if f in data and bool(data[f]):
+                winner = f
+        for f in mode_flags:
+            state[f] = (f == winner)
+        if winner == 'hear_me_out' and state['queue']:
+            state['queue'] = room_manager._round_robin_queue(state['queue'])
+
     if 'reactions_enabled' in data:
         state['reactions_enabled'] = bool(data['reactions_enabled'])
         if not state['reactions_enabled']:

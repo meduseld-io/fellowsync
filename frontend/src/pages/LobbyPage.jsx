@@ -16,9 +16,6 @@ export default function LobbyPage() {
   const [maxConsecutive, setMaxConsecutive] = useState(0);
   const [mode, setMode] = useState('normal');
   const [vibe, setVibe] = useState('');
-  const [djMode, setDjMode] = useState(false);
-  const [blindMode, setBlindMode] = useState(false);
-  const [shuffleMode, setShuffleMode] = useState(false);
   const [skipThreshold, setSkipThreshold] = useState(0.5);
   const [showAvatarPicker, setShowAvatarPicker] = useState(false);
   const [selectedAvatar, setSelectedAvatar] = useState(() => getAvatarColor(user?.spotify_user_id || ''));
@@ -39,9 +36,9 @@ export default function LobbyPage() {
         max_consecutive: maxConsecutive,
         hear_me_out: mode === 'hear_me_out',
         vibe: vibe.trim(),
-        dj_mode: djMode,
-        blind_mode: blindMode,
-        shuffle_mode: shuffleMode,
+        dj_mode: mode === 'dj',
+        blind_mode: mode === 'blind',
+        shuffle_mode: mode === 'shuffle',
         skip_threshold: skipThreshold,
       });
       navigate(`/room/${room.room_id}`);
@@ -106,7 +103,7 @@ export default function LobbyPage() {
             <label htmlFor="mode">
               Mode
             </label>
-            <span className="tooltip-icon">?<span className="tooltip-bubble"><strong>Normal:</strong> free-for-all queue. <strong>Hear Me Out:</strong> alternates songs between users so everyone gets a turn.</span></span>
+            <span className="tooltip-icon">?<span className="tooltip-bubble"><strong>Normal:</strong> free-for-all queue. <strong>Hear Me Out:</strong> alternates songs between users. <strong>DJ:</strong> only the host can add songs. <strong>Blind:</strong> queue is hidden until tracks play. <strong>Shuffle:</strong> next track is picked randomly.</span></span>
             <select
               id="mode"
               value={mode}
@@ -114,6 +111,9 @@ export default function LobbyPage() {
             >
               <option value="normal">Normal</option>
               <option value="hear_me_out">Hear Me Out</option>
+              <option value="dj">DJ Mode</option>
+              <option value="blind">Blind Mode</option>
+              <option value="shuffle">Shuffle</option>
             </select>
           </div>
           <div className="option-row">
@@ -155,42 +155,6 @@ export default function LobbyPage() {
               maxLength={50}
               style={{ flex: 1, marginLeft: 'auto', maxWidth: '220px' }}
             />
-          </div>
-          <div className="option-row">
-            <label htmlFor="djMode">DJ Mode</label>
-            <span className="tooltip-icon">?<span className="tooltip-bubble">Only the host can add songs. Everyone else just listens. Perfect for curated sessions.</span></span>
-            <select
-              id="djMode"
-              value={djMode ? 'on' : 'off'}
-              onChange={(e) => setDjMode(e.target.value === 'on')}
-            >
-              <option value="off">Off</option>
-              <option value="on">On</option>
-            </select>
-          </div>
-          <div className="option-row">
-            <label htmlFor="blindMode">Blind Mode</label>
-            <span className="tooltip-icon">?<span className="tooltip-bubble">Upcoming songs in the queue are hidden. You won't know what's next until it plays.</span></span>
-            <select
-              id="blindMode"
-              value={blindMode ? 'on' : 'off'}
-              onChange={(e) => setBlindMode(e.target.value === 'on')}
-            >
-              <option value="off">Off</option>
-              <option value="on">On</option>
-            </select>
-          </div>
-          <div className="option-row">
-            <label htmlFor="shuffleMode">Shuffle</label>
-            <span className="tooltip-icon">?<span className="tooltip-bubble">When a track ends, the next one is picked randomly from the queue instead of playing in order.</span></span>
-            <select
-              id="shuffleMode"
-              value={shuffleMode ? 'on' : 'off'}
-              onChange={(e) => setShuffleMode(e.target.value === 'on')}
-            >
-              <option value="off">Off</option>
-              <option value="on">On</option>
-            </select>
           </div>
         </div>
 

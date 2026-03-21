@@ -800,11 +800,22 @@ export default function RoomPage() {
                 <div className="setting-row">
                   <label>Mode</label>
                   <select
-                    value={room.hear_me_out ? 'hear_me_out' : 'normal'}
-                    onChange={(e) => handleUpdateSettings({ hear_me_out: e.target.value === 'hear_me_out' })}
+                    value={room.dj_mode ? 'dj' : room.blind_mode ? 'blind' : room.shuffle_mode ? 'shuffle' : room.hear_me_out ? 'hear_me_out' : 'normal'}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      handleUpdateSettings({
+                        hear_me_out: v === 'hear_me_out',
+                        dj_mode: v === 'dj',
+                        blind_mode: v === 'blind',
+                        shuffle_mode: v === 'shuffle',
+                      });
+                    }}
                   >
                     <option value="normal">Normal</option>
                     <option value="hear_me_out">Hear Me Out</option>
+                    <option value="dj">DJ Mode</option>
+                    <option value="blind">Blind Mode</option>
+                    <option value="shuffle">Shuffle</option>
                   </select>
                 </div>
                 <div className="setting-row">
@@ -831,16 +842,6 @@ export default function RoomPage() {
                   />
                 </div>
                 <div className="setting-row">
-                  <label>DJ Mode</label>
-                  <select
-                    value={room.dj_mode ? 'on' : 'off'}
-                    onChange={(e) => handleUpdateSettings({ dj_mode: e.target.value === 'on' })}
-                  >
-                    <option value="off">Off</option>
-                    <option value="on">On</option>
-                  </select>
-                </div>
-                <div className="setting-row">
                   <label>Reactions</label>
                   <select
                     value={room.reactions_enabled ? 'on' : 'off'}
@@ -855,26 +856,6 @@ export default function RoomPage() {
                   <select
                     value={room.stats_enabled ? 'on' : 'off'}
                     onChange={(e) => handleUpdateSettings({ stats_enabled: e.target.value === 'on' })}
-                  >
-                    <option value="off">Off</option>
-                    <option value="on">On</option>
-                  </select>
-                </div>
-                <div className="setting-row">
-                  <label>Blind Mode</label>
-                  <select
-                    value={room.blind_mode ? 'on' : 'off'}
-                    onChange={(e) => handleUpdateSettings({ blind_mode: e.target.value === 'on' })}
-                  >
-                    <option value="off">Off</option>
-                    <option value="on">On</option>
-                  </select>
-                </div>
-                <div className="setting-row">
-                  <label>Shuffle</label>
-                  <select
-                    value={room.shuffle_mode ? 'on' : 'off'}
-                    onChange={(e) => handleUpdateSettings({ shuffle_mode: e.target.value === 'on' })}
                   >
                     <option value="off">Off</option>
                     <option value="on">On</option>

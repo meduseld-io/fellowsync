@@ -26,11 +26,12 @@ export default function HelpModal() {
             <p>The host can configure these when creating a room or from the in-room settings panel:</p>
             <p><strong>Normal</strong> — free-for-all queue, anyone can add as many tracks as they want.</p>
             <p><strong>Hear Me Out</strong> — alternates songs between users so everyone gets a turn.</p>
-            <p><strong>Max in a row</strong> — limits how many songs one person can queue consecutively (1, 2, 3, or unlimited).</p>
-            <p><strong>Vibe</strong> — the host can set a vibe label for the room (e.g. "Metal", "90s hip-hop") to set the mood.</p>
             <p><strong>DJ Mode</strong> — only the host can add songs. Everyone else just listens. Perfect for curated sessions or themed nights.</p>
             <p><strong>Blind Mode</strong> — upcoming songs in the queue are hidden from listeners. You won't know what's next until it plays. The host can still see everything.</p>
             <p><strong>Shuffle</strong> — when a track ends, the next one is picked randomly from the queue instead of playing in order.</p>
+            <p>Modes are mutually exclusive — you can only have one active at a time.</p>
+            <p><strong>Max in a row</strong> — limits how many songs one person can queue consecutively (1, 2, 3, or unlimited).</p>
+            <p><strong>Vibe</strong> — the host can set a vibe label for the room (e.g. "Metal", "90s hip-hop") to set the mood.</p>
             <p><strong>Skip votes</strong> — sets the percentage of listeners that must vote to skip before a track is skipped (25%, 50%, 75%, or unanimous). The host can always skip instantly.</p>
             <p><strong>Auto-playlist</strong> — paste a Spotify playlist URL and when the queue runs empty, the next track from that playlist will automatically be queued. Keeps the music going when nobody's actively adding songs.</p>
             <p><strong>Reactions</strong> — when enabled, emoji reaction buttons appear below the now-playing card. Click to react to the current track (🔥 ❤️ 😴 💀 😂). One reaction per person, resets when the track changes.</p>
