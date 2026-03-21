@@ -110,6 +110,7 @@ def create_room():
     data = request.json or {}
     max_consecutive = data.get('max_consecutive', 0)
     hear_me_out = data.get('hear_me_out', False)
+    vibe = data.get('vibe', '')
 
     # Validate
     try:
@@ -122,6 +123,7 @@ def create_room():
     state = room_manager.create_room(
         user['spotify_user_id'], user['display_name'],
         max_consecutive=max_consecutive, hear_me_out=bool(hear_me_out),
+        vibe=vibe,
     )
     # Store host's token
     room_manager.store_user_token(state['room_id'], user['spotify_user_id'], {

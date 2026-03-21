@@ -659,7 +659,7 @@ export default function RoomPage() {
                   <label>Vibe</label>
                   <input
                     type="text"
-                    placeholder="e.g. Chill indie, 90s hip-hop..."
+                    placeholder="e.g. Metal, 90s hip-hop..."
                     value={vibeInput}
                     onChange={(e) => handleVibeChange(e.target.value)}
                     maxLength={50}

@@ -15,6 +15,7 @@ export default function LobbyPage() {
   const [creating, setCreating] = useState(false);
   const [maxConsecutive, setMaxConsecutive] = useState(0);
   const [mode, setMode] = useState('normal');
+  const [vibe, setVibe] = useState('');
   const [showAvatarPicker, setShowAvatarPicker] = useState(false);
   const [selectedAvatar, setSelectedAvatar] = useState(() => getAvatarColor(user?.spotify_user_id || ''));
 
@@ -33,6 +34,7 @@ export default function LobbyPage() {
       const room = await api.createRoom({
         max_consecutive: maxConsecutive,
         hear_me_out: mode === 'hear_me_out',
+        vibe: vibe.trim(),
       });
       navigate(`/room/${room.room_id}`);
     } catch (e) {
@@ -118,6 +120,18 @@ export default function LobbyPage() {
               <option value="normal">Normal</option>
               <option value="hear_me_out">Hear Me Out</option>
             </select>
+          </div>
+          <div className="option-row">
+            <label htmlFor="vibe">Vibe</label>
+            <input
+              id="vibe"
+              type="text"
+              placeholder="e.g. Chill indie, 90s hip-hop..."
+              value={vibe}
+              onChange={(e) => setVibe(e.target.value.slice(0, 50))}
+              maxLength={50}
+              style={{ flex: 1, marginLeft: 'auto', maxWidth: '220px' }}
+            />
           </div>
         </div>
 
