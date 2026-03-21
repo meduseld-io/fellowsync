@@ -381,6 +381,8 @@ export default function RoomPage() {
             {room.hear_me_out && <span className="mode-badge hear-me-out" data-tooltip="Songs alternate between users so everyone gets a turn">🎤 Hear Me Out</span>}
             {room.max_consecutive > 0 && <span className="mode-badge" data-tooltip={`Limits how many songs one person can queue in a row (${room.max_consecutive})`}>Max {room.max_consecutive} in a row</span>}
             {room.vibe && <span className="mode-badge vibe-badge" data-tooltip="The vibe the host has set for this room">🎶 {room.vibe}</span>}
+            {room.dj_mode && <span className="mode-badge dj-badge" data-tooltip="Only the host can add songs">🎧 DJ Mode</span>}
+            {room.blind_mode && <span className="mode-badge blind-badge" data-tooltip="Upcoming songs are hidden until they play">🙈 Blind Mode</span>}
           </div>
         </div>
         <div className="room-header-actions">
@@ -464,6 +466,12 @@ export default function RoomPage() {
         {/* Left column: Search + Queue */}
         <div>
           {/* Search */}
+          {room.dj_mode && !isHost ? (
+            <div className="panel" style={{ marginBottom: '1.5rem' }}>
+              <h2>Add Track</h2>
+              <p className="dj-mode-notice">🎧 DJ Mode is on — only the host can add tracks.</p>
+            </div>
+          ) : (
           <div className="panel" style={{ marginBottom: '1.5rem' }}>
             <h2>Add Track</h2>
             <div className="search-filters">
@@ -505,6 +513,7 @@ export default function RoomPage() {
               </ul>
             )}
           </div>
+          )}
 
           {/* Queue */}
           <div className="panel">
@@ -525,10 +534,12 @@ export default function RoomPage() {
               <p className="queue-empty">Queue is empty. Search and add tracks above.</p>
             ) : (
               <ul className="queue-list">
-                {queue.map((track, i) => (
+                {queue.map((track, i) => {
+                  const masked = room.blind_mode && !isHost;
+                  return (
                   <li
                     key={`${track.uri}-${i}`}
-                    className={`queue-item${dragIndex === i ? ' dragging' : ''}`}
+                    className={`queue-item${dragIndex === i ? ' dragging' : ''}${masked ? ' blind-item' : ''}`}
                     draggable={isHost}
                     onDragStart={isHost ? () => handleDragStart(i) : undefined}
                     onDragOver={isHost ? (e) => handleDragOver(e, i) : undefined}
@@ -536,21 +547,26 @@ export default function RoomPage() {
                     onDragEnd={isHost ? handleDragEnd : undefined}
                   >
                     {isHost && <span className="drag-handle">⠿</span>}
-                    {track.album_art && <img src={track.album_art} alt="" />}
+                    {masked ? (
+                      <div className="blind-art-placeholder">?</div>
+                    ) : (
+                      track.album_art && <img src={track.album_art} alt="" />
+                    )}
                     <div className="queue-item-info">
-                      <div className="track-name">{track.name}</div>
-                      <div className="track-artist">{track.artist}</div>
+                      <div className="track-name">{masked ? '???' : track.name}</div>
+                      <div className="track-artist">{masked ? '???' : track.artist}</div>
                     </div>
-                    {(isHost || track.queued_by_id === user?.spotify_user_id) && (
+                    {!masked && (isHost || track.queued_by_id === user?.spotify_user_id) && (
                       <button className="btn-remove" onClick={() => handleRemoveTrack(i)}>✕</button>
                     )}
-                    {track.queued_by && (
+                    {track.queued_by && !masked && (
                       <span className="queued-by">
                         {track.play_next ? `Plays next · ${track.queued_by}` : `Added by ${track.queued_by}`}
                       </span>
                     )}
                   </li>
-                ))}
+                  );
+                })}
               </ul>
             )}
           </div>
@@ -665,6 +681,26 @@ export default function RoomPage() {
                     maxLength={50}
                     style={{ flex: 1 }}
                   />
+                </div>
+                <div className="setting-row">
+                  <label>DJ Mode</label>
+                  <select
+                    value={room.dj_mode ? 'on' : 'off'}
+                    onChange={(e) => handleUpdateSettings({ dj_mode: e.target.value === 'on' })}
+                  >
+                    <option value="off">Off</option>
+                    <option value="on">On</option>
+                  </select>
+                </div>
+                <div className="setting-row">
+                  <label>Blind Mode</label>
+                  <select
+                    value={room.blind_mode ? 'on' : 'off'}
+                    onChange={(e) => handleUpdateSettings({ blind_mode: e.target.value === 'on' })}
+                  >
+                    <option value="off">Off</option>
+                    <option value="on">On</option>
+                  </select>
                 </div>
               </div>
             </div>

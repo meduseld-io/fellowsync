@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import Footer from '../components/Footer';
-import { getAvatarForUser, getAvatarColor, setAvatarOverride, saveAvatarToBackend, getPickerColors, AVATAR_HEX } from '../utils/avatars';
+import { getAvatarColor, setAvatarOverride, saveAvatarToBackend, getPickerColors, AVATAR_HEX } from '../utils/avatars';
 import { isAdmin } from '../utils/admin';
 import './LobbyPage.css';
 
@@ -16,6 +16,8 @@ export default function LobbyPage() {
   const [maxConsecutive, setMaxConsecutive] = useState(0);
   const [mode, setMode] = useState('normal');
   const [vibe, setVibe] = useState('');
+  const [djMode, setDjMode] = useState(false);
+  const [blindMode, setBlindMode] = useState(false);
   const [showAvatarPicker, setShowAvatarPicker] = useState(false);
   const [selectedAvatar, setSelectedAvatar] = useState(() => getAvatarColor(user?.spotify_user_id || ''));
 
@@ -35,6 +37,8 @@ export default function LobbyPage() {
         max_consecutive: maxConsecutive,
         hear_me_out: mode === 'hear_me_out',
         vibe: vibe.trim(),
+        dj_mode: djMode,
+        blind_mode: blindMode,
       });
       navigate(`/room/${room.room_id}`);
     } catch (e) {
@@ -133,6 +137,30 @@ export default function LobbyPage() {
               maxLength={50}
               style={{ flex: 1, marginLeft: 'auto', maxWidth: '220px' }}
             />
+          </div>
+          <div className="option-row">
+            <label htmlFor="djMode">DJ Mode</label>
+            <span className="tooltip-icon">?<span className="tooltip-bubble">Only the host can add songs. Everyone else just listens. Perfect for curated sessions.</span></span>
+            <select
+              id="djMode"
+              value={djMode ? 'on' : 'off'}
+              onChange={(e) => setDjMode(e.target.value === 'on')}
+            >
+              <option value="off">Off</option>
+              <option value="on">On</option>
+            </select>
+          </div>
+          <div className="option-row">
+            <label htmlFor="blindMode">Blind Mode</label>
+            <span className="tooltip-icon">?<span className="tooltip-bubble">Upcoming songs in the queue are hidden. You won't know what's next until it plays.</span></span>
+            <select
+              id="blindMode"
+              value={blindMode ? 'on' : 'off'}
+              onChange={(e) => setBlindMode(e.target.value === 'on')}
+            >
+              <option value="off">Off</option>
+              <option value="on">On</option>
+            </select>
           </div>
         </div>
 

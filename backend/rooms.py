@@ -111,6 +111,8 @@ def create_room():
     max_consecutive = data.get('max_consecutive', 0)
     hear_me_out = data.get('hear_me_out', False)
     vibe = data.get('vibe', '')
+    dj_mode = data.get('dj_mode', False)
+    blind_mode = data.get('blind_mode', False)
 
     # Validate
     try:
@@ -123,7 +125,7 @@ def create_room():
     state = room_manager.create_room(
         user['spotify_user_id'], user['display_name'],
         max_consecutive=max_consecutive, hear_me_out=bool(hear_me_out),
-        vibe=vibe,
+        vibe=vibe, dj_mode=bool(dj_mode), blind_mode=bool(blind_mode),
     )
     # Store host's token
     room_manager.store_user_token(state['room_id'], user['spotify_user_id'], {
@@ -175,6 +177,10 @@ def add_to_queue(room_id):
     state = room_manager.get_room(room_id)
     if not state:
         return jsonify({'error': 'Room not found'}), 404
+
+    # DJ mode: only the host can add tracks
+    if state.get('dj_mode') and user['spotify_user_id'] != state['host_id']:
+        return jsonify({'error': 'DJ mode is on — only the host can add tracks.'}), 403
 
     data = request.json
     track_info = data.get('track')
@@ -351,6 +357,12 @@ def update_settings(room_id):
     if 'vibe' in data:
         vibe = str(data['vibe'] or '').strip()[:50]
         state['vibe'] = vibe
+
+    if 'dj_mode' in data:
+        state['dj_mode'] = bool(data['dj_mode'])
+
+    if 'blind_mode' in data:
+        state['blind_mode'] = bool(data['blind_mode'])
 
     room_manager.save_room(room_id, state)
     room_manager.log_activity(room_id, user['display_name'], 'updated settings')
