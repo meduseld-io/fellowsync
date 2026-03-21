@@ -7,6 +7,7 @@ from flask import Blueprint, request, jsonify, session
 from config import Config
 import room_manager
 import spotify_service
+import groups
 from socket_events import broadcast_sync, broadcast_queue, broadcast_room_state
 
 logger = logging.getLogger(__name__)
@@ -59,6 +60,17 @@ def _extract_playlist_id(url):
     return None
 
 
+def _get_group_creds(token_data):
+    """Extract group credentials from token data if a group_id is present."""
+    group_id = token_data.get('group_id')
+    if not group_id:
+        return None, None
+    creds = groups.get_group_credentials(group_id)
+    if not creds:
+        return None, None
+    return creds
+
+
 def _trigger_playback_for_room(room_id, state):
     """Tell all users' Spotify clients to play the current track. Returns list of errors."""
     if not state.get('current_track') or not state.get('is_playing'):
@@ -67,7 +79,8 @@ def _trigger_playback_for_room(room_id, state):
     expected_ms = state['position_ms'] + (time.time() - state['last_update']) * 1000
     errors = []
     for user_id, token_data in tokens.items():
-        refreshed = spotify_service.get_valid_token(token_data)
+        cid, csecret = _get_group_creds(token_data)
+        refreshed = spotify_service.get_valid_token(token_data, client_id=cid, client_secret=csecret)
         if not refreshed:
             logger.error("Could not get valid token for user %s in room %s", user_id, room_id)
             errors.append({'user_id': user_id, 'error': 'token_expired'})
@@ -89,7 +102,8 @@ def _pause_playback_for_room(room_id):
     """Pause playback on all users' Spotify clients."""
     tokens = room_manager.get_all_tokens(room_id)
     for user_id, token_data in tokens.items():
-        refreshed = spotify_service.get_valid_token(token_data)
+        cid, csecret = _get_group_creds(token_data)
+        refreshed = spotify_service.get_valid_token(token_data, client_id=cid, client_secret=csecret)
         if not refreshed:
             logger.error("Could not get valid token for user %s in room %s", user_id, room_id)
             continue
@@ -153,11 +167,12 @@ def create_room():
         skip_threshold=skip_threshold,
         reactions_enabled=bool(reactions_enabled), stats_enabled=bool(stats_enabled),
     )
-    # Store host's token
+    # Store host's token (include group_id for BYOK credential lookup)
     room_manager.store_user_token(state['room_id'], user['spotify_user_id'], {
         'access_token': user['access_token'],
         'refresh_token': user['refresh_token'],
         'expires_at': user['expires_at'],
+        'group_id': user.get('group_id'),
     })
 
     # Handle auto-playlist if provided
@@ -166,7 +181,12 @@ def create_room():
         playlist_id = _extract_playlist_id(auto_playlist_url)
         if playlist_id:
             try:
-                token_data = spotify_service.get_valid_token(user)
+                _cid, _csecret = None, None
+                if user.get('group_id'):
+                    _creds = groups.get_group_credentials(user['group_id'])
+                    if _creds:
+                        _cid, _csecret = _creds
+                token_data = spotify_service.get_valid_token(user, client_id=_cid, client_secret=_csecret)
                 if token_data:
                     tracks, name = spotify_service.get_playlist_tracks(token_data['access_token'], playlist_id)
                     if tracks:
@@ -206,6 +226,7 @@ def join_room(room_id):
         'access_token': user['access_token'],
         'refresh_token': user['refresh_token'],
         'expires_at': user['expires_at'],
+        'group_id': user.get('group_id'),
     })
     participants = room_manager.get_participants(room_id)
     return jsonify({**state, 'participants': participants})
@@ -473,7 +494,12 @@ def update_settings(room_id):
             # Extract playlist ID from URL or URI
             playlist_id = _extract_playlist_id(url)
             if playlist_id:
-                token_data = spotify_service.get_valid_token(user)
+                _cid, _csecret = None, None
+                if user.get('group_id'):
+                    _creds = groups.get_group_credentials(user['group_id'])
+                    if _creds:
+                        _cid, _csecret = _creds
+                token_data = spotify_service.get_valid_token(user, client_id=_cid, client_secret=_csecret)
                 if token_data:
                     tracks, name = spotify_service.get_playlist_tracks(token_data['access_token'], playlist_id)
                     if tracks:
@@ -578,7 +604,8 @@ def sync_playback(room_id):
     if not token_data:
         return jsonify({'error': 'No token found for user'}), 400
 
-    refreshed = spotify_service.get_valid_token(token_data)
+    cid, csecret = _get_group_creds(token_data)
+    refreshed = spotify_service.get_valid_token(token_data, client_id=cid, client_secret=csecret)
     if not refreshed:
         return jsonify({'error': 'Token expired'}), 401
     if refreshed is not token_data:
@@ -635,7 +662,12 @@ def search():
     if search_type not in ('track', 'artist', 'album'):
         search_type = 'track'
     user = _get_user()
-    token_data = spotify_service.get_valid_token(user)
+    cid, csecret = None, None
+    if user.get('group_id'):
+        creds = groups.get_group_credentials(user['group_id'])
+        if creds:
+            cid, csecret = creds
+    token_data = spotify_service.get_valid_token(user, client_id=cid, client_secret=csecret)
     if not token_data:
         return jsonify({'error': 'Token expired'}), 401
     session['user'] = token_data

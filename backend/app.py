@@ -8,6 +8,7 @@ from flask_socketio import SocketIO
 from config import Config
 from auth import auth_bp
 from rooms import rooms_bp
+from group_routes import groups_bp
 from socket_events import init_socketio
 from sync_worker import run_sync_loop
 
@@ -35,6 +36,7 @@ socketio = SocketIO(
 
 app.register_blueprint(auth_bp)
 app.register_blueprint(rooms_bp)
+app.register_blueprint(groups_bp)
 init_socketio(socketio)
 
 

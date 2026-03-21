@@ -6,6 +6,7 @@ from flask import session
 from flask_socketio import SocketIO, emit, join_room, leave_room
 import room_manager
 import spotify_service
+import groups
 
 logger = logging.getLogger(__name__)
 
@@ -52,6 +53,7 @@ def init_socketio(sio):
             'access_token': user['access_token'],
             'refresh_token': user['refresh_token'],
             'expires_at': user['expires_at'],
+            'group_id': user.get('group_id'),
         })
 
         sio.emit('room_state', _room_payload(room_id, state), room=room_id)
@@ -61,7 +63,13 @@ def init_socketio(sio):
             user_id = user['spotify_user_id']
             token_data = room_manager.get_user_token(room_id, user_id)
             if token_data:
-                refreshed = spotify_service.get_valid_token(token_data)
+                _cid, _csecret = None, None
+                _gid = token_data.get('group_id')
+                if _gid:
+                    _creds = groups.get_group_credentials(_gid)
+                    if _creds:
+                        _cid, _csecret = _creds
+                refreshed = spotify_service.get_valid_token(token_data, client_id=_cid, client_secret=_csecret)
                 if refreshed:
                     if refreshed is not token_data:
                         room_manager.store_user_token(room_id, user_id, refreshed)

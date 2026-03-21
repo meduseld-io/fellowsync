@@ -17,7 +17,7 @@ async function request(path, options = {}) {
 }
 
 export const api = {
-  getLoginUrl: () => request('/api/auth/login'),
+  getLoginUrl: (groupId) => request(`/api/auth/login${groupId ? `?group_id=${groupId}` : ''}`),
   exchangeCode: (code) => request('/api/auth/callback', { method: 'POST', body: JSON.stringify({ code }) }),
   getMe: () => request('/api/auth/me'),
   logout: () => request('/api/auth/logout', { method: 'POST' }),
@@ -55,4 +55,14 @@ export const api = {
   // Avatar
   getAvatar: () => request('/api/auth/avatar'),
   setAvatar: (color) => request('/api/auth/avatar', { method: 'PUT', body: JSON.stringify({ color }) }),
+
+  // Groups (BYOK)
+  createGroup: (name, clientId, clientSecret) => request('/api/groups', { method: 'POST', body: JSON.stringify({ name, client_id: clientId, client_secret: clientSecret }) }),
+  getMyGroup: () => request('/api/groups/me'),
+  joinGroup: (groupId) => request(`/api/groups/${groupId}/join`, { method: 'POST' }),
+  leaveGroup: (groupId) => request(`/api/groups/${groupId}/leave`, { method: 'POST' }),
+  updateGroupCredentials: (groupId, clientId, clientSecret) => request(`/api/groups/${groupId}/credentials`, { method: 'PUT', body: JSON.stringify({ client_id: clientId, client_secret: clientSecret }) }),
+  getGroupMembers: (groupId) => request(`/api/groups/${groupId}/members`),
+  adminListGroups: () => request('/api/admin/groups'),
+  adminDeleteGroup: (groupId) => request(`/api/admin/groups/${groupId}`, { method: 'DELETE' }),
 };

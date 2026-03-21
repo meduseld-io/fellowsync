@@ -16,3 +16,4 @@ class Config:
     SPOTIFY_API_BASE = 'https://api.spotify.com/v1'
     SPOTIFY_SCOPES = 'user-read-playback-state user-modify-playback-state'
     ADMIN_USER_IDS = [x.strip() for x in os.getenv('ADMIN_USER_IDS', '').split(',') if x.strip()]
+    ENCRYPTION_KEY = os.getenv('ENCRYPTION_KEY', '')

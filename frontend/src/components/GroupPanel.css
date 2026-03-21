@@ -1,0 +1,194 @@
+.group-panel {
+  width: 100%;
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.group-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.4rem;
+}
+
+.group-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.group-count {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.group-id-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+}
+
+.group-id-label {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.group-id-code {
+  font-size: 0.75rem;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  user-select: all;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.group-members {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-bottom: 0.5rem;
+}
+
+.group-member {
+  font-size: 0.75rem;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 0.15rem 0.5rem;
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.group-member.leader {
+  color: #facc15;
+}
+
+.group-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.group-hint {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.group-options {
+  text-align: center;
+}
+
+.group-btn-row {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.btn-group {
+  padding: 0.4rem 0.8rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.2s;
+}
+
+.btn-group:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.btn-group:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-group-cancel {
+  padding: 0.4rem 0.8rem;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.btn-group-cancel:hover {
+  color: #fff;
+}
+
+.btn-group-leave {
+  padding: 0.3rem 0.6rem;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: background 0.2s;
+}
+
+.btn-group-leave:hover {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+.btn-group-reauth {
+  width: 100%;
+  padding: 0.4rem;
+  margin-bottom: 0.5rem;
+  border: 1px solid rgba(250, 204, 21, 0.3);
+  background: rgba(250, 204, 21, 0.1);
+  color: #facc15;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: background 0.2s;
+}
+
+.btn-group-reauth:hover {
+  background: rgba(250, 204, 21, 0.2);
+}
+
+.group-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.group-form h4 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.group-form input {
+  padding: 0.4rem 0.6rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+
+.group-form input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.group-form-hint {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.4);
+  margin: 0;
+}
+
+.group-form-hint a {
+  color: var(--fella-color, #4ade80);
+}
+
+.group-error {
+  color: #ef4444;
+  font-size: 0.8rem;
+  margin: 0 0 0.5rem;
+  text-align: center;
+}

@@ -11,6 +11,7 @@ export default function AdminPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [rooms, setRooms] = useState([]);
+  const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -26,6 +27,7 @@ export default function AdminPage() {
     }
     document.title = 'FellowSync - Admin';
     loadRooms();
+    loadGroups();
   }, [admin]);
 
   const loadRooms = async () => {
@@ -38,6 +40,15 @@ export default function AdminPage() {
       setError('Failed to load rooms');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadGroups = async () => {
+    try {
+      const data = await api.adminListGroups();
+      setGroups(data.groups || []);
+    } catch (e) {
+      console.error('Failed to load admin groups:', e);
     }
   };
 
@@ -58,6 +69,16 @@ export default function AdminPage() {
       setRooms([]);
     } catch (e) {
       console.error('Failed to delete all rooms:', e);
+    }
+  };
+
+  const handleDeleteGroup = async (groupId) => {
+    if (!confirm(`Delete group ${groupId}?`)) return;
+    try {
+      await api.adminDeleteGroup(groupId);
+      setGroups(groups.filter(g => g.id !== groupId));
+    } catch (e) {
+      console.error('Failed to delete group:', e);
     }
   };
 
@@ -127,6 +148,27 @@ export default function AdminPage() {
                   {name}{uid === room.host_id ? ' ★' : ''}
                 </span>
               ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="admin-card" style={{ marginTop: '1rem' }}>
+        <h2>
+          BYOK Groups <span className="room-count">{groups.length}</span>
+        </h2>
+        {groups.length === 0 && <p className="admin-muted">No groups</p>}
+        {groups.map(group => (
+          <div key={group.id} className="admin-room">
+            <div className="admin-room-header">
+              <span className="admin-room-code">{group.name}</span>
+              <span className="admin-muted" style={{ fontSize: '0.75rem' }}>{group.id}</span>
+              <button className="btn-delete-room" onClick={() => handleDeleteGroup(group.id)}>Delete</button>
+            </div>
+            <div className="admin-room-details">
+              <span>👥 {group.member_count}/5</span>
+              <span>👑 {group.leader_name}</span>
+              <span className="admin-muted" style={{ fontSize: '0.75rem' }}>App: {group.client_id?.slice(0, 12)}...</span>
             </div>
           </div>
         ))}

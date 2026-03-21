@@ -5,6 +5,7 @@ import { api } from '../services/api';
 import Footer from '../components/Footer';
 import HelpModal from '../components/HelpModal';
 import InstallBanner from '../components/InstallBanner';
+import GroupPanel from '../components/GroupPanel';
 import { getAvatarColor, setAvatarOverride, saveAvatarToBackend, getPickerColors, AVATAR_HEX } from '../utils/avatars';
 import { isAdmin } from '../utils/admin';
 import './LobbyPage.css';
@@ -231,6 +232,7 @@ export default function LobbyPage() {
         </div>
 
         <div className="lobby-footer">
+          <GroupPanel />
           <button className="btn-logout" onClick={logout}>Logout</button>
         </div>
         <HelpModal />
