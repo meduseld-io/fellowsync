@@ -17,14 +17,20 @@ Built with Flask, React, Redis, and the Spotify Web API.
 - **Remove from queue** — remove your own tracks, or any track if you're the host
 - **Synced playback** — host controls play/pause/skip, all listeners stay in sync
 - **Re-sync button** — fell out of sync? One click to catch back up
-- **Vote to skip** — non-host listeners can vote to skip (50% threshold)
+- **Vote to skip** — non-host listeners can vote to skip (threshold configurable by host)
 - **Track attribution** — see who queued each song
 - **Last played** — see what track just finished playing
 - **Auto-advance** — queue automatically moves to the next track when a song ends
-- **Room modes** — Normal (free-for-all) or Hear Me Out (round-robin turns)
+- **Room modes** — Normal (free-for-all), Hear Me Out (round-robin turns), DJ Mode (host-only queue), Blind Mode (queue hidden until tracks play), and Shuffle (random next track). Modes are mutually exclusive.
 - **Max consecutive limit** — optionally limit how many songs one person can queue in a row (1/2/3/unlimited)
-- **In-room settings** — host can change mode, consecutive limit, and vibe while the room is active
+- **Configurable skip threshold** — host sets the vote-to-skip percentage (25%, 50%, 75%, or unanimous)
+- **In-room settings** — host can change all settings from a popup modal while the room is active
 - **Vibe** — host can set a vibe label for the room (e.g. "Chill indie", "90s hip-hop") on creation or in-room
+- **Auto-playlist** — host pastes a Spotify playlist URL and tracks auto-queue when the manual queue empties
+- **Emoji reactions** — toggleable reaction buttons (🔥 ❤️ 😴 💀 😂) below the now-playing card with floating animations
+- **Session stats** — toggleable panel showing tracks played, skips, session duration, and a top queuers leaderboard
+- **Playback progress bar** — live progress bar with elapsed/total time below the now-playing card
+- **Share room link** — copy a direct join URL to share with friends
 - **Promote to host** — host can transfer control to another listener
 - **Host transfer on leave** — if the host leaves with others still in the room, they're prompted to pick a new host
 - **Activity log** — host and admin can view a timestamped log of all room actions (joins, leaves, queues, skips, etc.)
