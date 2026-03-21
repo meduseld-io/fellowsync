@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import Footer from '../components/Footer';
 import HelpModal from '../components/HelpModal';
+import InstallBanner from '../components/InstallBanner';
 import { getAvatarColor, setAvatarOverride, saveAvatarToBackend, getPickerColors, AVATAR_HEX } from '../utils/avatars';
 import { isAdmin } from '../utils/admin';
 import './LobbyPage.css';
@@ -230,6 +231,7 @@ export default function LobbyPage() {
         <HelpModal />
       </div>
       <Footer />
+      <InstallBanner />
     </div>
   );
 }

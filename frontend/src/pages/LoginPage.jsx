@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import Footer from '../components/Footer';
+import InstallBanner from '../components/InstallBanner';
 import './LoginPage.css';
 
 export default function LoginPage() {
@@ -22,6 +23,7 @@ export default function LoginPage() {
         </button>
       </div>
       <Footer />
+      <InstallBanner />
     </div>
   );
 }

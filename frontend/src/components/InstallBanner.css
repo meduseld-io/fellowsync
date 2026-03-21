@@ -1,0 +1,48 @@
+.install-banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 12px 40px 12px 16px;
+  z-index: 1000;
+  text-align: center;
+  animation: slideUp 0.3s ease;
+}
+
+.install-banner p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.install-share-icon {
+  display: inline-flex;
+  align-items: center;
+  color: var(--fella-color);
+  vertical-align: middle;
+}
+
+.install-banner-close {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
