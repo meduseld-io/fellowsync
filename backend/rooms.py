@@ -129,6 +129,8 @@ def create_room():
     blind_mode = data.get('blind_mode', False)
     shuffle_mode = data.get('shuffle_mode', False)
     skip_threshold = data.get('skip_threshold', 0.5)
+    reactions_enabled = data.get('reactions_enabled', False)
+    stats_enabled = data.get('stats_enabled', False)
 
     # Validate
     try:
@@ -150,6 +152,7 @@ def create_room():
         max_consecutive=max_consecutive, hear_me_out=bool(hear_me_out),
         vibe=vibe, dj_mode=bool(dj_mode), blind_mode=bool(blind_mode),
         shuffle_mode=bool(shuffle_mode), skip_threshold=skip_threshold,
+        reactions_enabled=bool(reactions_enabled), stats_enabled=bool(stats_enabled),
     )
     # Store host's token
     room_manager.store_user_token(state['room_id'], user['spotify_user_id'], {
@@ -157,6 +160,25 @@ def create_room():
         'refresh_token': user['refresh_token'],
         'expires_at': user['expires_at'],
     })
+
+    # Handle auto-playlist if provided
+    auto_playlist_url = str(data.get('auto_playlist_url', '') or '').strip()
+    if auto_playlist_url:
+        playlist_id = _extract_playlist_id(auto_playlist_url)
+        if playlist_id:
+            try:
+                token_data = spotify_service.get_valid_token(user)
+                if token_data:
+                    tracks, name = spotify_service.get_playlist_tracks(token_data['access_token'], playlist_id)
+                    if tracks:
+                        state['auto_playlist'] = tracks
+                        state['auto_playlist_index'] = 0
+                        state['auto_playlist_name'] = name or 'Playlist'
+                        room_manager.save_room(state['room_id'], state)
+                        room_manager.log_activity(state['room_id'], user['display_name'], 'set auto-playlist', name or playlist_id)
+            except Exception as e:
+                logger.error("Failed to load auto-playlist during room creation: %s", e)
+
     room_manager.log_activity(state['room_id'], user['display_name'], 'created room')
     return jsonify(state)
 

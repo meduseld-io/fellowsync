@@ -40,7 +40,7 @@ def generate_room_code():
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
 
 
-def create_room(host_id, host_name, max_consecutive=0, hear_me_out=False, vibe='', dj_mode=False, blind_mode=False, shuffle_mode=False, skip_threshold=0.5):
+def create_room(host_id, host_name, max_consecutive=0, hear_me_out=False, vibe='', dj_mode=False, blind_mode=False, shuffle_mode=False, skip_threshold=0.5, reactions_enabled=False, stats_enabled=False):
     """Create a new room and return its state."""
     room_id = generate_room_code()
     while _redis.exists(_room_key(room_id)):
@@ -67,9 +67,9 @@ def create_room(host_id, host_name, max_consecutive=0, hear_me_out=False, vibe='
         'auto_playlist': [],
         'auto_playlist_index': 0,
         'auto_playlist_name': '',
-        'reactions_enabled': False,
+        'reactions_enabled': reactions_enabled,
         'reactions': {},
-        'stats_enabled': False,
+        'stats_enabled': stats_enabled,
     }
     _redis.set(_room_key(room_id), json.dumps(state), ex=ROOM_TTL)
     _redis.hset(_participants_key(room_id), host_id, host_name)

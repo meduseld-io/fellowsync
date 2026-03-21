@@ -21,6 +21,9 @@ export default function LobbyPage() {
   const [showAvatarPicker, setShowAvatarPicker] = useState(false);
   const [selectedAvatar, setSelectedAvatar] = useState(() => getAvatarColor(user?.spotify_user_id || ''));
   const [showSettings, setShowSettings] = useState(false);
+  const [reactionsEnabled, setReactionsEnabled] = useState(false);
+  const [statsEnabled, setStatsEnabled] = useState(false);
+  const [autoPlaylistUrl, setAutoPlaylistUrl] = useState('');
 
   useEffect(() => { document.title = 'FellowSync - Lobby'; }, []);
 
@@ -42,6 +45,9 @@ export default function LobbyPage() {
         blind_mode: mode === 'blind',
         shuffle_mode: mode === 'shuffle',
         skip_threshold: skipThreshold,
+        reactions_enabled: reactionsEnabled,
+        stats_enabled: statsEnabled,
+        auto_playlist_url: autoPlaylistUrl.trim(),
       });
       navigate(`/room/${room.room_id}`);
     } catch (e) {
@@ -152,6 +158,38 @@ export default function LobbyPage() {
                     maxLength={50}
                     style={{ flex: 1 }}
                   />
+                </div>
+                <div className="setting-divider" />
+                <div className="setting-row">
+                  <label>Reactions</label>
+                  <button
+                    className={`toggle-switch${reactionsEnabled ? ' on' : ''}`}
+                    onClick={() => setReactionsEnabled(!reactionsEnabled)}
+                    role="switch"
+                    aria-checked={reactionsEnabled}
+                  />
+                </div>
+                <div className="setting-row">
+                  <label>Session Stats</label>
+                  <button
+                    className={`toggle-switch${statsEnabled ? ' on' : ''}`}
+                    onClick={() => setStatsEnabled(!statsEnabled)}
+                    role="switch"
+                    aria-checked={statsEnabled}
+                  />
+                </div>
+                <div className="setting-divider" />
+                <div className="setting-row auto-playlist-row">
+                  <label>Auto-playlist</label>
+                  <div className="auto-playlist-input">
+                    <input
+                      type="text"
+                      placeholder="Paste Spotify playlist URL..."
+                      value={autoPlaylistUrl}
+                      onChange={(e) => setAutoPlaylistUrl(e.target.value)}
+                      style={{ flex: 1 }}
+                    />
+                  </div>
                 </div>
               </div>
               <button className="btn-primary" onClick={handleCreate} disabled={creating} style={{ marginTop: '1.25rem', width: '100%' }}>
