@@ -554,17 +554,19 @@
 }
 
 .setting-row label {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: var(--text-muted);
 }
 
 .setting-row select {
-  padding: 4px 8px;
-  border-radius: 6px;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  color: var(--text);
-  font-size: 0.85rem;
+  margin-left: auto;
+  font-size: 0.8rem;
+  padding: 5px 28px 5px 10px;
+}
+
+.setting-row input {
+  font-size: 0.8rem;
+  padding: 5px 10px;
 }
 
 .participant-avatar {

@@ -162,12 +162,19 @@
 }
 
 .option-row label {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: var(--text-muted);
 }
 
 .option-row select {
   margin-left: auto;
+  font-size: 0.8rem;
+  padding: 5px 28px 5px 10px;
+}
+
+.option-row input {
+  font-size: 0.8rem;
+  padding: 5px 10px;
 }
 
 .toggle-btn {
