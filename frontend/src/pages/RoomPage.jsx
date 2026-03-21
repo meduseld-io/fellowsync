@@ -426,6 +426,19 @@ export default function RoomPage() {
             <span className="room-code" onClick={handleCopyCode}>
               {copied ? '✓ Copied' : roomId}
             </span>
+            <button
+              className="btn-share"
+              onClick={() => {
+                const url = `${window.location.origin}/join/${roomId}`;
+                navigator.clipboard.writeText(url).then(() => {
+                  showToast('Room link copied to clipboard');
+                }).catch((e) => {
+                  console.error('Failed to copy share link:', e);
+                });
+              }}
+            >
+              🔗
+            </button>
             <button className="btn-secondary" onClick={handleLeave} style={{ padding: '8px 14px', fontSize: '0.85rem' }}>
               Leave
             </button>

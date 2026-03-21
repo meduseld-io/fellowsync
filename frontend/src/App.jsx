@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import LoginPage from './pages/LoginPage';
@@ -13,6 +13,11 @@ function ProtectedRoute({ children }) {
   if (loading) return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>Loading...</div>;
   if (!user) return <Navigate to="/" replace />;
   return children;
+}
+
+function JoinRedirect() {
+  const { roomId } = useParams();
+  return <Navigate to={`/room/${roomId}`} replace />;
 }
 
 function AppRoutes() {
@@ -39,6 +44,7 @@ function AppRoutes() {
       <Route path="/callback" element={<CallbackPage />} />
       <Route path="/lobby" element={<ProtectedRoute><LobbyPage /></ProtectedRoute>} />
       <Route path="/room/:roomId" element={<ProtectedRoute><RoomPage /></ProtectedRoute>} />
+      <Route path="/join/:roomId" element={<ProtectedRoute><JoinRedirect /></ProtectedRoute>} />
       <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
