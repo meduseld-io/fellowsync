@@ -7,6 +7,7 @@
   flex-direction: column;
   gap: 8px;
   pointer-events: none;
+  max-width: calc(100vw - 32px);
 }
 
 .toast-item {
@@ -22,8 +23,8 @@
 }
 
 @keyframes toast-in {
-  from { opacity: 0; transform: translateX(40px); }
-  to { opacity: 1; transform: translateX(0); }
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes toast-out {
