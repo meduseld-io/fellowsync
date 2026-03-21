@@ -19,6 +19,7 @@ export default function LobbyPage() {
   const [skipThreshold, setSkipThreshold] = useState(0.5);
   const [showAvatarPicker, setShowAvatarPicker] = useState(false);
   const [selectedAvatar, setSelectedAvatar] = useState(() => getAvatarColor(user?.spotify_user_id || ''));
+  const [showSettings, setShowSettings] = useState(false);
 
   useEffect(() => { document.title = 'FellowSync - Lobby'; }, []);
 
@@ -98,65 +99,70 @@ export default function LobbyPage() {
 
         {error && <p style={{ color: 'var(--danger)', marginBottom: '1rem', fontSize: '0.9rem' }}>{error}</p>}
 
-        <div className="room-options">
-          <div className="option-row">
-            <label htmlFor="mode">
-              Mode
-            </label>
-            <span className="tooltip-icon">?<span className="tooltip-bubble"><strong>Normal:</strong> free-for-all queue. <strong>Hear Me Out:</strong> alternates songs between users. <strong>DJ:</strong> only the host can add songs. <strong>Blind:</strong> queue is hidden until tracks play. <strong>Shuffle:</strong> next track is picked randomly.</span></span>
-            <select
-              id="mode"
-              value={mode}
-              onChange={(e) => setMode(e.target.value)}
-            >
-              <option value="normal">Normal</option>
-              <option value="hear_me_out">Hear Me Out</option>
-              <option value="dj">DJ Mode</option>
-              <option value="blind">Blind Mode</option>
-              <option value="shuffle">Shuffle</option>
-            </select>
+        <button className="btn-settings-lobby" onClick={() => setShowSettings(true)}>
+          ⚙ Room Settings
+        </button>
+
+        {showSettings && (
+          <div className="modal-overlay" onClick={() => setShowSettings(false)}>
+            <div className="modal-content settings-modal" onClick={(e) => e.stopPropagation()}>
+              <h3>⚙ Room Settings</h3>
+              <div className="room-settings">
+                <div className="setting-row">
+                  <label>Mode</label>
+                  <select
+                    value={mode}
+                    onChange={(e) => setMode(e.target.value)}
+                  >
+                    <option value="normal">Normal</option>
+                    <option value="hear_me_out">Hear Me Out</option>
+                    <option value="dj">DJ Mode</option>
+                    <option value="blind">Blind Mode</option>
+                    <option value="shuffle">Shuffle</option>
+                  </select>
+                </div>
+                <div className="setting-row">
+                  <label>Max in a row</label>
+                  <select
+                    value={maxConsecutive}
+                    onChange={(e) => setMaxConsecutive(Number(e.target.value))}
+                  >
+                    <option value={0}>Unlimited</option>
+                    <option value={1}>1</option>
+                    <option value={2}>2</option>
+                    <option value={3}>3</option>
+                  </select>
+                </div>
+                <div className="setting-row">
+                  <label>Skip votes</label>
+                  <select
+                    value={skipThreshold}
+                    onChange={(e) => setSkipThreshold(Number(e.target.value))}
+                  >
+                    <option value={0.25}>25%</option>
+                    <option value={0.5}>50%</option>
+                    <option value={0.75}>75%</option>
+                    <option value={1.0}>Unanimous</option>
+                  </select>
+                </div>
+                <div className="setting-row">
+                  <label>Vibe</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Metal, 90s hip-hop..."
+                    value={vibe}
+                    onChange={(e) => setVibe(e.target.value.slice(0, 50))}
+                    maxLength={50}
+                    style={{ flex: 1 }}
+                  />
+                </div>
+              </div>
+              <button className="btn-secondary" onClick={() => setShowSettings(false)} style={{ marginTop: '1.25rem', width: '100%' }}>
+                Done
+              </button>
+            </div>
           </div>
-          <div className="option-row">
-            <label htmlFor="maxConsecutive">Max in a row</label>
-            <span className="tooltip-icon">?<span className="tooltip-bubble">Limits how many songs one person can queue consecutively. Prevents one user from filling the entire queue.</span></span>
-            <select
-              id="maxConsecutive"
-              value={maxConsecutive}
-              onChange={(e) => setMaxConsecutive(Number(e.target.value))}
-            >
-              <option value={0}>Unlimited</option>
-              <option value={1}>1</option>
-              <option value={2}>2</option>
-              <option value={3}>3</option>
-            </select>
-          </div>
-          <div className="option-row">
-            <label htmlFor="skipThreshold">Skip votes</label>
-            <span className="tooltip-icon">?<span className="tooltip-bubble">Percentage of listeners that must vote to skip before a track is skipped. The host can always skip instantly.</span></span>
-            <select
-              id="skipThreshold"
-              value={skipThreshold}
-              onChange={(e) => setSkipThreshold(Number(e.target.value))}
-            >
-              <option value={0.25}>25%</option>
-              <option value={0.5}>50%</option>
-              <option value={0.75}>75%</option>
-              <option value={1.0}>Unanimous</option>
-            </select>
-          </div>
-          <div className="option-row">
-            <label htmlFor="vibe">Vibe</label>
-            <input
-              id="vibe"
-              type="text"
-              placeholder="e.g Metal, 90s hip-hop..."
-              value={vibe}
-              onChange={(e) => setVibe(e.target.value.slice(0, 50))}
-              maxLength={50}
-              style={{ flex: 1, marginLeft: 'auto', maxWidth: '220px' }}
-            />
-          </div>
-        </div>
+        )}
 
         <div className="lobby-actions">
           <button className="btn-primary" onClick={handleCreate} disabled={creating}>
