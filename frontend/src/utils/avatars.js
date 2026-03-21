@@ -1,4 +1,5 @@
 import { isAdmin } from './admin';
+import { api } from '../services/api.js';
 
 export const AVATAR_COLORS = ['green', 'pink', 'yellow', 'purple', 'blue'];
 
@@ -72,9 +73,7 @@ export function setAvatarOverride(color) {
  * Save avatar choice to the backend (fire-and-forget).
  */
 export function saveAvatarToBackend(color) {
-  import('../services/api.js').then(({ api }) => {
-    api.setAvatar(color).catch((e) => console.error('Failed to save avatar to backend:', e));
-  });
+  api.setAvatar(color).catch((e) => console.error('Failed to save avatar to backend:', e));
 }
 
 /**
