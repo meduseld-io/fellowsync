@@ -47,6 +47,7 @@ def init_socketio(sio):
 
         join_room(room_id)
         room_manager.add_participant(room_id, user['spotify_user_id'], user['display_name'])
+        room_manager.log_activity(room_id, user['display_name'], 'joined')
         room_manager.store_user_token(room_id, user['spotify_user_id'], {
             'access_token': user['access_token'],
             'refresh_token': user['refresh_token'],
@@ -86,6 +87,7 @@ def init_socketio(sio):
 
         leave_room(room_id)
         room_manager.remove_participant(room_id, user['spotify_user_id'])
+        room_manager.log_activity(room_id, user['display_name'], 'left')
         participants = room_manager.get_participants(room_id)
 
         # Auto-delete room if no participants remain

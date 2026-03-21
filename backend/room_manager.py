@@ -27,6 +27,10 @@ def _tokens_key(room_id):
     return f'room:{room_id}:tokens'
 
 
+def _activity_key(room_id):
+    return f'room:{room_id}:activity'
+
+
 def generate_room_code():
     """Generate a 6-character alphanumeric room code."""
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
@@ -77,11 +81,12 @@ def save_room(room_id, state):
     _redis.set(_room_key(room_id), json.dumps(state), ex=ROOM_TTL)
     _redis.expire(_participants_key(room_id), ROOM_TTL)
     _redis.expire(_tokens_key(room_id), ROOM_TTL)
+    _redis.expire(_activity_key(room_id), ROOM_TTL)
 
 
 def delete_room(room_id):
     """Remove a room entirely."""
-    _redis.delete(_room_key(room_id), _participants_key(room_id), _tokens_key(room_id))
+    _redis.delete(_room_key(room_id), _participants_key(room_id), _tokens_key(room_id), _activity_key(room_id))
 
 
 def add_participant(room_id, user_id, display_name):
@@ -292,3 +297,34 @@ def get_user_avatar(spotify_user_id):
 def set_user_avatar(spotify_user_id, color):
     """Save a user's avatar color choice."""
     _redis.set(f'user_avatar:{spotify_user_id}', color)
+
+
+# --- Activity log ---
+
+MAX_ACTIVITY_ENTRIES = 50
+
+
+def log_activity(room_id, user_name, action, detail=''):
+    """Append an activity entry to the room's log."""
+    entry = json.dumps({
+        'user': user_name,
+        'action': action,
+        'detail': detail,
+        'ts': time.time(),
+    })
+    key = _activity_key(room_id)
+    _redis.rpush(key, entry)
+    _redis.ltrim(key, -MAX_ACTIVITY_ENTRIES, -1)
+    _redis.expire(key, ROOM_TTL)
+
+
+def get_activity(room_id):
+    """Return the activity log as a list of dicts."""
+    raw = _redis.lrange(_activity_key(room_id), 0, -1)
+    entries = []
+    for item in raw:
+        try:
+            entries.append(json.loads(item))
+        except Exception as e:
+            logger.error("Failed to parse activity entry in room %s: %s", room_id, e)
+    return entries

@@ -735,3 +735,47 @@
 .host-transfer-item:hover {
   background: color-mix(in srgb, var(--fella-color) 10%, transparent);
 }
+
+/* Activity log */
+.activity-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.activity-entry {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 0.78rem;
+  padding: 3px 0;
+  flex-wrap: wrap;
+}
+
+.activity-time {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  flex-shrink: 0;
+}
+
+.activity-user {
+  color: var(--fella-color);
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.activity-action {
+  color: var(--text);
+}
+
+.activity-detail {
+  color: var(--text-muted);
+  font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 160px;
+}

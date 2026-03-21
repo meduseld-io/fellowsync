@@ -129,6 +129,7 @@ def create_room():
         'refresh_token': user['refresh_token'],
         'expires_at': user['expires_at'],
     })
+    room_manager.log_activity(state['room_id'], user['display_name'], 'created room')
     return jsonify(state)
 
 
@@ -191,6 +192,7 @@ def add_to_queue(room_id):
         return jsonify({'error': 'You have reached the maximum consecutive songs limit. Let someone else queue a track.'}), 429
     if not updated:
         return jsonify({'error': 'Room not found'}), 404
+    room_manager.log_activity(room_id, user['display_name'], 'queued', track_info.get('name', ''))
     broadcast_queue(room_id, updated)
     return jsonify(_with_participants(room_id, updated))
 
@@ -221,6 +223,7 @@ def remove_from_queue(room_id, index):
     queue.pop(index)
     state['queue'] = queue
     room_manager.save_room(room_id, state)
+    room_manager.log_activity(room_id, user['display_name'], 'removed', track.get('name', ''))
     broadcast_queue(room_id, state)
     return jsonify(_with_participants(room_id, state))
 
@@ -276,6 +279,7 @@ def clear_queue(room_id):
 
     state['queue'] = []
     room_manager.save_room(room_id, state)
+    room_manager.log_activity(room_id, user['display_name'], 'cleared queue')
     broadcast_queue(room_id, state)
     return jsonify(_with_participants(room_id, state))
 
@@ -297,7 +301,14 @@ def skip_track(room_id):
         return jsonify({'error': 'Room not found'}), 404
 
     if skipped:
+        track_name = updated.get('current_track_info', {}).get('name', '') if updated.get('current_track_info') else ''
+        if user['spotify_user_id'] == state['host_id']:
+            room_manager.log_activity(room_id, user['display_name'], 'skipped', track_name)
+        else:
+            room_manager.log_activity(room_id, user['display_name'], 'vote skip passed', track_name)
         _trigger_playback_for_room(room_id, updated)
+    else:
+        room_manager.log_activity(room_id, user['display_name'], 'vote skip')
 
     broadcast_sync(room_id, updated)
     resp = _with_participants(room_id, updated)
@@ -340,6 +351,7 @@ def update_settings(room_id):
         state['vibe'] = vibe
 
     room_manager.save_room(room_id, state)
+    room_manager.log_activity(room_id, user['display_name'], 'updated settings')
     broadcast_room_state(room_id, state)
     return jsonify(_with_participants(room_id, state))
 
@@ -373,6 +385,7 @@ def promote_host(room_id):
 
     state['host_id'] = new_host_id
     room_manager.save_room(room_id, state)
+    room_manager.log_activity(room_id, user['display_name'], 'transferred host to', participants.get(new_host_id, new_host_id))
     broadcast_room_state(room_id, state)
     return jsonify(_with_participants(room_id, state))
 
@@ -404,6 +417,7 @@ def play(room_id):
         room_manager.save_room(room_id, state)
 
     playback_errors = _trigger_playback_for_room(room_id, state)
+    room_manager.log_activity(room_id, user['display_name'], 'played')
     broadcast_sync(room_id, state)
     resp = _with_participants(room_id, state)
     if playback_errors:
@@ -473,6 +487,7 @@ def pause(room_id):
     state['last_update'] = time.time()
     room_manager.save_room(room_id, state)
     _pause_playback_for_room(room_id)
+    room_manager.log_activity(room_id, user['display_name'], 'paused')
     broadcast_sync(room_id, state)
     return jsonify(_with_participants(room_id, state))
 
@@ -502,6 +517,24 @@ def search():
     elif search_type == 'album':
         tracks = spotify_service.search_tracks(token_data['access_token'], f'album:{q}')
         return jsonify({'tracks': tracks})
+
+
+@rooms_bp.route('/api/rooms/<room_id>/activity')
+@_require_auth
+def get_activity(room_id):
+    """Get the activity log for a room (host or admin only)."""
+    user = _get_user()
+    state = room_manager.get_room(room_id)
+    if not state:
+        return jsonify({'error': 'Room not found'}), 404
+
+    is_host = user['spotify_user_id'] == state['host_id']
+    is_admin_user = user.get('spotify_user_id') in Config.ADMIN_USER_IDS
+    if not is_host and not is_admin_user:
+        return jsonify({'error': 'Only the host or admin can view activity'}), 403
+
+    entries = room_manager.get_activity(room_id)
+    return jsonify({'activity': entries})
 
 
 def _require_admin(f):
