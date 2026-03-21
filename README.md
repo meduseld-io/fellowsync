@@ -175,13 +175,14 @@ Frontend (React + Vite)          Backend (Flask + SocketIO)
 
 - All listeners need **Spotify Premium** — the Spotify Web API does not support playback control on free accounts.
 - Spotify apps start in **Development Mode**, which limits access to 5 users (not including the developer). You must add each user's Spotify email to the allowlist in the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard). To remove this limit, submit a quota extension request to Spotify.
-- FellowSync is developed and maintained by [quietarcade](https://github.com/quietarcade).
 
 ## Contributing
 
 FellowSync is open source under the [GNU Affero General Public License v3.0](LICENSE). This means any modified version you deploy as a network service must also make its source code available to users.
 
 Contributions are welcome — feel free to open issues or submit pull requests on [GitHub](https://github.com/meduseld-io/fellowsync).
+
+FellowSync is developed and maintained by [@quietarcade](https://github.com/quietarcade) as part of [Meduseld](https://github.com/meduseld-io).
 
 ## License
 
