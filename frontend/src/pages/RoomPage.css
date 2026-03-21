@@ -64,6 +64,7 @@
   display: grid;
   grid-template-columns: 1fr 300px;
   gap: 1.5rem;
+  min-width: 0;
 }
 
 @media (max-width: 768px) {
@@ -102,6 +103,7 @@
   padding: 1.5rem;
   margin-bottom: 1.5rem;
   position: relative;
+  overflow: hidden;
 }
 
 .btn-sync {
@@ -234,6 +236,9 @@
   font-size: 0.7rem;
   color: var(--fella-color);
   white-space: nowrap;
+  max-width: 60%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .btn-remove {
