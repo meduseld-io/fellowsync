@@ -912,6 +912,19 @@ export default function RoomPage() {
                         ))}
                     </>
                   )}
+                  {room.reactions_enabled && stats.reaction_counts && Object.keys(stats.reaction_counts).length > 0 && (
+                    <>
+                      <div className="stat-divider" />
+                      <div className="stat-label" style={{ marginBottom: '4px' }}>Reactions</div>
+                      <div className="stat-row" style={{ flexWrap: 'wrap', gap: '6px' }}>
+                        {Object.entries(stats.reaction_counts)
+                          .sort(([, a], [, b]) => b - a)
+                          .map(([emoji, count]) => (
+                            <span key={emoji} className="stat-reaction">{emoji} {count}</span>
+                          ))}
+                      </div>
+                    </>
+                  )}
                   <button className="btn-secondary" onClick={fetchStats} style={{ marginTop: '0.5rem', width: '100%', fontSize: '0.78rem', padding: '4px' }}>
                     Refresh
                   </button>

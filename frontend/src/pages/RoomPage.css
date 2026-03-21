@@ -699,6 +699,14 @@
   margin: 4px 0;
 }
 
+.stat-reaction {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2px 8px;
+  font-size: 0.82rem;
+}
+
 .dj-mode-notice {
   color: #fbbf24;
   font-size: 0.9rem;

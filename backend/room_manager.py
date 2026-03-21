@@ -328,9 +328,30 @@ def react_track(room_id, user_id, emoji):
                 reactions[e].remove(user_id)
         reactions[emoji].append(user_id)
 
+        # Record reaction in stats if stats are enabled
+        if state.get('stats_enabled'):
+            _record_reaction(room_id, emoji)
+
     state['reactions'] = reactions
     save_room(room_id, state)
     return state
+
+
+def _record_reaction(room_id, emoji):
+    """Record a reaction in stats."""
+    key = _stats_key(room_id)
+    raw = _redis.get(key)
+    try:
+        stats = json.loads(raw) if raw else _empty_stats()
+    except Exception as e:
+        logger.error("Failed to parse stats for reaction in room %s: %s", room_id, e)
+        stats = _empty_stats()
+
+    if 'reaction_counts' not in stats:
+        stats['reaction_counts'] = {}
+    stats['reaction_counts'][emoji] = stats['reaction_counts'].get(emoji, 0) + 1
+
+    _redis.set(key, json.dumps(stats), ex=ROOM_TTL)
 
 
 def get_all_active_rooms():
@@ -455,4 +476,5 @@ def _empty_stats():
         'queued_by_count': {},
         'user_names': {},
         'started_at': time.time(),
+        'reaction_counts': {},
     }
