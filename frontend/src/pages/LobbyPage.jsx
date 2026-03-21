@@ -99,10 +99,6 @@ export default function LobbyPage() {
 
         {error && <p style={{ color: 'var(--danger)', marginBottom: '1rem', fontSize: '0.9rem' }}>{error}</p>}
 
-        <button className="btn-settings-lobby" onClick={() => setShowSettings(true)}>
-          ⚙ Room Settings
-        </button>
-
         {showSettings && (
           <div className="modal-overlay" onClick={() => setShowSettings(false)}>
             <div className="modal-content settings-modal" onClick={(e) => e.stopPropagation()}>
@@ -157,16 +153,16 @@ export default function LobbyPage() {
                   />
                 </div>
               </div>
-              <button className="btn-secondary" onClick={() => setShowSettings(false)} style={{ marginTop: '1.25rem', width: '100%' }}>
-                Done
+              <button className="btn-primary" onClick={handleCreate} disabled={creating} style={{ marginTop: '1.25rem', width: '100%' }}>
+                {creating ? 'Creating...' : 'Create Room'}
               </button>
             </div>
           </div>
         )}
 
         <div className="lobby-actions">
-          <button className="btn-primary" onClick={handleCreate} disabled={creating}>
-            {creating ? 'Creating...' : 'Create Room'}
+          <button className="btn-primary" onClick={() => setShowSettings(true)}>
+            Create Room
           </button>
 
           <span className="lobby-divider">or</span>

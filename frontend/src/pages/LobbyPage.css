@@ -153,24 +153,6 @@
   text-align: left;
 }
 
-.btn-settings-lobby {
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 10px 20px;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: border-color 0.15s, color 0.15s;
-  margin-bottom: 1.5rem;
-  width: 100%;
-}
-
-.btn-settings-lobby:hover {
-  border-color: var(--fella-color);
-  color: var(--text);
-}
-
 .modal-overlay {
   position: fixed;
   inset: 0;
