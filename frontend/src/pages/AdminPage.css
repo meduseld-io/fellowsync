@@ -5,6 +5,8 @@
   min-height: 100dvh;
   min-height: 100vh;
   padding: 2rem;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 .admin-card {
@@ -14,6 +16,7 @@
   padding: 2rem;
   max-width: 600px;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .admin-header {
@@ -22,6 +25,7 @@
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 1.25rem;
+  flex-wrap: wrap;
 }
 
 .admin-card h1 {
@@ -192,4 +196,31 @@
   display: flex;
   gap: 8px;
   flex-shrink: 0;
+}
+
+@media (max-width: 480px) {
+  .admin-page {
+    padding: 1rem;
+  }
+
+  .admin-card {
+    padding: 1.25rem;
+  }
+
+  .admin-card h1 {
+    font-size: 1.1rem;
+  }
+
+  .admin-header {
+    gap: 8px;
+  }
+
+  .admin-nav {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .admin-nav button {
+    flex: 1;
+  }
 }
