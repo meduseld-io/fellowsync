@@ -391,6 +391,11 @@ def update_settings(room_id):
     if 'shuffle_mode' in data:
         state['shuffle_mode'] = bool(data['shuffle_mode'])
 
+    if 'reactions_enabled' in data:
+        state['reactions_enabled'] = bool(data['reactions_enabled'])
+        if not state['reactions_enabled']:
+            state['reactions'] = {}
+
     if 'skip_threshold' in data:
         try:
             val = float(data['skip_threshold'])
@@ -604,6 +609,22 @@ def get_activity(room_id):
 
     entries = room_manager.get_activity(room_id)
     return jsonify({'activity': entries})
+
+
+@rooms_bp.route('/api/rooms/<room_id>/react', methods=['POST'])
+@_require_auth
+def react(room_id):
+    """Toggle a reaction on the current track."""
+    user = _get_user()
+    data = request.json or {}
+    emoji = data.get('emoji', '')
+
+    updated = room_manager.react_track(room_id, user['spotify_user_id'], emoji)
+    if not updated:
+        return jsonify({'error': 'Invalid reaction or reactions disabled'}), 400
+
+    broadcast_room_state(room_id, updated)
+    return jsonify(_with_participants(room_id, updated))
 
 
 def _require_admin(f):

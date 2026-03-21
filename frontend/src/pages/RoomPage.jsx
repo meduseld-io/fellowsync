@@ -30,6 +30,7 @@ export default function RoomPage() {
   const [activityLog, setActivityLog] = useState([]);
   const [showActivity, setShowActivity] = useState(false);
   const [playlistUrl, setPlaylistUrl] = useState('');
+  const [floatingEmojis, setFloatingEmojis] = useState([]);
   const searchTimeout = useRef(null);
   const vibeTimeout = useRef(null);
   const socketRef = useRef(null);
@@ -279,6 +280,20 @@ export default function RoomPage() {
     }
   };
 
+  const handleReact = async (emoji) => {
+    try {
+      const updated = await api.react(roomId, emoji);
+      setRoom(updated);
+      // Spawn floating emoji animation
+      const id = Date.now() + Math.random();
+      const drift = Math.round((Math.random() - 0.5) * 40);
+      setFloatingEmojis((prev) => [...prev, { id, emoji, drift }]);
+      setTimeout(() => setFloatingEmojis((prev) => prev.filter((e) => e.id !== id)), 1500);
+    } catch (e) {
+      console.error('Failed to react:', e);
+    }
+  };
+
   const handleLeave = () => {
     const isCurrentHost = user?.spotify_user_id === room?.host_id;
     const otherParticipants = Object.keys(room?.participants || {}).filter(uid => uid !== user?.spotify_user_id);
@@ -462,6 +477,26 @@ export default function RoomPage() {
             )}
           </div>
         </div>
+        {room.reactions_enabled && currentTrack && (
+          <div className="reactions-bar">
+            {floatingEmojis.map((fe) => (
+              <span key={fe.id} className="floating-emoji" style={{ '--drift': `${fe.drift}px` }}>{fe.emoji}</span>
+            ))}
+            {['🔥', '❤️', '😴', '💀', '😂'].map((emoji) => {
+              const voters = room.reactions?.[emoji] || [];
+              const voted = voters.includes(user?.spotify_user_id);
+              return (
+                <button
+                  key={emoji}
+                  className={`reaction-btn${voted ? ' reacted' : ''}`}
+                  onClick={() => handleReact(emoji)}
+                >
+                  {emoji} {voters.length > 0 && <span className="reaction-count">{voters.length}</span>}
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       <div className="room-grid">
@@ -689,6 +724,16 @@ export default function RoomPage() {
                   <select
                     value={room.dj_mode ? 'on' : 'off'}
                     onChange={(e) => handleUpdateSettings({ dj_mode: e.target.value === 'on' })}
+                  >
+                    <option value="off">Off</option>
+                    <option value="on">On</option>
+                  </select>
+                </div>
+                <div className="setting-row">
+                  <label>Reactions</label>
+                  <select
+                    value={room.reactions_enabled ? 'on' : 'off'}
+                    onChange={(e) => handleUpdateSettings({ reactions_enabled: e.target.value === 'on' })}
                   >
                     <option value="off">Off</option>
                     <option value="on">On</option>

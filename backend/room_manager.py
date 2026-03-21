@@ -63,6 +63,8 @@ def create_room(host_id, host_name, max_consecutive=0, hear_me_out=False, vibe='
         'auto_playlist': [],
         'auto_playlist_index': 0,
         'auto_playlist_name': '',
+        'reactions_enabled': False,
+        'reactions': {},
     }
     _redis.set(_room_key(room_id), json.dumps(state), ex=ROOM_TTL)
     _redis.hset(_participants_key(room_id), host_id, host_name)
@@ -223,6 +225,9 @@ def skip_track(room_id):
     if state.get('current_track_info'):
         state['last_track_info'] = state['current_track_info']
 
+    # Reset reactions on track change
+    state['reactions'] = {}
+
     if state['queue']:
         # Shuffle mode: pick a random track instead of the first one
         if state.get('shuffle_mode') and len(state['queue']) > 1:
@@ -287,6 +292,35 @@ def vote_skip(room_id, user_id):
         return updated, True
 
     return state, False
+
+
+REACTION_EMOJIS = ['🔥', '❤️', '😴', '💀', '😂']
+
+
+def react_track(room_id, user_id, emoji):
+    """Toggle a reaction on the current track. Returns updated state or None."""
+    if emoji not in REACTION_EMOJIS:
+        return None
+    state = get_room(room_id)
+    if not state or not state.get('reactions_enabled'):
+        return None
+
+    reactions = state.get('reactions', {})
+    if emoji not in reactions:
+        reactions[emoji] = []
+
+    if user_id in reactions[emoji]:
+        reactions[emoji].remove(user_id)
+    else:
+        # Remove user from any other reaction first (one reaction per user)
+        for e in REACTION_EMOJIS:
+            if e in reactions and user_id in reactions[e]:
+                reactions[e].remove(user_id)
+        reactions[emoji].append(user_id)
+
+    state['reactions'] = reactions
+    save_room(room_id, state)
+    return state
 
 
 def get_all_active_rooms():
