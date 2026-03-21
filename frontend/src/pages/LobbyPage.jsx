@@ -25,6 +25,7 @@ export default function LobbyPage() {
   const [reactionsEnabled, setReactionsEnabled] = useState(false);
   const [statsEnabled, setStatsEnabled] = useState(false);
   const [autoPlaylistUrl, setAutoPlaylistUrl] = useState('');
+  const [blindMode, setBlindMode] = useState(false);
 
   useEffect(() => { document.title = 'FellowSync - Lobby'; }, []);
 
@@ -43,8 +44,7 @@ export default function LobbyPage() {
         hear_me_out: mode === 'hear_me_out',
         vibe: vibe.trim(),
         dj_mode: mode === 'dj',
-        blind_mode: mode === 'blind',
-        shuffle_mode: mode === 'shuffle',
+        blind_mode: blindMode,
         skip_threshold: skipThreshold,
         reactions_enabled: reactionsEnabled,
         stats_enabled: statsEnabled,
@@ -121,8 +121,6 @@ export default function LobbyPage() {
                     <option value="normal">Normal</option>
                     <option value="hear_me_out">Hear Me Out</option>
                     <option value="dj">DJ Mode</option>
-                    <option value="blind">Blind Mode</option>
-                    <option value="shuffle">Shuffle</option>
                   </select>
                 </div>
                 <div className="setting-row">
@@ -161,6 +159,15 @@ export default function LobbyPage() {
                   />
                 </div>
                 <div className="setting-divider" />
+                <div className="setting-row">
+                  <label>Blind Mode</label>
+                  <button
+                    className={`toggle-switch${blindMode ? ' on' : ''}`}
+                    onClick={() => setBlindMode(!blindMode)}
+                    role="switch"
+                    aria-checked={blindMode}
+                  />
+                </div>
                 <div className="setting-row">
                   <label>Reactions</label>
                   <button

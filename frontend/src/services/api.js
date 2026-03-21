@@ -29,6 +29,7 @@ export const api = {
   removeFromQueue: (roomId, index) => request(`/api/rooms/${roomId}/queue/${index}`, { method: 'DELETE' }),
   reorderQueue: (roomId, fromIndex, toIndex) => request(`/api/rooms/${roomId}/queue/reorder`, { method: 'PUT', body: JSON.stringify({ from_index: fromIndex, to_index: toIndex }) }),
   clearQueue: (roomId) => request(`/api/rooms/${roomId}/queue`, { method: 'DELETE' }),
+  shuffleQueue: (roomId) => request(`/api/rooms/${roomId}/queue/shuffle`, { method: 'POST' }),
   skipTrack: (roomId) => request(`/api/rooms/${roomId}/skip`, { method: 'POST' }),
   play: (roomId) => request(`/api/rooms/${roomId}/play`, { method: 'POST' }),
   pause: (roomId) => request(`/api/rooms/${roomId}/pause`, { method: 'POST' }),

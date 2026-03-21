@@ -975,6 +975,26 @@
   display: inline;
 }
 
+.queue-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.queue-action-btn.shuffle {
+  font-size: 0.85rem;
+  cursor: pointer;
+  border-radius: 6px;
+  padding: 2px 6px;
+  transition: background 0.15s;
+  user-select: none;
+}
+
+.queue-action-btn.shuffle:hover {
+  background: color-mix(in srgb, var(--fella-color) 15%, transparent);
+}
+
 /* Host transfer modal */
 .modal-overlay {
   position: fixed;

@@ -175,6 +175,16 @@ export default function RoomPage() {
     }
   };
 
+  const handleShuffleQueue = async () => {
+    try {
+      const updated = await api.shuffleQueue(roomId);
+      setRoom(updated);
+      showToast('Queue shuffled');
+    } catch (e) {
+      console.error('Failed to shuffle queue:', e);
+    }
+  };
+
   const handleRemoveTrack = async (index) => {
     try {
       const trackName = queue[index]?.name || 'Track';
@@ -440,22 +450,18 @@ export default function RoomPage() {
               <div className="setting-row">
                 <label>Mode</label>
                 <select
-                  value={room.dj_mode ? 'dj' : room.blind_mode ? 'blind' : room.shuffle_mode ? 'shuffle' : room.hear_me_out ? 'hear_me_out' : 'normal'}
+                  value={room.dj_mode ? 'dj' : room.hear_me_out ? 'hear_me_out' : 'normal'}
                   onChange={(e) => {
                     const v = e.target.value;
                     handleUpdateSettings({
                       hear_me_out: v === 'hear_me_out',
                       dj_mode: v === 'dj',
-                      blind_mode: v === 'blind',
-                      shuffle_mode: v === 'shuffle',
                     });
                   }}
                 >
                   <option value="normal">Normal</option>
                   <option value="hear_me_out">Hear Me Out</option>
                   <option value="dj">DJ Mode</option>
-                  <option value="blind">Blind Mode</option>
-                  <option value="shuffle">Shuffle</option>
                 </select>
               </div>
               <div className="setting-row">
@@ -494,6 +500,15 @@ export default function RoomPage() {
                 />
               </div>
               <div className="setting-divider" />
+              <div className="setting-row">
+                <label>Blind Mode</label>
+                <button
+                  className={`toggle-switch${room.blind_mode ? ' on' : ''}`}
+                  onClick={() => handleUpdateSettings({ blind_mode: !room.blind_mode })}
+                  role="switch"
+                  aria-checked={room.blind_mode}
+                />
+              </div>
               <div className="setting-row">
                 <label>Reactions</label>
                 <button
@@ -565,7 +580,6 @@ export default function RoomPage() {
             {room.vibe && <span className="mode-badge vibe-badge" data-tooltip="The vibe the host has set for this room">🎶 {room.vibe}</span>}
             {room.dj_mode && <span className="mode-badge dj-badge" data-tooltip="Only the host can add songs">🎧 DJ Mode</span>}
             {room.blind_mode && <span className="mode-badge blind-badge" data-tooltip="Upcoming songs are hidden until they play">🙈 Blind Mode</span>}
-            {room.shuffle_mode && <span className="mode-badge shuffle-badge" data-tooltip="Next track is picked randomly from the queue">🔀 Shuffle</span>}
           </div>
         </div>
         <div className="room-header-actions">
@@ -748,9 +762,12 @@ export default function RoomPage() {
             <h2>
               Queue
               {isHost && queue.length > 0 ? (
-                <span className="queue-count-clear" onClick={handleClearQueue}>
-                  <span className="queue-count-text">{queue.length} track{queue.length !== 1 ? 's' : ''}</span>
-                  <span className="queue-clear-text">Clear queue</span>
+                <span className="queue-actions">
+                  <span className="queue-action-btn shuffle" onClick={handleShuffleQueue}>🔀</span>
+                  <span className="queue-count-clear" onClick={handleClearQueue}>
+                    <span className="queue-count-text">{queue.length} track{queue.length !== 1 ? 's' : ''}</span>
+                    <span className="queue-clear-text">Clear queue</span>
+                  </span>
                 </span>
               ) : (
                 <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 400 }}>

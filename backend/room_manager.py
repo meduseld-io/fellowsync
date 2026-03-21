@@ -40,7 +40,7 @@ def generate_room_code():
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
 
 
-def create_room(host_id, host_name, max_consecutive=0, hear_me_out=False, vibe='', dj_mode=False, blind_mode=False, shuffle_mode=False, skip_threshold=0.5, reactions_enabled=False, stats_enabled=False):
+def create_room(host_id, host_name, max_consecutive=0, hear_me_out=False, vibe='', dj_mode=False, blind_mode=False, skip_threshold=0.5, reactions_enabled=False, stats_enabled=False):
     """Create a new room and return its state."""
     room_id = generate_room_code()
     while _redis.exists(_room_key(room_id)):
@@ -62,7 +62,6 @@ def create_room(host_id, host_name, max_consecutive=0, hear_me_out=False, vibe='
         'vibe': str(vibe or '').strip()[:50],
         'dj_mode': dj_mode,
         'blind_mode': blind_mode,
-        'shuffle_mode': shuffle_mode,
         'skip_threshold': skip_threshold,
         'auto_playlist': [],
         'auto_playlist_index': 0,
@@ -235,11 +234,7 @@ def skip_track(room_id):
     state['reactions'] = {}
 
     if state['queue']:
-        # Shuffle mode: pick a random track instead of the first one
-        if state.get('shuffle_mode') and len(state['queue']) > 1:
-            idx = random.randint(0, len(state['queue']) - 1)
-        else:
-            idx = 0
+        idx = 0
         next_track = state['queue'].pop(idx)
         state['current_track'] = next_track['uri']
         state['current_track_info'] = next_track
@@ -352,6 +347,16 @@ def _record_reaction(room_id, emoji):
     stats['reaction_counts'][emoji] = stats['reaction_counts'].get(emoji, 0) + 1
 
     _redis.set(key, json.dumps(stats), ex=ROOM_TTL)
+
+
+def shuffle_queue(room_id):
+    """Randomize the order of the queue. Returns updated state."""
+    state = get_room(room_id)
+    if not state or len(state['queue']) <= 1:
+        return state
+    random.shuffle(state['queue'])
+    save_room(room_id, state)
+    return state
 
 
 def get_all_active_rooms():

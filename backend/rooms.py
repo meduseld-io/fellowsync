@@ -127,7 +127,6 @@ def create_room():
     vibe = data.get('vibe', '')
     dj_mode = data.get('dj_mode', False)
     blind_mode = data.get('blind_mode', False)
-    shuffle_mode = data.get('shuffle_mode', False)
     skip_threshold = data.get('skip_threshold', 0.5)
     reactions_enabled = data.get('reactions_enabled', False)
     stats_enabled = data.get('stats_enabled', False)
@@ -151,7 +150,7 @@ def create_room():
         user['spotify_user_id'], user['display_name'],
         max_consecutive=max_consecutive, hear_me_out=bool(hear_me_out),
         vibe=vibe, dj_mode=bool(dj_mode), blind_mode=bool(blind_mode),
-        shuffle_mode=bool(shuffle_mode), skip_threshold=skip_threshold,
+        skip_threshold=skip_threshold,
         reactions_enabled=bool(reactions_enabled), stats_enabled=bool(stats_enabled),
     )
     # Store host's token
@@ -338,6 +337,30 @@ def clear_queue(room_id):
     return jsonify(_with_participants(room_id, state))
 
 
+@rooms_bp.route('/api/rooms/<room_id>/queue/shuffle', methods=['POST'])
+@_require_auth
+def shuffle_queue(room_id):
+    """Shuffle the queue order (host only)."""
+    user = _get_user()
+    if not _check_rate_limit(user['spotify_user_id'], 'reorder'):
+        return jsonify({'error': 'Too fast, slow down'}), 429
+
+    state = room_manager.get_room(room_id)
+    if not state:
+        return jsonify({'error': 'Room not found'}), 404
+
+    if user['spotify_user_id'] != state['host_id']:
+        return jsonify({'error': 'Only the host can shuffle the queue'}), 403
+
+    updated = room_manager.shuffle_queue(room_id)
+    if not updated:
+        return jsonify({'error': 'Room not found'}), 404
+
+    room_manager.log_activity(room_id, user['display_name'], 'shuffled queue')
+    broadcast_queue(room_id, updated)
+    return jsonify(_with_participants(room_id, updated))
+
+
 @rooms_bp.route('/api/rooms/<room_id>/skip', methods=['POST'])
 @_require_auth
 def skip_track(room_id):
@@ -410,11 +433,8 @@ def update_settings(room_id):
     if 'blind_mode' in data:
         state['blind_mode'] = bool(data['blind_mode'])
 
-    if 'shuffle_mode' in data:
-        state['shuffle_mode'] = bool(data['shuffle_mode'])
-
     # Enforce mutual exclusivity: only one mode flag can be true
-    mode_flags = ['hear_me_out', 'dj_mode', 'blind_mode', 'shuffle_mode']
+    mode_flags = ['hear_me_out', 'dj_mode']
     active = [f for f in mode_flags if state.get(f)]
     if len(active) > 1:
         # Keep the most recently set one (last in the request)
