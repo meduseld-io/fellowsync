@@ -598,6 +598,37 @@ export default function RoomPage() {
               ))}
             </ul>
           </div>
+          {(isHost || isAdmin(user?.spotify_user_id)) && (
+            <div className="panel" style={{ marginTop: '1.5rem' }}>
+              <h2 className="activity-header" onClick={toggleActivity} style={{ cursor: 'pointer', userSelect: 'none' }}>
+                📋 Activity
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 400 }}>
+                  {showActivity ? '▾' : '▸'}
+                </span>
+              </h2>
+              {showActivity && (
+                <div className="activity-log">
+                  {activityLog.length === 0 ? (
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textAlign: 'center' }}>No activity yet</p>
+                  ) : (
+                    <ul className="activity-list">
+                      {[...activityLog].reverse().map((entry, i) => (
+                        <li key={i} className="activity-entry">
+                          <span className="activity-time">{formatTime(entry.ts)}</span>
+                          <span className="activity-user">{entry.user}</span>
+                          <span className="activity-action">{entry.action}</span>
+                          {entry.detail && <span className="activity-detail">{entry.detail}</span>}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  <button className="btn-secondary" onClick={fetchActivity} style={{ marginTop: '0.5rem', width: '100%', fontSize: '0.78rem', padding: '4px' }}>
+                    Refresh
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
           {isHost && (
             <div className="panel" style={{ marginTop: '1.5rem' }}>
               <h2>⚙ Settings</h2>
@@ -639,37 +670,6 @@ export default function RoomPage() {
             </div>
           )}
           <HelpModal />
-          {(isHost || isAdmin(user?.spotify_user_id)) && (
-            <div className="panel" style={{ marginTop: '1.5rem' }}>
-              <h2 className="activity-header" onClick={toggleActivity} style={{ cursor: 'pointer', userSelect: 'none' }}>
-                📋 Activity
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 400 }}>
-                  {showActivity ? '▾' : '▸'}
-                </span>
-              </h2>
-              {showActivity && (
-                <div className="activity-log">
-                  {activityLog.length === 0 ? (
-                    <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textAlign: 'center' }}>No activity yet</p>
-                  ) : (
-                    <ul className="activity-list">
-                      {[...activityLog].reverse().map((entry, i) => (
-                        <li key={i} className="activity-entry">
-                          <span className="activity-time">{formatTime(entry.ts)}</span>
-                          <span className="activity-user">{entry.user}</span>
-                          <span className="activity-action">{entry.action}</span>
-                          {entry.detail && <span className="activity-detail">{entry.detail}</span>}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                  <button className="btn-secondary" onClick={fetchActivity} style={{ marginTop: '0.5rem', width: '100%', fontSize: '0.78rem', padding: '4px' }}>
-                    Refresh
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
         </div>
       </div>
 
