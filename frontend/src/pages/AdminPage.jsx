@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import Footer from '../components/Footer';
@@ -9,9 +9,13 @@ import './AdminPage.css';
 export default function AdminPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  const from = searchParams.get('from');
+  const fromRoomId = searchParams.get('roomId');
 
   const admin = user && isAdmin(user.spotify_user_id);
 
@@ -57,6 +61,23 @@ export default function AdminPage() {
     }
   };
 
+  const handleJoinRoom = async (roomId) => {
+    try {
+      await api.joinRoom(roomId);
+      navigate(`/room/${roomId}`);
+    } catch (e) {
+      console.error('Failed to join room:', e);
+    }
+  };
+
+  const handleBack = () => {
+    if (from === 'room' && fromRoomId) {
+      navigate(`/room/${fromRoomId}`);
+    } else {
+      navigate('/lobby');
+    }
+  };
+
   if (!admin) return null;
 
   return (
@@ -65,7 +86,9 @@ export default function AdminPage() {
         <div className="admin-header">
           <h1>Fellow<span style={{ color: 'var(--fella-color)' }}>Sync</span> Admin</h1>
           <div className="admin-nav">
-            <button className="btn-secondary" onClick={() => navigate('/lobby')}>Back to Lobby</button>
+            <button className="btn-secondary" onClick={handleBack}>
+              {from === 'room' && fromRoomId ? 'Back to Room' : 'Back to Lobby'}
+            </button>
             <button className="btn-secondary" onClick={loadRooms} disabled={loading}>Refresh</button>
           </div>
         </div>
@@ -88,6 +111,7 @@ export default function AdminPage() {
               <span className={`admin-room-status ${room.is_playing ? 'playing' : 'idle'}`}>
                 {room.is_playing ? '▶ Playing' : '⏸ Idle'}
               </span>
+              <button className="btn-join-room" onClick={() => handleJoinRoom(room.room_id)}>Join</button>
               <button className="btn-delete-room" onClick={() => handleDelete(room.room_id)}>Delete</button>
             </div>
             <div className="admin-room-details">

@@ -584,7 +584,7 @@ export default function RoomPage() {
         </div>
         <div className="room-header-actions">
           {isAdmin(user?.spotify_user_id) && (
-            <Link to="/admin" className="btn-admin">Admin</Link>
+            <Link to={`/admin?from=room&roomId=${roomId}`} className="btn-admin">Admin</Link>
           )}
           <div className="room-header-right">
             <span className="room-code" onClick={handleCopyCode}>

@@ -231,7 +231,7 @@ export default function LobbyPage() {
 
         <div className="lobby-footer">
           {isAdmin(user?.spotify_user_id) && (
-            <Link to="/admin" className="btn-admin">Admin</Link>
+            <Link to="/admin?from=lobby" className="btn-admin">Admin</Link>
           )}
           <button className="btn-logout" onClick={logout}>Logout</button>
         </div>
