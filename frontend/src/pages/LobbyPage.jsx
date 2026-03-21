@@ -95,19 +95,6 @@ export default function LobbyPage() {
 
         <div className="room-options">
           <div className="option-row">
-            <label htmlFor="maxConsecutive">Max songs in a row per user</label>
-            <select
-              id="maxConsecutive"
-              value={maxConsecutive}
-              onChange={(e) => setMaxConsecutive(Number(e.target.value))}
-            >
-              <option value={0}>Unlimited</option>
-              <option value={1}>1</option>
-              <option value={2}>2</option>
-              <option value={3}>3</option>
-            </select>
-          </div>
-          <div className="option-row">
             <label htmlFor="mode">
               Mode
             </label>
@@ -122,11 +109,25 @@ export default function LobbyPage() {
             </select>
           </div>
           <div className="option-row">
+            <label htmlFor="maxConsecutive">Max in a row</label>
+            <span className="tooltip-icon">?<span className="tooltip-bubble">Limits how many songs one person can queue consecutively. Prevents one user from filling the entire queue.</span></span>
+            <select
+              id="maxConsecutive"
+              value={maxConsecutive}
+              onChange={(e) => setMaxConsecutive(Number(e.target.value))}
+            >
+              <option value={0}>Unlimited</option>
+              <option value={1}>1</option>
+              <option value={2}>2</option>
+              <option value={3}>3</option>
+            </select>
+          </div>
+          <div className="option-row">
             <label htmlFor="vibe">Vibe</label>
             <input
               id="vibe"
               type="text"
-              placeholder="e.g. Chill indie, 90s hip-hop..."
+              placeholder="e.g Metal, 90s hip-hop..."
               value={vibe}
               onChange={(e) => setVibe(e.target.value.slice(0, 50))}
               maxLength={50}
