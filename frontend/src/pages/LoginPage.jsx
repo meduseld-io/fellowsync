@@ -172,7 +172,7 @@ export default function LoginPage() {
             <button className="btn-back" onClick={() => { setView('main'); setError(''); }}>Back</button>
           </div>
         )}
-        <button className="btn-contact" onClick={() => setShowContact(true)}>✉ Contact</button>
+        <button className="btn-contact" onClick={() => setShowContact(true)}>Contact</button>
         {showContact && (
           <div className="help-overlay" onClick={() => setShowContact(false)}>
             <div className="contact-modal" onClick={(e) => e.stopPropagation()}>

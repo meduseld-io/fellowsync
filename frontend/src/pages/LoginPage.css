@@ -173,17 +173,19 @@
 }
 
 .btn-contact {
-  background: none;
-  border: none;
-  color: rgba(255, 255, 255, 0.35);
+  background: transparent;
+  border: 1px solid var(--fella-color);
+  color: var(--fella-color);
   font-size: 0.8rem;
   cursor: pointer;
-  padding: 0.25rem;
-  margin-top: 0.5rem;
+  padding: 5px 14px;
+  margin-top: 0.75rem;
+  border-radius: 8px;
+  transition: background 0.15s;
 }
 
 .btn-contact:hover {
-  color: rgba(255, 255, 255, 0.6);
+  background: color-mix(in srgb, var(--fella-color) 10%, transparent);
 }
 
 .contact-modal {
