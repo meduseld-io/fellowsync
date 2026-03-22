@@ -48,7 +48,7 @@ Built with Flask, React, Redis, and the Spotify Web API.
 - **Reaction stats** — when both reactions and stats are enabled, the session stats panel shows emoji reaction counts
 - **iOS PWA install banner** — prompts iPhone Safari users to add FellowSync to their home screen
 - **Admin panel** — admin users can view, join, and delete all active rooms
-- **BYOK Groups** — friend groups can bring their own Spotify app credentials to bypass the 5-user limit. Group leader registers a Spotify app, creates a group with the Client ID and Secret (encrypted at rest), and shares the group ID. Members join and re-login to authenticate through the group's app.
+- **BYOK Syncs** — friend groups can bring their own Spotify app credentials to bypass the 5-user limit. Sync leader registers a Spotify app, creates a sync with the Client ID and Secret (encrypted at rest), and shares the sync ID. Members join and re-login to authenticate through the sync's app.
 
 ## Setup
 
@@ -65,7 +65,7 @@ Built with Flask, React, Redis, and the Spotify Web API.
 2. Set the redirect URI to `http://127.0.0.1:5173/callback` (for local development)
 3. Note your Client ID and Client Secret
 
-Spotify apps start in Development Mode, which limits access to 5 users (not including you). Add each user's Spotify email to the allowlist in the dashboard. To remove this limit, submit a quota extension request to Spotify. Alternatively, use the BYOK Groups feature to let each friend group bring their own Spotify app credentials.
+Spotify apps start in Development Mode, which limits access to 5 users (not including you). Add each user's Spotify email to the allowlist in the dashboard. To remove this limit, submit a quota extension request to Spotify. Alternatively, use the BYOK Syncs feature to let each friend group bring their own Spotify app credentials.
 
 ### 2. Clone and Install
 
@@ -109,8 +109,8 @@ All environment variables:
 | `FRONTEND_URL` | No | `http://localhost:5173` | Frontend origin for CORS |
 | `FELLOWSYNC_ENV` | No | `development` | Set to `production` for production mode |
 | `ADMIN_USER_IDS` | No | — | Comma-separated Spotify user IDs for admin panel access |
-| `ENCRYPTION_KEY` | No | — | Fernet key for encrypting BYOK group secrets at rest. Generate with: `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"` |
-| `REQUIRE_BYOK` | No | `true` | When true, non-admin users must create or join a BYOK group before logging in. Set to `false` to allow direct login with the default Spotify app. |
+| `ENCRYPTION_KEY` | No | — | Fernet key for encrypting BYOK sync secrets at rest. Generate with: `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"` |
+| `REQUIRE_BYOK` | No | `true` | When true, non-admin users must create or join a BYOK sync before logging in. Set to `false` to allow direct login with the default Spotify app. |
 
 ### 4. Run Locally
 

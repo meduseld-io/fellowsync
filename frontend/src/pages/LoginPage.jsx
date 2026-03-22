@@ -41,11 +41,11 @@ export default function LoginPage() {
     setError('');
     try {
       const data = await api.createGroup(name.trim(), clientId.trim(), clientSecret.trim());
-      // Group created — now login through it
+      // Sync created — now login through it
       login(data.group.id);
     } catch (e) {
       console.error('Failed to create group:', e);
-      setError(e.message || 'Failed to create group');
+      setError(e.message || 'Failed to create sync');
       setCreating(false);
     }
   };
@@ -56,11 +56,11 @@ export default function LoginPage() {
     setError('');
     try {
       const data = await api.joinGroup(joinId.trim());
-      // Joined — now login through the group
+      // Joined — now login through the sync
       login(data.group.id);
     } catch (e) {
       console.error('Failed to join group:', e);
-      setError(e.message || 'Group not found or full');
+      setError(e.message || 'Sync not found or full');
       setJoining(false);
     }
   };
@@ -91,15 +91,15 @@ export default function LoginPage() {
             {requireByok ? (
               <div className="byok-section">
                 <p className="byok-hint">
-                  Each group needs their own Spotify app.
-                  One person creates a group, up to 5 others join with the group ID.
+                  Each sync needs their own Spotify app.
+                  One person creates a sync, up to 5 others join with the sync ID.
                 </p>
                 <div className="byok-buttons">
                   <button className="btn-spotify" onClick={() => { setView('create'); setError(''); }}>
-                    Create a Group
+                    Create a Sync
                   </button>
                   <button className="btn-join-group" onClick={() => { setView('join'); setError(''); }}>
-                    Join a Group
+                    Join a Sync
                   </button>
                 </div>
                 <button className="btn-direct-login" onClick={() => login()}>
@@ -119,7 +119,7 @@ export default function LoginPage() {
 
         {view === 'create' && (
           <div className="byok-form">
-            <h3>Create a Group</h3>
+            <h3>Create a Sync</h3>
             <p className="byok-form-hint">
               Create a free Spotify app at{' '}
               <a href="https://developer.spotify.com/dashboard" target="_blank" rel="noopener noreferrer">
@@ -130,7 +130,7 @@ export default function LoginPage() {
             </p>
             <input
               type="text"
-              placeholder="Group name (e.g. The Fellowship)"
+              placeholder="Sync name (e.g. The Fellowship)"
               value={name}
               onChange={(e) => setName(e.target.value.slice(0, 50))}
               maxLength={50}
@@ -156,11 +156,11 @@ export default function LoginPage() {
 
         {view === 'join' && (
           <div className="byok-form">
-            <h3>Join a Group</h3>
-            <p className="byok-form-hint">Ask your group leader for the group ID.</p>
+            <h3>Join a Sync</h3>
+            <p className="byok-form-hint">Ask your sync leader for the sync ID.</p>
             <input
               type="text"
-              placeholder="Group ID"
+              placeholder="Sync ID"
               value={joinId}
               onChange={(e) => setJoinId(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleJoin()}

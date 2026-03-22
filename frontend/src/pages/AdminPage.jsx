@@ -73,7 +73,7 @@ export default function AdminPage() {
   };
 
   const handleDeleteGroup = async (groupId) => {
-    if (!confirm(`Delete group ${groupId}?`)) return;
+    if (!confirm(`Delete sync ${groupId}?`)) return;
     try {
       await api.adminDeleteGroup(groupId);
       setGroups(groups.filter(g => g.id !== groupId));
@@ -155,9 +155,9 @@ export default function AdminPage() {
 
       <div className="admin-card" style={{ marginTop: '1rem' }}>
         <h2>
-          BYOK Groups <span className="room-count">{groups.length}</span>
+          BYOK Syncs <span className="room-count">{groups.length}</span>
         </h2>
-        {groups.length === 0 && <p className="admin-muted">No groups</p>}
+        {groups.length === 0 && <p className="admin-muted">No syncs</p>}
         {groups.map(group => (
           <div key={group.id} className="admin-room">
             <div className="admin-room-header">

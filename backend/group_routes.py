@@ -43,7 +43,7 @@ def create_group():
     client_secret = str(data.get('client_secret', '')).strip()
 
     if not name:
-        return jsonify({'error': 'Group name is required'}), 400
+        return jsonify({'error': 'Sync name is required'}), 400
     if not client_id or not client_secret:
         return jsonify({'error': 'Spotify Client ID and Client Secret are required'}), 400
 
@@ -85,9 +85,9 @@ def join_group(group_id):
 
     result = groups.join_group(group_id, user_id, display_name)
     if result == 'full':
-        return jsonify({'error': 'Group is full (max 5 members)'}), 400
+        return jsonify({'error': 'Sync is full (max 5 members)'}), 400
     if not result:
-        return jsonify({'error': 'Group not found'}), 404
+        return jsonify({'error': 'Sync not found'}), 404
     members = groups.get_group_members(group_id)
     return jsonify({'group': result, 'members': members})
 
@@ -99,7 +99,7 @@ def leave_group(group_id):
     user = _get_user()
     success = groups.leave_group(group_id, user['spotify_user_id'])
     if not success:
-        return jsonify({'error': 'Group not found'}), 404
+        return jsonify({'error': 'Sync not found'}), 404
     return jsonify({'ok': True})
 
 
@@ -118,9 +118,9 @@ def update_credentials(group_id):
 
     result = groups.update_group_credentials(group_id, user['spotify_user_id'], client_id, client_secret)
     if result == 'not_leader':
-        return jsonify({'error': 'Only the group leader can update credentials'}), 403
+        return jsonify({'error': 'Only the sync leader can update credentials'}), 403
     if not result:
-        return jsonify({'error': 'Group not found'}), 404
+        return jsonify({'error': 'Sync not found'}), 404
     return jsonify({'group': result})
 
 
@@ -130,7 +130,7 @@ def get_members(group_id):
     """Get group members."""
     group = groups.get_group(group_id)
     if not group:
-        return jsonify({'error': 'Group not found'}), 404
+        return jsonify({'error': 'Sync not found'}), 404
     members = groups.get_group_members(group_id)
     return jsonify({'members': members})
 
@@ -166,6 +166,6 @@ def admin_delete_group(group_id):
     """Force-delete a group."""
     group = groups.get_group(group_id)
     if not group:
-        return jsonify({'error': 'Group not found'}), 404
+        return jsonify({'error': 'Sync not found'}), 404
     groups._delete_group(group_id)
     return jsonify({'ok': True})

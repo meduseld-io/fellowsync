@@ -55,7 +55,7 @@ export default function GroupPanel() {
       setClientSecret('');
     } catch (e) {
       console.error('Failed to create group:', e);
-      setError(e.message || 'Failed to create group');
+      setError(e.message || 'Failed to create sync');
     } finally {
       setCreating(false);
     }
@@ -73,7 +73,7 @@ export default function GroupPanel() {
       setJoinId('');
     } catch (e) {
       console.error('Failed to join group:', e);
-      setError(e.message || 'Group not found or full');
+      setError(e.message || 'Sync not found or full');
     } finally {
       setJoining(false);
     }
@@ -123,12 +123,12 @@ export default function GroupPanel() {
         )}
         {!isAuthed && (
           <button className="btn-group-reauth" onClick={handleReauth}>
-            Re-login with group credentials
+            Re-login with sync credentials
           </button>
         )}
         <div className="group-actions">
           <button className="btn-group-leave" onClick={handleLeave}>
-            Leave Group
+            Leave Sync
           </button>
         </div>
       </div>
@@ -144,16 +144,16 @@ export default function GroupPanel() {
         <div className="group-options">
           <p className="group-hint">Bring your own Spotify app for your friend group (5 users per app)</p>
           <div className="group-btn-row">
-            <button className="btn-group" onClick={() => { setShowCreate(true); setError(''); }}>Create Group</button>
-            <button className="btn-group" onClick={() => { setShowJoin(true); setError(''); }}>Join Group</button>
+            <button className="btn-group" onClick={() => { setShowCreate(true); setError(''); }}>Create Sync</button>
+            <button className="btn-group" onClick={() => { setShowJoin(true); setError(''); }}>Join Sync</button>
           </div>
         </div>
       )}
 
       {showCreate && (
         <div className="group-form">
-          <h4>Create a Group</h4>
-          <input type="text" placeholder="Group name" value={name} onChange={(e) => setName(e.target.value.slice(0, 50))} maxLength={50} />
+          <h4>Create a Sync</h4>
+          <input type="text" placeholder="Sync name" value={name} onChange={(e) => setName(e.target.value.slice(0, 50))} maxLength={50} />
           <input type="text" placeholder="Spotify Client ID" value={clientId} onChange={(e) => setClientId(e.target.value)} />
           <input type="password" placeholder="Spotify Client Secret" value={clientSecret} onChange={(e) => setClientSecret(e.target.value)} />
           <p className="group-form-hint">
@@ -168,8 +168,8 @@ export default function GroupPanel() {
 
       {showJoin && (
         <div className="group-form">
-          <h4>Join a Group</h4>
-          <input type="text" placeholder="Group ID" value={joinId} onChange={(e) => setJoinId(e.target.value)} />
+          <h4>Join a Sync</h4>
+          <input type="text" placeholder="Sync ID" value={joinId} onChange={(e) => setJoinId(e.target.value)} />
           <div className="group-btn-row">
             <button className="btn-group" onClick={handleJoin} disabled={joining}>{joining ? 'Joining...' : 'Join'}</button>
             <button className="btn-group-cancel" onClick={() => { setShowJoin(false); setError(''); }}>Cancel</button>
