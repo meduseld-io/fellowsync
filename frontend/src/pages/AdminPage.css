@@ -204,7 +204,8 @@
 .admin-footer-actions {
   display: flex;
   gap: 8px;
-  margin-top: 1.5rem;
+  margin-top: auto;
+  padding-top: 1.5rem;
   margin-bottom: 1rem;
   flex-wrap: wrap;
   justify-content: center;
