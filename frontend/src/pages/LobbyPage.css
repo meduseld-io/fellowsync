@@ -275,3 +275,37 @@
 .btn-admin:hover {
   background: color-mix(in srgb, var(--fella-color) 10%, transparent);
 }
+
+.setting-tip {
+  position: relative;
+  cursor: help;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  opacity: 0.5;
+  margin-left: 2px;
+}
+
+.setting-tip:hover {
+  opacity: 1;
+}
+
+.setting-tip:hover::after {
+  content: attr(data-tip);
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 6px);
+  transform: translateX(-50%);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 400;
+  white-space: normal;
+  width: max-content;
+  max-width: 220px;
+  line-height: 1.4;
+  z-index: 10;
+  pointer-events: none;
+}
