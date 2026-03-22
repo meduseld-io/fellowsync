@@ -92,8 +92,8 @@ export default function LoginPage() {
             {requireByok ? (
               <div className="byok-section">
                 <p className="byok-hint">
-                  Each sync needs their own Spotify app.
-                  One person creates a sync, up to 5 others join with the sync ID.
+                  Each Sync needs their own Spotify app.
+                  One person creates a Sync, up to 5 others join with the Sync ID.
                 </p>
                 <div className="byok-buttons">
                   <button className="btn-spotify" onClick={() => { setView('create'); setError(''); }}>
