@@ -1,6 +1,5 @@
 .help-btn {
   width: 100%;
-  margin-top: 0.75rem;
   padding: 10px;
   border-radius: 10px;
   background: color-mix(in srgb, var(--fella-color) 10%, transparent);
