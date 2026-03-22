@@ -99,7 +99,6 @@ export default function GroupPanel() {
 
   // User is in a group
   if (group) {
-    const isAuthed = user?.group_id === group.id;
     const memberList = Object.entries(members);
 
     return (
@@ -121,9 +120,9 @@ export default function GroupPanel() {
             ))}
           </div>
         )}
-        {!isAuthed && (
+        {user?.group_id && user.group_id !== group.id && (
           <button className="btn-group-reauth" onClick={handleReauth}>
-            Re-login with sync credentials
+            Switch login to this sync
           </button>
         )}
         <div className="group-actions">
