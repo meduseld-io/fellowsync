@@ -87,7 +87,11 @@ Create a room, share the 6-character room code, and start queuing tracks. The ho
 
 ## Self-Hosting
 
-If you want to run your own FellowSync instance, follow the steps below.
+If you want to run your own FellowSync instance, follow the steps below. Platform-specific guides with detailed instructions are also available:
+
+- [Linux](docs/self-hosting-linux.md)
+- [macOS](docs/self-hosting-macos.md)
+- [Windows](docs/self-hosting-windows.md)
 
 ### Prerequisites
 
