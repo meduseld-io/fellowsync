@@ -103,7 +103,7 @@ def callback():
         is_admin = profile['id'] in Config.ADMIN_USER_IDS
         if not is_admin:
             session.pop('pending_group_id', None)
-            return jsonify({'error': 'A BYOK sync is required. Create or join a sync before logging in.'}), 403
+            return jsonify({'error': 'A BYOS sync is required. Create or join a sync before logging in.'}), 403
 
     # If user logged in through a group, claim any pending placeholder membership
     if group_id:

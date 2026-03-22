@@ -10,7 +10,7 @@ Built with Flask, React, Redis, and the Spotify Web API.
 
 ## Getting Started
 
-FellowSync uses BYOK (Bring Your Own Keys) - each friend group registers a free Spotify app and uses those credentials to log in. One person creates a Sync, shares the Sync ID, and up to 5 others join.
+FellowSync uses BYOS (Bring Your Own Sync) - each friend group registers a free Spotify app and uses those credentials to log in. One person creates a Sync, shares the Sync ID, and up to 5 others join.
 
 ### 1. Create a Spotify App
 
@@ -47,7 +47,7 @@ Create a room, share the 6-character room code, and start queuing tracks. The ho
 ## Features
 
 - **Spotify OAuth** - login with your Spotify account (Premium required for playback)
-- **BYOK Syncs** - friend groups bring their own Spotify app credentials. Sync leader registers a Spotify app, creates a Sync with the Client ID and Secret (encrypted at rest), and shares the Sync ID. Members join and re-login to authenticate through the Sync's app.
+- **BYOS Syncs** - friend groups bring their own Spotify app credentials. Sync leader registers a Spotify app, creates a Sync with the Client ID and Secret (encrypted at rest), and shares the Sync ID. Members join and re-login to authenticate through the Sync's app.
 - **Room system** - create or join rooms with a 6-character code
 - **Shared queue** - everyone can search and add tracks
 - **Play next** - add a track to the front of the queue instead of the back
@@ -138,8 +138,8 @@ All environment variables:
 | `FRONTEND_URL` | No | `http://localhost:5173` | Frontend origin for CORS |
 | `FELLOWSYNC_ENV` | No | `development` | Set to `production` for production mode |
 | `ADMIN_USER_IDS` | No | - | Comma-separated Spotify user IDs for admin panel access |
-| `ENCRYPTION_KEY` | No | - | Fernet key for encrypting BYOK sync secrets at rest. Generate with: `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"` |
-| `REQUIRE_BYOK` | No | `true` | When true, non-admin users must create or join a BYOK sync before logging in. Set to `false` to allow direct login with the default Spotify app. |
+| `ENCRYPTION_KEY` | No | - | Fernet key for encrypting BYOS sync secrets at rest. Generate with: `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"` |
+| `REQUIRE_BYOK` | No | `true` | When true, non-admin users must create or join a BYOS sync before logging in. Set to `false` to allow direct login with the default Spotify app. |
 
 ### 3. Run Locally
 
