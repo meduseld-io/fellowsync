@@ -5,6 +5,7 @@ import { api } from '../services/api';
 import Footer from '../components/Footer';
 import HelpModal from '../components/HelpModal';
 import InstallBanner from '../components/InstallBanner';
+import GroupPanel from '../components/GroupPanel';
 import { getAvatarColor, setAvatarOverride, saveAvatarToBackend, getPickerColors, AVATAR_HEX } from '../utils/avatars';
 import { isAdmin } from '../utils/admin';
 import './LobbyPage.css';
@@ -114,7 +115,7 @@ export default function LobbyPage() {
               <h3>⚙ Room Settings</h3>
               <div className="room-settings">
                 <div className="setting-row">
-                  <label>Mode</label>
+                  <label>Mode <span className="setting-tip" data-tip="Normal: free-for-all queue. Hear Me Out: round-robin turns. DJ Mode: only the host can queue.">ⓘ</span></label>
                   <select
                     value={mode}
                     onChange={(e) => setMode(e.target.value)}
@@ -125,7 +126,7 @@ export default function LobbyPage() {
                   </select>
                 </div>
                 <div className="setting-row">
-                  <label>Max in a row</label>
+                  <label>Max in a row <span className="setting-tip" data-tip="Limit how many songs one person can queue consecutively.">ⓘ</span></label>
                   <select
                     value={maxConsecutive}
                     onChange={(e) => setMaxConsecutive(Number(e.target.value))}
@@ -137,7 +138,7 @@ export default function LobbyPage() {
                   </select>
                 </div>
                 <div className="setting-row">
-                  <label>Skip votes</label>
+                  <label>Skip votes <span className="setting-tip" data-tip="Percentage of listeners that must vote before a track is skipped. The host can always skip instantly.">ⓘ</span></label>
                   <select
                     value={skipThreshold}
                     onChange={(e) => setSkipThreshold(Number(e.target.value))}
@@ -149,7 +150,7 @@ export default function LobbyPage() {
                   </select>
                 </div>
                 <div className="setting-row">
-                  <label>Vibe</label>
+                  <label>Vibe <span className="setting-tip" data-tip="Set a mood label for the room so everyone knows the vibe.">ⓘ</span></label>
                   <input
                     type="text"
                     placeholder="e.g. Metal, 90s hip-hop..."
@@ -161,7 +162,7 @@ export default function LobbyPage() {
                 </div>
                 <div className="setting-divider" />
                 <div className="setting-row">
-                  <label>Blind Mode</label>
+                  <label>Blind Mode <span className="setting-tip" data-tip="Hides upcoming songs from listeners. You won't know what's next until it plays.">ⓘ</span></label>
                   <button
                     className={`toggle-switch${blindMode ? ' on' : ''}`}
                     onClick={() => setBlindMode(!blindMode)}
@@ -170,7 +171,7 @@ export default function LobbyPage() {
                   />
                 </div>
                 <div className="setting-row">
-                  <label>Reactions</label>
+                  <label>Reactions <span className="setting-tip" data-tip="Show emoji reaction buttons below the now-playing card.">ⓘ</span></label>
                   <button
                     className={`toggle-switch${reactionsEnabled ? ' on' : ''}`}
                     onClick={() => setReactionsEnabled(!reactionsEnabled)}
@@ -179,7 +180,7 @@ export default function LobbyPage() {
                   />
                 </div>
                 <div className="setting-row">
-                  <label>Session Stats</label>
+                  <label>Session Stats <span className="setting-tip" data-tip="Show a panel with tracks played, skips, duration, and a top queuers leaderboard.">ⓘ</span></label>
                   <button
                     className={`toggle-switch${statsEnabled ? ' on' : ''}`}
                     onClick={() => setStatsEnabled(!statsEnabled)}
@@ -189,7 +190,7 @@ export default function LobbyPage() {
                 </div>
                 <div className="setting-divider" />
                 <div className="setting-row auto-playlist-row">
-                  <label>Auto-playlist</label>
+                  <label>Auto-playlist <span className="setting-tip" data-tip="When the queue empties, tracks from this playlist auto-queue to keep the music going.">ⓘ</span></label>
                   <div className="auto-playlist-input">
                     <input
                       type="text"
@@ -231,12 +232,13 @@ export default function LobbyPage() {
         </div>
 
         <div className="lobby-footer">
+          <GroupPanel />
           <button className="btn-logout" onClick={logout}>Logout</button>
+          <HelpModal />
+          {isAdmin(user?.spotify_user_id) && (
+            <Link to="/admin?from=lobby" className="btn-admin">Admin</Link>
+          )}
         </div>
-        <HelpModal />
-        {isAdmin(user?.spotify_user_id) && (
-          <Link to="/admin?from=lobby" className="btn-admin">Admin</Link>
-        )}
       </div>
       <Footer />
       <InstallBanner />

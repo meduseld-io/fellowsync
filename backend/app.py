@@ -8,8 +8,10 @@ from flask_socketio import SocketIO
 from config import Config
 from auth import auth_bp
 from rooms import rooms_bp
+from group_routes import groups_bp
 from socket_events import init_socketio
 from sync_worker import run_sync_loop
+from groups import cleanup_empty_groups
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(name)s] %(levelname)s: %(message)s')
 logger = logging.getLogger(__name__)
@@ -35,6 +37,7 @@ socketio = SocketIO(
 
 app.register_blueprint(auth_bp)
 app.register_blueprint(rooms_bp)
+app.register_blueprint(groups_bp)
 init_socketio(socketio)
 
 
@@ -54,6 +57,20 @@ def serve_frontend(path):
 
 # Start background sync worker
 socketio.start_background_task(run_sync_loop, socketio)
+
+
+def _daily_group_cleanup(sio):
+    """Run empty group cleanup once every 24 hours."""
+    logger.info("Group cleanup worker started")
+    while True:
+        sio.sleep(86400)  # 24 hours
+        try:
+            cleanup_empty_groups()
+        except Exception as e:
+            logger.error("Daily group cleanup failed: %s", e)
+
+
+socketio.start_background_task(_daily_group_cleanup, socketio)
 
 if __name__ == '__main__':
     is_dev = os.getenv('FELLOWSYNC_ENV', 'development') == 'development'

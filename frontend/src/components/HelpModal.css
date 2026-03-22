@@ -1,6 +1,5 @@
 .help-btn {
   width: 100%;
-  margin-top: 0.75rem;
   padding: 10px;
   border-radius: 10px;
   background: color-mix(in srgb, var(--fella-color) 10%, transparent);
@@ -59,4 +58,11 @@
 .help-modal .close-btn {
   margin-top: 1.5rem;
   width: 100%;
+  background: color-mix(in srgb, var(--fella-color) 10%, transparent);
+  border: 1px solid var(--fella-color);
+  color: var(--fella-color);
+}
+
+.help-modal .close-btn:hover {
+  background: color-mix(in srgb, var(--fella-color) 20%, transparent);
 }

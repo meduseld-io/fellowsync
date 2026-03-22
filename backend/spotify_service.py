@@ -15,14 +15,20 @@ def _headers(access_token):
     return {'Authorization': f'Bearer {access_token}'}
 
 
-def refresh_token(refresh_tok):
-    """Exchange a refresh token for a new access token."""
+def refresh_token(refresh_tok, client_id=None, client_secret=None):
+    """Exchange a refresh token for a new access token.
+
+    If client_id/client_secret are provided, uses those (BYOK group credentials).
+    Otherwise falls back to the default app credentials from config.
+    """
+    cid = client_id or Config.SPOTIFY_CLIENT_ID
+    csecret = client_secret or Config.SPOTIFY_CLIENT_SECRET
     try:
         resp = requests.post(TOKEN_URL, data={
             'grant_type': 'refresh_token',
             'refresh_token': refresh_tok,
-            'client_id': Config.SPOTIFY_CLIENT_ID,
-            'client_secret': Config.SPOTIFY_CLIENT_SECRET,
+            'client_id': cid,
+            'client_secret': csecret,
         }, timeout=10)
         resp.raise_for_status()
         data = resp.json()
@@ -36,12 +42,15 @@ def refresh_token(refresh_tok):
         return None
 
 
-def get_valid_token(token_data):
-    """Return a valid access token, refreshing if expired. Returns updated token_data dict or None."""
+def get_valid_token(token_data, client_id=None, client_secret=None):
+    """Return a valid access token, refreshing if expired. Returns updated token_data dict or None.
+
+    If client_id/client_secret are provided, uses those for refresh (BYOK group credentials).
+    """
     if not token_data:
         return None
     if time.time() >= token_data.get('expires_at', 0) - 60:
-        refreshed = refresh_token(token_data['refresh_token'])
+        refreshed = refresh_token(token_data['refresh_token'], client_id=client_id, client_secret=client_secret)
         if not refreshed:
             return None
         token_data.update(refreshed)

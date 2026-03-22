@@ -29,9 +29,9 @@ export function AuthProvider({ children }) {
       .finally(() => setLoading(false));
   }, []);
 
-  const login = async () => {
+  const login = async (groupId) => {
     try {
-      const { url } = await api.getLoginUrl();
+      const { url } = await api.getLoginUrl(groupId);
       window.location.href = url;
     } catch (e) {
       console.error('Failed to get login URL:', e);

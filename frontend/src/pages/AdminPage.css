@@ -43,6 +43,10 @@
   gap: 8px;
 }
 
+.admin-card h2:first-child {
+  margin-top: 0;
+}
+
 .room-count {
   font-size: 0.8rem;
   background: var(--fella-color);
@@ -200,7 +204,8 @@
 .admin-footer-actions {
   display: flex;
   gap: 8px;
-  margin-top: 1.5rem;
+  margin-top: auto;
+  padding-top: 1.5rem;
   margin-bottom: 1rem;
   flex-wrap: wrap;
   justify-content: center;

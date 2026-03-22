@@ -4,6 +4,7 @@ import time
 import logging
 import room_manager
 import spotify_service
+import groups
 from socket_events import broadcast_sync
 
 logger = logging.getLogger(__name__)
@@ -16,7 +17,13 @@ def _trigger_playback_for_room(room_id, state):
     tokens = room_manager.get_all_tokens(room_id)
     expected_ms = state['position_ms'] + (time.time() - state['last_update']) * 1000
     for user_id, token_data in tokens.items():
-        refreshed = spotify_service.get_valid_token(token_data)
+        group_id = token_data.get('group_id')
+        cid, csecret = None, None
+        if group_id:
+            creds = groups.get_group_credentials(group_id)
+            if creds:
+                cid, csecret = creds
+        refreshed = spotify_service.get_valid_token(token_data, client_id=cid, client_secret=csecret)
         if not refreshed:
             logger.error("Could not get valid token for user %s in room %s during auto-advance", user_id, room_id)
             continue
