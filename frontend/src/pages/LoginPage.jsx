@@ -10,6 +10,7 @@ export default function LoginPage() {
   const [requireByok, setRequireByok] = useState(null);
   const [view, setView] = useState('main'); // main, create, join
   const [error, setError] = useState('');
+  const [showContact, setShowContact] = useState(false);
 
   // Create form
   const [name, setName] = useState('');
@@ -169,6 +170,17 @@ export default function LoginPage() {
               {joining ? 'Joining...' : 'Join & Login'}
             </button>
             <button className="btn-back" onClick={() => { setView('main'); setError(''); }}>Back</button>
+          </div>
+        )}
+        <button className="btn-contact" onClick={() => setShowContact(true)}>✉ Contact</button>
+        {showContact && (
+          <div className="help-overlay" onClick={() => setShowContact(false)}>
+            <div className="contact-modal" onClick={(e) => e.stopPropagation()}>
+              <p>Questions, issues, or feedback?</p>
+              <a href="mailto:404@meduseld.io" className="btn-spotify" style={{ textDecoration: 'none' }}>
+                ✉ 404@meduseld.io
+              </a>
+            </div>
           </div>
         )}
       </div>
