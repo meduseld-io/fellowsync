@@ -177,8 +177,8 @@ export default function LoginPage() {
           <div className="help-overlay" onClick={() => setShowContact(false)}>
             <div className="contact-modal" onClick={(e) => e.stopPropagation()}>
               <p>Questions, issues, or feedback?</p>
-              <a href="mailto:404@meduseld.io" className="btn-spotify" style={{ textDecoration: 'none' }}>
-                ✉ 404@meduseld.io
+              <a href="mailto:admin@meduseld.io" className="btn-spotify" style={{ textDecoration: 'none' }}>
+                admin@meduseld.io
               </a>
             </div>
           </div>
