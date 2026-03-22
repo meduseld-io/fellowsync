@@ -88,7 +88,7 @@ def join_group(group_id, user_id, display_name):
         return None
 
     members = _redis.hgetall(_members_key(group_id))
-    if len(members) >= 5:
+    if len(members) >= 6:
         return 'full'
 
     # Remove from previous group if any

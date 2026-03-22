@@ -166,7 +166,7 @@ export default function AdminPage() {
               <button className="btn-delete-room" onClick={() => handleDeleteGroup(group.id)}>Delete</button>
             </div>
             <div className="admin-room-details">
-              <span>👥 {group.member_count}/5</span>
+              <span>👥 {group.member_count}/6</span>
               <span>👑 {group.leader_name}</span>
               <span className="admin-muted" style={{ fontSize: '0.75rem' }}>App: {group.client_id?.slice(0, 12)}...</span>
             </div>

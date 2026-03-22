@@ -105,7 +105,7 @@ export default function GroupPanel() {
       <div className="group-panel">
         <div className="group-info">
           <span className="group-name">👥 {group.name}</span>
-          <span className="group-count">{group.member_count}/5</span>
+          <span className="group-count">{group.member_count}/6</span>
         </div>
         <div className="group-id-row">
           <span className="group-id-label">ID:</span>
@@ -141,7 +141,7 @@ export default function GroupPanel() {
 
       {!showCreate && !showJoin && (
         <div className="group-options">
-          <p className="group-hint">Bring your own Spotify app for your friend group (5 users per app)</p>
+          <p className="group-hint">Bring your own Spotify app for your friend group (6 users per app)</p>
           <div className="group-btn-row">
             <button className="btn-group" onClick={() => { setShowCreate(true); setError(''); }}>Create Sync</button>
             <button className="btn-group" onClick={() => { setShowJoin(true); setError(''); }}>Join Sync</button>

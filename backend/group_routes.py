@@ -85,7 +85,7 @@ def join_group(group_id):
 
     result = groups.join_group(group_id, user_id, display_name)
     if result == 'full':
-        return jsonify({'error': 'Sync is full (max 5 members)'}), 400
+        return jsonify({'error': 'Sync is full (max 6 members)'}), 400
     if not result:
         return jsonify({'error': 'Sync not found'}), 404
     members = groups.get_group_members(group_id)
