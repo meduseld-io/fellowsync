@@ -155,7 +155,7 @@ export default function AdminPage() {
 
       <div className="admin-card" style={{ marginTop: '1rem' }}>
         <h2>
-          BYOS Syncs <span className="room-count">{groups.length}</span>
+          Syncs <span className="room-count">{groups.length}</span>
         </h2>
         {groups.length === 0 && <p className="admin-muted">No syncs</p>}
         {groups.map(group => (

@@ -43,6 +43,10 @@
   gap: 8px;
 }
 
+.admin-card h2:first-child {
+  margin-top: 0;
+}
+
 .room-count {
   font-size: 0.8rem;
   background: var(--fella-color);
