@@ -47,7 +47,7 @@ export default function HelpModal() {
             <p>The host can drag to reorder the queue, shuffle it with the 🔀 button, remove any track, promote another listener to host, and clear the entire queue. If the host leaves, they'll be asked to pick a new host first.</p>
 
             <h3>BYOK Syncs</h3>
-            <p>Spotify limits each app to 6 users in dev mode. If your group is larger, or you want to self-manage your Spotify app credentials, use BYOK (Bring Your Own Keys). One person creates a sync with their Spotify app's Client ID and Secret, then shares the sync ID with friends. Members join the sync and re-login to authenticate through the sync's Spotify app instead of the default one.</p>
+            <p>Spotify limits each app to 6 users in dev mode. If your group is larger, or you want to self-manage your Spotify app credentials, use BYOK (Bring Your Own Keys). One person creates a Sync with their Spotify app's Client ID and Secret, then shares the Sync ID with friends. Members join the Sync and re-login to authenticate through the Sync's Spotify app instead of the default one.</p>
             <p>Create a Spotify app at <a href="https://developer.spotify.com/dashboard" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--fella-color)' }}>developer.spotify.com</a>. Set the redirect URI to match your FellowSync instance.</p>
 
             <h3>Room Code</h3>
