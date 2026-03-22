@@ -574,19 +574,7 @@ export default function RoomPage() {
       <div className="room-header">
         <div>
           <h1>Fellow<span style={{ color: 'var(--fella-color)' }}>Sync</span></h1>
-          <div className="room-modes">
-            {room.hear_me_out && <span className="mode-badge hear-me-out" data-tooltip="Songs alternate between users so everyone gets a turn">🎤 Hear Me Out</span>}
-            {room.max_consecutive > 0 && <span className="mode-badge" data-tooltip={`Limits how many songs one person can queue in a row (${room.max_consecutive})`}>Max {room.max_consecutive} in a row</span>}
-            {room.vibe && <span className="mode-badge vibe-badge" data-tooltip="The vibe the host has set for this room">🎶 {room.vibe}</span>}
-            {room.dj_mode && <span className="mode-badge dj-badge" data-tooltip="Only the host can add songs">🎧 DJ Mode</span>}
-            {room.blind_mode && <span className="mode-badge blind-badge" data-tooltip="Upcoming songs are hidden until they play">🙈 Blind Mode</span>}
-          </div>
-        </div>
-        <div className="room-header-actions">
-          {isAdmin(user?.spotify_user_id) && (
-            <Link to={`/admin?from=room&roomId=${roomId}`} className="btn-admin">Admin</Link>
-          )}
-          <div className="room-header-right">
+          <div className="room-code-row">
             <span className="room-code" onClick={handleCopyCode}>
               {copied ? '✓ Copied' : roomId}
             </span>
@@ -603,10 +591,22 @@ export default function RoomPage() {
             >
               🔗
             </button>
-            <button className="btn-secondary" onClick={handleLeave} style={{ padding: '8px 14px', fontSize: '0.85rem' }}>
-              Leave
-            </button>
           </div>
+          <div className="room-modes">
+            {room.hear_me_out && <span className="mode-badge hear-me-out" data-tooltip="Songs alternate between users so everyone gets a turn">🎤 Hear Me Out</span>}
+            {room.max_consecutive > 0 && <span className="mode-badge" data-tooltip={`Limits how many songs one person can queue in a row (${room.max_consecutive})`}>Max {room.max_consecutive} in a row</span>}
+            {room.vibe && <span className="mode-badge vibe-badge" data-tooltip="The vibe the host has set for this room">🎶 {room.vibe}</span>}
+            {room.dj_mode && <span className="mode-badge dj-badge" data-tooltip="Only the host can add songs">🎧 DJ Mode</span>}
+            {room.blind_mode && <span className="mode-badge blind-badge" data-tooltip="Upcoming songs are hidden until they play">🙈 Blind Mode</span>}
+          </div>
+        </div>
+        <div className="room-header-actions">
+          {isAdmin(user?.spotify_user_id) && (
+            <Link to={`/admin?from=room&roomId=${roomId}`} className="btn-admin">Admin</Link>
+          )}
+          <button className="btn-secondary" onClick={handleLeave} style={{ padding: '8px 14px', fontSize: '0.85rem' }}>
+            Leave
+          </button>
         </div>
       </div>
 
@@ -949,12 +949,14 @@ export default function RoomPage() {
               )}
             </div>
           )}
-          {isHost && (
-            <button className="btn-settings-open" onClick={() => setShowSettings(true)} style={{ marginTop: '1.5rem', width: '100%' }}>
-              ⚙ Settings
-            </button>
-          )}
-          <HelpModal />
+          <div className="room-footer-actions">
+            {isHost && (
+              <button className="btn-settings-open" onClick={() => setShowSettings(true)} style={{ width: '100%' }}>
+                ⚙ Settings
+              </button>
+            )}
+            <HelpModal />
+          </div>
         </div>
       </div>
 

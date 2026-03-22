@@ -62,16 +62,24 @@
   align-items: center;
 }
 
-.room-header-right {
+.room-code-row {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
+  margin-top: 4px;
+}
+
+.room-footer-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
 }
 
 @media (max-width: 600px) {
   .room-header-actions {
     width: 100%;
-    justify-content: space-between;
+    justify-content: flex-end;
   }
 }
 
