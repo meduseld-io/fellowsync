@@ -82,7 +82,7 @@ export default function LoginPage() {
       <div className="login-card">
         <img src="/logo.png" alt="FellowSync" style={{ maxWidth: 320, width: '80%', height: 'auto', marginBottom: '1rem' }} />
         <h1>Fellow<span style={{ color: 'var(--fella-color)' }}>Sync</span></h1>
-        <p>Listen together with friends using Spotify.</p>
+        <p>One does not simply listen alone...</p>
 
         {error && <p className="login-error">{error}</p>}
 
@@ -91,8 +91,8 @@ export default function LoginPage() {
             {requireByok ? (
               <div className="byok-section">
                 <p className="byok-hint">
-                  Each group needs their own Spotify app (free, 5 users per app).
-                  One person creates a group, everyone else joins with the group ID.
+                  Each group needs their own Spotify app.
+                  One person creates a group, up to 5 others join with the group ID.
                 </p>
                 <div className="byok-buttons">
                   <button className="btn-spotify" onClick={() => { setView('create'); setError(''); }}>
