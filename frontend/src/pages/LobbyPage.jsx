@@ -234,11 +234,11 @@ export default function LobbyPage() {
         <div className="lobby-footer">
           <GroupPanel />
           <button className="btn-logout" onClick={logout}>Logout</button>
+          <HelpModal />
+          {isAdmin(user?.spotify_user_id) && (
+            <Link to="/admin?from=lobby" className="btn-admin">Admin</Link>
+          )}
         </div>
-        <HelpModal />
-        {isAdmin(user?.spotify_user_id) && (
-          <Link to="/admin?from=lobby" className="btn-admin">Admin</Link>
-        )}
       </div>
       <Footer />
       <InstallBanner />
