@@ -148,6 +148,18 @@
   word-break: break-all;
 }
 
+.byok-form code.copyable-uri {
+  display: block;
+  margin-top: 0.4rem;
+  padding: 0.35rem 0.5rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.byok-form code.copyable-uri:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
 .byok-form-hint {
   font-size: 0.8rem;
   color: var(--text-muted);

@@ -18,6 +18,8 @@ export default function LoginPage() {
   const [clientSecret, setClientSecret] = useState('');
   const [creating, setCreating] = useState(false);
 
+  const [copied, setCopied] = useState(false);
+
   // Join form
   const [joinId, setJoinId] = useState('');
   const [joining, setJoining] = useState(false);
@@ -127,7 +129,18 @@ export default function LoginPage() {
                 developer.spotify.com
               </a>
               <br />
-              Set the redirect URI to: <code>{window.location.origin}/callback</code>
+              Set the redirect URI to:
+              <br />
+              <code
+                className="copyable-uri"
+                onClick={() => {
+                  navigator.clipboard.writeText(`${window.location.origin}/callback`)
+                    .then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); })
+                    .catch((e) => console.error('Failed to copy redirect URI:', e));
+                }}
+              >
+                {copied ? 'Copied!' : `${window.location.origin}/callback`}
+              </code>
             </p>
             <input
               type="text"
