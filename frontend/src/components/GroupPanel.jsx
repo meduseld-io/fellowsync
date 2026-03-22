@@ -21,6 +21,7 @@ export default function GroupPanel() {
   // Join form
   const [joinId, setJoinId] = useState('');
   const [joining, setJoining] = useState(false);
+  const [copiedId, setCopiedId] = useState(false);
 
   useEffect(() => {
     loadGroup();
@@ -107,9 +108,19 @@ export default function GroupPanel() {
           <span className="group-name">👥 {group.name}</span>
           <span className="group-count">{group.member_count}/6</span>
         </div>
-        <div className="group-id-row">
-          <span className="group-id-label">ID:</span>
-          <code className="group-id-code">{group.id}</code>
+        <div
+          className="group-id-row clickable"
+          onClick={() => {
+            navigator.clipboard.writeText(group.id).then(() => {
+              setCopiedId(true);
+              setTimeout(() => setCopiedId(false), 2000);
+            }).catch((e) => {
+              console.error('Failed to copy sync ID:', e);
+            });
+          }}
+        >
+          <span className="group-id-label">Sync ID:</span>
+          <code className="group-id-code">{copiedId ? '✓ Copied' : group.id}</code>
         </div>
         {memberList.length > 0 && (
           <div className="group-members">
