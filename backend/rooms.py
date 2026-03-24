@@ -266,6 +266,14 @@ def add_to_queue(room_id):
         return jsonify({'error': 'You have reached the maximum consecutive songs limit. Let someone else queue a track.'}), 429
     if not updated:
         return jsonify({'error': 'Room not found'}), 404
+
+    # If nothing is playing, immediately start the queued track
+    if not updated.get('current_track') and updated['queue']:
+        updated = room_manager.skip_track(room_id)
+        if updated:
+            _trigger_playback_for_room(room_id, updated)
+            broadcast_sync(room_id, updated)
+
     room_manager.log_activity(room_id, user['display_name'], 'queued', track_info.get('name', ''))
     broadcast_queue(room_id, updated)
     return jsonify(_with_participants(room_id, updated))
