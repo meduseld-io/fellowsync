@@ -27,6 +27,7 @@ export default function LobbyPage() {
   const [statsEnabled, setStatsEnabled] = useState(false);
   const [autoPlaylistUrl, setAutoPlaylistUrl] = useState('');
   const [blindMode, setBlindMode] = useState(false);
+  const [settingsError, setSettingsError] = useState('');
 
   useEffect(() => { document.title = 'FellowSync - Lobby'; }, []);
 
@@ -39,6 +40,7 @@ export default function LobbyPage() {
   const handleCreate = async () => {
     setCreating(true);
     setError('');
+    setSettingsError('');
     try {
       const room = await api.createRoom({
         max_consecutive: maxConsecutive,
@@ -54,7 +56,7 @@ export default function LobbyPage() {
       navigate(`/room/${room.room_id}`);
     } catch (e) {
       console.error('Failed to create room:', e);
-      setError(e.message || 'Failed to create room');
+      setSettingsError(e.message || 'Failed to create room');
     } finally {
       setCreating(false);
     }
@@ -205,12 +207,13 @@ export default function LobbyPage() {
               <button className="btn-primary" onClick={handleCreate} disabled={creating} style={{ marginTop: '1.25rem', width: '100%' }}>
                 {creating ? 'Creating...' : 'Create Room'}
               </button>
+              {settingsError && <p style={{ color: 'var(--danger)', marginTop: '0.75rem', fontSize: '0.85rem', textAlign: 'center' }}>{settingsError}</p>}
             </div>
           </div>
         )}
 
         <div className="lobby-actions">
-          <button className="btn-primary" onClick={() => setShowSettings(true)}>
+          <button className="btn-primary" onClick={() => { setSettingsError(''); setShowSettings(true); }}>
             Create Room
           </button>
 
