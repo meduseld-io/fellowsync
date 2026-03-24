@@ -200,7 +200,7 @@ def create_room():
             room_manager.delete_room(state['room_id'])
             return jsonify({'error': 'Spotify token expired. Try refreshing the page.'}), 401
 
-        tracks, name = spotify_service.get_playlist_tracks(token_data['access_token'], playlist_id)
+        tracks, name = spotify_service.get_playlist_tracks(token_data['access_token'], playlist_id, client_id=_cid, client_secret=_csecret)
         if not tracks:
             room_manager.delete_room(state['room_id'])
             logger.error("Failed to load auto-playlist %s during room creation — no tracks returned", playlist_id)
@@ -529,7 +529,7 @@ def update_settings(room_id):
             if not token_data:
                 room_manager.save_room(room_id, state)
                 return jsonify({'error': 'Spotify token expired. Try refreshing the page.'}), 401
-            tracks, name = spotify_service.get_playlist_tracks(token_data['access_token'], playlist_id)
+            tracks, name = spotify_service.get_playlist_tracks(token_data['access_token'], playlist_id, client_id=_cid, client_secret=_csecret)
             if not tracks:
                 logger.error("Failed to load playlist %s for room %s — no tracks returned", playlist_id, room_id)
                 room_manager.save_room(room_id, state)

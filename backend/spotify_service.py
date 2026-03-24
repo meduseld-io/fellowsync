@@ -182,41 +182,72 @@ def get_track_info(access_token, uri):
         return None
 
 
-def get_playlist_tracks(access_token, playlist_id, limit=100):
-    """Fetch tracks from a Spotify playlist. Returns (tracks_list, playlist_name) or ([], None)."""
+def _get_client_token(client_id=None, client_secret=None):
+    """Get a client credentials token (no user auth). Can access public playlist data."""
+    cid = client_id or Config.SPOTIFY_CLIENT_ID
+    csecret = client_secret or Config.SPOTIFY_CLIENT_SECRET
     try:
-        # Use the full playlist endpoint — /tracks sub-endpoint returns 403 in dev mode
-        resp = requests.get(
-            f'{API_BASE}/playlists/{playlist_id}',
-            headers=_headers(access_token),
-            timeout=15,
-        )
-        if resp.status_code != 200:
-            logger.error("Spotify playlist API returned %s for %s: %s", resp.status_code, playlist_id, resp.text[:500])
+        resp = requests.post(TOKEN_URL, data={
+            'grant_type': 'client_credentials',
+            'client_id': cid,
+            'client_secret': csecret,
+        }, timeout=10)
         resp.raise_for_status()
-        data = resp.json()
-        name = data.get('name', '')
-        tracks_obj = data.get('tracks', {})
-        items = tracks_obj.get('items', [])
-        total = tracks_obj.get('total', 0)
-        logger.info("Playlist %s (%s): total=%d, items_in_response=%d, tracks_keys=%s",
-                     playlist_id, name, total, len(items), list(tracks_obj.keys()))
-        tracks = []
-        for item in items[:limit]:
-            t = item.get('track')
-            if not t or not t.get('uri'):
+        return resp.json().get('access_token')
+    except Exception as e:
+        logger.error("Failed to get client credentials token: %s", e)
+        return None
+
+
+def get_playlist_tracks(access_token, playlist_id, limit=100, client_id=None, client_secret=None):
+    """Fetch tracks from a Spotify playlist. Returns (tracks_list, playlist_name) or ([], None).
+
+    Falls back to client credentials token if user token returns empty tracks (dev mode restriction).
+    """
+    try:
+        tokens_to_try = [access_token]
+        # Pre-fetch a client credentials token as fallback
+        cc_token = _get_client_token(client_id, client_secret)
+        if cc_token:
+            tokens_to_try.append(cc_token)
+
+        for token in tokens_to_try:
+            resp = requests.get(
+                f'{API_BASE}/playlists/{playlist_id}',
+                headers=_headers(token),
+                timeout=15,
+            )
+            if resp.status_code != 200:
+                logger.error("Spotify playlist API returned %s for %s: %s", resp.status_code, playlist_id, resp.text[:500])
                 continue
-            tracks.append({
-                'uri': t['uri'],
-                'name': t['name'],
-                'artist': ', '.join(a['name'] for a in t.get('artists', [])),
-                'album': t.get('album', {}).get('name', ''),
-                'album_art': t['album']['images'][0]['url'] if t.get('album', {}).get('images') else None,
-                'duration_ms': t.get('duration_ms', 0),
-                'spotify_url': t.get('external_urls', {}).get('spotify', ''),
-            })
-        logger.info("Playlist %s: parsed %d valid tracks", playlist_id, len(tracks))
-        return tracks, name
+            data = resp.json()
+            name = data.get('name', '')
+            tracks_obj = data.get('tracks', {})
+            items = tracks_obj.get('items', [])
+            total = tracks_obj.get('total', 0)
+            logger.info("Playlist %s (%s): total=%d, items=%d (token=%s)",
+                         playlist_id, name, total, len(items),
+                         'user' if token == access_token else 'client_credentials')
+            if items:
+                tracks = []
+                for item in items[:limit]:
+                    t = item.get('track')
+                    if not t or not t.get('uri'):
+                        continue
+                    tracks.append({
+                        'uri': t['uri'],
+                        'name': t['name'],
+                        'artist': ', '.join(a['name'] for a in t.get('artists', [])),
+                        'album': t.get('album', {}).get('name', ''),
+                        'album_art': t['album']['images'][0]['url'] if t.get('album', {}).get('images') else None,
+                        'duration_ms': t.get('duration_ms', 0),
+                        'spotify_url': t.get('external_urls', {}).get('spotify', ''),
+                    })
+                logger.info("Playlist %s: parsed %d valid tracks", playlist_id, len(tracks))
+                return tracks, name
+
+        logger.error("All token attempts returned 0 tracks for playlist %s", playlist_id)
+        return [], None
     except Exception as e:
         logger.error("Failed to fetch playlist %s: %s", playlist_id, e)
         return [], None
