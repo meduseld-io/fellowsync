@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { getSocket } from '../services/socket';
@@ -14,6 +14,7 @@ export default function RoomPage() {
   const { roomId } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [room, setRoom] = useState(null);
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -44,6 +45,11 @@ export default function RoomPage() {
   useEffect(() => {
     window.scrollTo(0, 0);
     document.title = 'FellowSync - Room';
+    if (location.state?.warning) {
+      showToast(location.state.warning);
+      // Clear the state so it doesn't re-show on re-render
+      window.history.replaceState({}, '');
+    }
   }, []);
 
   // Load room and connect socket

@@ -60,6 +60,11 @@ def _extract_playlist_id(url):
     return None
 
 
+def _is_spotify_track_url(url):
+    """Check if a URL is a Spotify track link (not a playlist)."""
+    return bool(re.search(r'spotify:track:|open\.spotify\.com/track/', url))
+
+
 def _get_group_creds(token_data):
     """Extract group credentials from token data if a group_id is present."""
     group_id = token_data.get('group_id')
@@ -179,24 +184,32 @@ def create_room():
     auto_playlist_url = str(data.get('auto_playlist_url', '') or '').strip()
     if auto_playlist_url:
         playlist_id = _extract_playlist_id(auto_playlist_url)
-        if playlist_id:
-            try:
-                _cid, _csecret = None, None
-                if user.get('group_id'):
-                    _creds = groups.get_group_credentials(user['group_id'])
-                    if _creds:
-                        _cid, _csecret = _creds
-                token_data = spotify_service.get_valid_token(user, client_id=_cid, client_secret=_csecret)
-                if token_data:
-                    tracks, name = spotify_service.get_playlist_tracks(token_data['access_token'], playlist_id)
-                    if tracks:
-                        state['auto_playlist'] = tracks
-                        state['auto_playlist_index'] = 0
-                        state['auto_playlist_name'] = name or 'Playlist'
-                        room_manager.save_room(state['room_id'], state)
-                        room_manager.log_activity(state['room_id'], user['display_name'], 'set auto-playlist', name or playlist_id)
-            except Exception as e:
-                logger.error("Failed to load auto-playlist during room creation: %s", e)
+        if not playlist_id:
+            msg = 'That\'s a track link, not a playlist. Paste a Spotify playlist URL.' if _is_spotify_track_url(auto_playlist_url) else 'Invalid playlist URL. Use a Spotify playlist link or URI.'
+            # Still return the room but with a warning
+            room_manager.log_activity(state['room_id'], user['display_name'], 'created room')
+            resp = dict(state)
+            resp['warning'] = msg
+            return jsonify(resp)
+        try:
+            _cid, _csecret = None, None
+            if user.get('group_id'):
+                _creds = groups.get_group_credentials(user['group_id'])
+                if _creds:
+                    _cid, _csecret = _creds
+            token_data = spotify_service.get_valid_token(user, client_id=_cid, client_secret=_csecret)
+            if token_data:
+                tracks, name = spotify_service.get_playlist_tracks(token_data['access_token'], playlist_id)
+                if tracks:
+                    state['auto_playlist'] = tracks
+                    state['auto_playlist_index'] = 0
+                    state['auto_playlist_name'] = name or 'Playlist'
+                    room_manager.save_room(state['room_id'], state)
+                    room_manager.log_activity(state['room_id'], user['display_name'], 'set auto-playlist', name or playlist_id)
+                else:
+                    logger.error("Failed to load auto-playlist %s during room creation — no tracks returned", playlist_id)
+        except Exception as e:
+            logger.error("Failed to load auto-playlist during room creation: %s", e)
 
     room_manager.log_activity(state['room_id'], user['display_name'], 'created room')
     return jsonify(state)
@@ -503,8 +516,9 @@ def update_settings(room_id):
             playlist_id = _extract_playlist_id(url)
             logger.info("Auto-playlist: URL=%s, extracted ID=%s", url, playlist_id)
             if not playlist_id:
+                msg = 'That\'s a track link, not a playlist. Paste a Spotify playlist URL.' if _is_spotify_track_url(url) else 'Invalid playlist URL. Use a Spotify playlist link or URI.'
                 room_manager.save_room(room_id, state)
-                return jsonify({'error': 'Invalid playlist URL. Use a Spotify playlist link or URI.'}), 400
+                return jsonify({'error': msg}), 400
             _cid, _csecret = None, None
             if user.get('group_id'):
                 _creds = groups.get_group_credentials(user['group_id'])

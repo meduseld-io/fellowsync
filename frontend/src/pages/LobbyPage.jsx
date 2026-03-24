@@ -51,7 +51,7 @@ export default function LobbyPage() {
         stats_enabled: statsEnabled,
         auto_playlist_url: autoPlaylistUrl.trim(),
       });
-      navigate(`/room/${room.room_id}`);
+      navigate(`/room/${room.room_id}`, { state: { warning: room.warning } });
     } catch (e) {
       console.error('Failed to create room:', e);
       setError('Failed to create room');
