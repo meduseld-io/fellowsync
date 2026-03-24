@@ -202,20 +202,46 @@ def _get_client_token(client_id=None, client_secret=None):
 def get_playlist_tracks(access_token, playlist_id, limit=100, client_id=None, client_secret=None):
     """Fetch tracks from a Spotify playlist. Returns (tracks_list, playlist_name) or ([], None).
 
-    Tries multiple approaches: /playlists/{id}/tracks, /playlists/{id} with market,
-    and client credentials fallback.
+    Strategy:
+    1. Try /playlists/{id} full object (works for public playlists, returns inline tracks)
+    2. Try /playlists/{id}/tracks (only works for owned/collaborated playlists per Spotify policy)
+    3. Repeat with client credentials token as fallback
     """
     try:
-        tokens_to_try = [access_token]
+        tokens_to_try = [('user', access_token)]
         cc_token = _get_client_token(client_id, client_secret)
         if cc_token:
-            tokens_to_try.append(cc_token)
+            tokens_to_try.append(('client_credentials', cc_token))
 
         name = ''
-        for token in tokens_to_try:
-            token_label = 'user' if token == access_token else 'client_credentials'
+        for token_label, token in tokens_to_try:
+            # Try /playlists/{id} full object first — works for public playlists
+            try:
+                resp = requests.get(
+                    f'{API_BASE}/playlists/{playlist_id}',
+                    headers=_headers(token),
+                    params={'market': 'US'},
+                    timeout=15,
+                )
+                if resp.status_code == 200:
+                    data = resp.json()
+                    name = data.get('name', '') or name
+                    tracks_obj = data.get('tracks', {})
+                    items = tracks_obj.get('items', [])
+                    total = tracks_obj.get('total')
+                    logger.info("Playlist %s (%s): total=%s, items=%d (token=%s)",
+                                playlist_id, name, total, len(items), token_label)
+                    if items:
+                        tracks = _parse_track_items(items, limit)
+                        if tracks:
+                            logger.info("Playlist %s: parsed %d tracks via full object", playlist_id, len(tracks))
+                            return tracks, name
+                else:
+                    logger.warning("Playlist %s full object returned %s (token=%s)", playlist_id, resp.status_code, token_label)
+            except Exception as e:
+                logger.error("Playlist %s full object request failed: %s", playlist_id, e)
 
-            # Try /playlists/{id}/tracks endpoint first (most reliable for track data)
+            # Fallback: /playlists/{id}/tracks — only works for owned/collaborated playlists
             try:
                 resp = requests.get(
                     f'{API_BASE}/playlists/{playlist_id}/tracks',
@@ -228,7 +254,6 @@ def get_playlist_tracks(access_token, playlist_id, limit=100, client_id=None, cl
                     items = data.get('items', [])
                     logger.info("Playlist %s /tracks: got %d items (token=%s)", playlist_id, len(items), token_label)
                     if items:
-                        # Get name separately
                         if not name:
                             try:
                                 meta = requests.get(
@@ -245,36 +270,12 @@ def get_playlist_tracks(access_token, playlist_id, limit=100, client_id=None, cl
                         if tracks:
                             logger.info("Playlist %s: parsed %d tracks via /tracks", playlist_id, len(tracks))
                             return tracks, name
+                elif resp.status_code == 403:
+                    logger.warning("Playlist %s /tracks returned 403 — not owned/collaborated (token=%s)", playlist_id, token_label)
                 else:
                     logger.warning("Playlist %s /tracks returned %s (token=%s)", playlist_id, resp.status_code, token_label)
             except Exception as e:
                 logger.error("Playlist %s /tracks request failed: %s", playlist_id, e)
-
-            # Fallback: try /playlists/{id} full object
-            try:
-                resp = requests.get(
-                    f'{API_BASE}/playlists/{playlist_id}',
-                    headers=_headers(token),
-                    params={'market': 'US'},
-                    timeout=15,
-                )
-                if resp.status_code == 200:
-                    data = resp.json()
-                    name = data.get('name', '') or name
-                    tracks_obj = data.get('tracks', {})
-                    items = tracks_obj.get('items', [])
-                    total = tracks_obj.get('total', 0)
-                    logger.info("Playlist %s (%s): total=%d, items=%d (token=%s)",
-                                playlist_id, name, total, len(items), token_label)
-                    if items:
-                        tracks = _parse_track_items(items, limit)
-                        if tracks:
-                            logger.info("Playlist %s: parsed %d tracks via full object", playlist_id, len(tracks))
-                            return tracks, name
-                else:
-                    logger.warning("Playlist %s full object returned %s (token=%s)", playlist_id, resp.status_code, token_label)
-            except Exception as e:
-                logger.error("Playlist %s full object request failed: %s", playlist_id, e)
 
         logger.error("All attempts returned 0 tracks for playlist %s", playlist_id)
         return [], name or None
