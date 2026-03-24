@@ -180,43 +180,40 @@ def create_room():
         'group_id': user.get('group_id'),
     })
 
-    # Handle auto-playlist if provided
+    # Handle auto-playlist if provided — fail room creation if playlist is invalid
     auto_playlist_url = str(data.get('auto_playlist_url', '') or '').strip()
-    playlist_warning = None
     if auto_playlist_url:
         playlist_id = _extract_playlist_id(auto_playlist_url)
         if not playlist_id:
-            playlist_warning = 'That\'s a track link, not a playlist. Paste a Spotify playlist URL.' if _is_spotify_track_url(auto_playlist_url) else 'Invalid playlist URL. Use a Spotify playlist link or URI.'
-        else:
-            try:
-                _cid, _csecret = None, None
-                if user.get('group_id'):
-                    _creds = groups.get_group_credentials(user['group_id'])
-                    if _creds:
-                        _cid, _csecret = _creds
-                token_data = spotify_service.get_valid_token(user, client_id=_cid, client_secret=_csecret)
-                if not token_data:
-                    playlist_warning = 'Spotify token expired. Auto-playlist was not set.'
-                else:
-                    tracks, name = spotify_service.get_playlist_tracks(token_data['access_token'], playlist_id)
-                    if tracks:
-                        state['auto_playlist'] = tracks
-                        state['auto_playlist_index'] = 0
-                        state['auto_playlist_name'] = name or 'Playlist'
-                        room_manager.save_room(state['room_id'], state)
-                        room_manager.log_activity(state['room_id'], user['display_name'], 'set auto-playlist', name or playlist_id)
-                    else:
-                        logger.error("Failed to load auto-playlist %s during room creation — no tracks returned", playlist_id)
-                        playlist_warning = 'Could not load playlist. It may be private or empty.'
-            except Exception as e:
-                logger.error("Failed to load auto-playlist during room creation: %s", e)
-                playlist_warning = 'Failed to load playlist.'
+            # Delete the room we just created
+            room_manager.delete_room(state['room_id'])
+            msg = 'That\'s a track link, not a playlist. Paste a Spotify playlist URL.' if _is_spotify_track_url(auto_playlist_url) else 'Invalid playlist URL. Use a Spotify playlist link or URI.'
+            return jsonify({'error': msg}), 400
+
+        _cid, _csecret = None, None
+        if user.get('group_id'):
+            _creds = groups.get_group_credentials(user['group_id'])
+            if _creds:
+                _cid, _csecret = _creds
+        token_data = spotify_service.get_valid_token(user, client_id=_cid, client_secret=_csecret)
+        if not token_data:
+            room_manager.delete_room(state['room_id'])
+            return jsonify({'error': 'Spotify token expired. Try refreshing the page.'}), 401
+
+        tracks, name = spotify_service.get_playlist_tracks(token_data['access_token'], playlist_id)
+        if not tracks:
+            room_manager.delete_room(state['room_id'])
+            logger.error("Failed to load auto-playlist %s during room creation — no tracks returned", playlist_id)
+            return jsonify({'error': 'Could not load playlist. It may be private or empty.'}), 400
+
+        state['auto_playlist'] = tracks
+        state['auto_playlist_index'] = 0
+        state['auto_playlist_name'] = name or 'Playlist'
+        room_manager.save_room(state['room_id'], state)
+        room_manager.log_activity(state['room_id'], user['display_name'], 'set auto-playlist', name or playlist_id)
 
     room_manager.log_activity(state['room_id'], user['display_name'], 'created room')
-    resp = dict(state)
-    if playlist_warning:
-        resp['warning'] = playlist_warning
-    return jsonify(resp)
+    return jsonify(state)
 
 
 @rooms_bp.route('/api/rooms/<room_id>')
