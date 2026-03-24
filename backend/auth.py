@@ -74,6 +74,7 @@ def callback():
         return jsonify({'error': 'Token exchange failed'}), 500
 
     access_token = token_data['access_token']
+    logger.info("Token exchange success. Scope granted: %s", token_data.get('scope', 'NOT RETURNED'))
 
     # Fetch user profile
     try:
