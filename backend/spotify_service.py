@@ -215,6 +215,7 @@ def get_playlist_tracks(access_token, playlist_id, limit=100, client_id=None, cl
             resp = requests.get(
                 f'{API_BASE}/playlists/{playlist_id}',
                 headers=_headers(token),
+                params={'market': 'US'},
                 timeout=15,
             )
             if resp.status_code != 200:
