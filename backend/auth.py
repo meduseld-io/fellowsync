@@ -75,8 +75,8 @@ def callback():
 
     access_token = token_data['access_token']
     refresh_token = token_data.get('refresh_token')
-    logger.info("Token exchange success. Scope granted: %s | refresh_token present: %s | refresh_token: %s",
-                token_data.get('scope', 'NOT RETURNED'), bool(refresh_token), refresh_token)
+    logger.info("Token exchange success. Scope granted: %s | refresh_token present: %s",
+                token_data.get('scope', 'NOT RETURNED'), bool(refresh_token))
 
     # Fetch user profile
     try:
