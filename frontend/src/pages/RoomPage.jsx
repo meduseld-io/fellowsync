@@ -288,6 +288,7 @@ export default function RoomPage() {
       setRoom(updated);
     } catch (e) {
       console.error('Failed to update room settings:', e);
+      showToast(e.message || 'Failed to update settings');
     }
   };
 

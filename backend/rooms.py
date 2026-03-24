@@ -266,6 +266,14 @@ def add_to_queue(room_id):
         return jsonify({'error': 'You have reached the maximum consecutive songs limit. Let someone else queue a track.'}), 429
     if not updated:
         return jsonify({'error': 'Room not found'}), 404
+
+    # If nothing is playing, immediately start the queued track
+    if not updated.get('current_track') and updated['queue']:
+        updated = room_manager.skip_track(room_id)
+        if updated:
+            _trigger_playback_for_room(room_id, updated)
+            broadcast_sync(room_id, updated)
+
     room_manager.log_activity(room_id, user['display_name'], 'queued', track_info.get('name', ''))
     broadcast_queue(room_id, updated)
     return jsonify(_with_participants(room_id, updated))
@@ -493,20 +501,27 @@ def update_settings(room_id):
         else:
             # Extract playlist ID from URL or URI
             playlist_id = _extract_playlist_id(url)
-            if playlist_id:
-                _cid, _csecret = None, None
-                if user.get('group_id'):
-                    _creds = groups.get_group_credentials(user['group_id'])
-                    if _creds:
-                        _cid, _csecret = _creds
-                token_data = spotify_service.get_valid_token(user, client_id=_cid, client_secret=_csecret)
-                if token_data:
-                    tracks, name = spotify_service.get_playlist_tracks(token_data['access_token'], playlist_id)
-                    if tracks:
-                        state['auto_playlist'] = tracks
-                        state['auto_playlist_index'] = 0
-                        state['auto_playlist_name'] = name or 'Playlist'
-                        room_manager.log_activity(room_id, user['display_name'], 'set auto-playlist', name or playlist_id)
+            if not playlist_id:
+                room_manager.save_room(room_id, state)
+                return jsonify({'error': 'Invalid playlist URL. Use a Spotify playlist link or URI.'}), 400
+            _cid, _csecret = None, None
+            if user.get('group_id'):
+                _creds = groups.get_group_credentials(user['group_id'])
+                if _creds:
+                    _cid, _csecret = _creds
+            token_data = spotify_service.get_valid_token(user, client_id=_cid, client_secret=_csecret)
+            if not token_data:
+                room_manager.save_room(room_id, state)
+                return jsonify({'error': 'Spotify token expired. Try refreshing the page.'}), 401
+            tracks, name = spotify_service.get_playlist_tracks(token_data['access_token'], playlist_id)
+            if not tracks:
+                logger.error("Failed to load playlist %s for room %s — no tracks returned", playlist_id, room_id)
+                room_manager.save_room(room_id, state)
+                return jsonify({'error': 'Could not load playlist. It may be private or empty.'}), 400
+            state['auto_playlist'] = tracks
+            state['auto_playlist_index'] = 0
+            state['auto_playlist_name'] = name or 'Playlist'
+            room_manager.log_activity(room_id, user['display_name'], 'set auto-playlist', name or playlist_id)
 
     room_manager.save_room(room_id, state)
     room_manager.log_activity(room_id, user['display_name'], 'updated settings')
