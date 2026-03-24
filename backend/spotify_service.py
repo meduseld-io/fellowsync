@@ -281,8 +281,9 @@ def _parse_track_items(items, limit=100):
     """Parse Spotify playlist items into track dicts."""
     tracks = []
     for item in items[:limit]:
-        # /items endpoint uses 'item' key, legacy /tracks uses 'track' — support both
-        t = item.get('track') or item.get('item')
+        # /items endpoint nests track data under 'item' key (with 'track' as a boolean)
+        # Legacy /tracks endpoint nests it under 'track' key (as an object)
+        t = item.get('item') if isinstance(item.get('item'), dict) else item.get('track') if isinstance(item.get('track'), dict) else None
         if not t or not t.get('uri'):
             continue
         # Skip episodes or other non-track types
