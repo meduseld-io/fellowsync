@@ -501,6 +501,7 @@ def update_settings(room_id):
         else:
             # Extract playlist ID from URL or URI
             playlist_id = _extract_playlist_id(url)
+            logger.info("Auto-playlist: URL=%s, extracted ID=%s", url, playlist_id)
             if not playlist_id:
                 room_manager.save_room(room_id, state)
                 return jsonify({'error': 'Invalid playlist URL. Use a Spotify playlist link or URI.'}), 400

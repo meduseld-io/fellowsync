@@ -14,7 +14,7 @@ class Config:
     SPOTIFY_AUTH_URL = 'https://accounts.spotify.com/authorize'
     SPOTIFY_TOKEN_URL = 'https://accounts.spotify.com/api/token'
     SPOTIFY_API_BASE = 'https://api.spotify.com/v1'
-    SPOTIFY_SCOPES = 'user-read-playback-state user-modify-playback-state'
+    SPOTIFY_SCOPES = 'user-read-playback-state user-modify-playback-state playlist-read-private'
     ADMIN_USER_IDS = [x.strip() for x in os.getenv('ADMIN_USER_IDS', '').split(',') if x.strip()]
     ENCRYPTION_KEY = os.getenv('ENCRYPTION_KEY', '')
     REQUIRE_BYOK = os.getenv('REQUIRE_BYOK', 'true').lower() in ('true', '1', 'yes')

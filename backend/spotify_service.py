@@ -191,10 +191,13 @@ def get_playlist_tracks(access_token, playlist_id, limit=100):
             params={'fields': 'name,tracks.items(track(uri,name,artists,album,duration_ms,external_urls))'},
             timeout=15,
         )
+        if resp.status_code != 200:
+            logger.error("Spotify playlist API returned %s for %s: %s", resp.status_code, playlist_id, resp.text[:500])
         resp.raise_for_status()
         data = resp.json()
         name = data.get('name', '')
         items = data.get('tracks', {}).get('items', [])
+        logger.info("Playlist %s (%s): got %d items from API", playlist_id, name, len(items))
         tracks = []
         for item in items[:limit]:
             t = item.get('track')
@@ -209,6 +212,7 @@ def get_playlist_tracks(access_token, playlist_id, limit=100):
                 'duration_ms': t.get('duration_ms', 0),
                 'spotify_url': t.get('external_urls', {}).get('spotify', ''),
             })
+        logger.info("Playlist %s: parsed %d valid tracks", playlist_id, len(tracks))
         return tracks, name
     except Exception as e:
         logger.error("Failed to fetch playlist %s: %s", playlist_id, e)
