@@ -185,31 +185,22 @@ def get_track_info(access_token, uri):
 def get_playlist_tracks(access_token, playlist_id, limit=100):
     """Fetch tracks from a Spotify playlist. Returns (tracks_list, playlist_name) or ([], None)."""
     try:
-        # Get playlist name first
-        meta_resp = requests.get(
+        # Use the full playlist endpoint — /tracks sub-endpoint returns 403 in dev mode
+        resp = requests.get(
             f'{API_BASE}/playlists/{playlist_id}',
             headers=_headers(access_token),
-            params={'fields': 'name'},
-            timeout=10,
-        )
-        if meta_resp.status_code != 200:
-            logger.error("Spotify playlist meta API returned %s for %s: %s", meta_resp.status_code, playlist_id, meta_resp.text[:500])
-        meta_resp.raise_for_status()
-        name = meta_resp.json().get('name', '')
-
-        # Fetch tracks from dedicated endpoint
-        resp = requests.get(
-            f'{API_BASE}/playlists/{playlist_id}/tracks',
-            headers=_headers(access_token),
-            params={'limit': limit},
             timeout=15,
         )
         if resp.status_code != 200:
-            logger.error("Spotify playlist tracks API returned %s for %s: %s", resp.status_code, playlist_id, resp.text[:500])
+            logger.error("Spotify playlist API returned %s for %s: %s", resp.status_code, playlist_id, resp.text[:500])
         resp.raise_for_status()
         data = resp.json()
-        items = data.get('items', [])
-        logger.info("Playlist %s (%s): got %d items from tracks API", playlist_id, name, len(items))
+        name = data.get('name', '')
+        tracks_obj = data.get('tracks', {})
+        items = tracks_obj.get('items', [])
+        total = tracks_obj.get('total', 0)
+        logger.info("Playlist %s (%s): total=%d, items_in_response=%d, tracks_keys=%s",
+                     playlist_id, name, total, len(items), list(tracks_obj.keys()))
         tracks = []
         for item in items[:limit]:
             t = item.get('track')
