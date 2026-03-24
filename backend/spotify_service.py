@@ -188,7 +188,6 @@ def get_playlist_tracks(access_token, playlist_id, limit=100):
         resp = requests.get(
             f'{API_BASE}/playlists/{playlist_id}',
             headers=_headers(access_token),
-            params={'fields': 'name,tracks.items(track(uri,name,artists,album,duration_ms,external_urls))'},
             timeout=15,
         )
         if resp.status_code != 200:
