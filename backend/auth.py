@@ -74,7 +74,9 @@ def callback():
         return jsonify({'error': 'Token exchange failed'}), 500
 
     access_token = token_data['access_token']
-    logger.info("Token exchange success. Scope granted: %s", token_data.get('scope', 'NOT RETURNED'))
+    refresh_token = token_data.get('refresh_token')
+    logger.info("Token exchange success. Scope granted: %s | refresh_token present: %s",
+                token_data.get('scope', 'NOT RETURNED'), bool(refresh_token))
 
     # Fetch user profile
     try:
@@ -94,10 +96,13 @@ def callback():
         'display_name': profile.get('display_name', profile['id']),
         'avatar': profile['images'][0]['url'] if profile.get('images') else None,
         'access_token': access_token,
-        'refresh_token': token_data['refresh_token'],
+        'refresh_token': refresh_token,
         'expires_at': time.time() + token_data.get('expires_in', 3600),
         'group_id': group_id or None,
     }
+
+    if not refresh_token:
+        logger.warning("No refresh_token returned for user %s — token refresh will fail", profile['id'])
 
     # Enforce BYOK: non-admin users must authenticate through a group
     if Config.REQUIRE_BYOK and not group_id:
