@@ -759,6 +759,29 @@ def get_stats(room_id):
     return jsonify({'stats': stats})
 
 
+@rooms_bp.route('/api/rooms/active')
+def public_active_rooms():
+    """Public endpoint returning active room count and basic info (no auth)."""
+    room_ids = room_manager.get_all_active_rooms()
+    rooms = []
+    for rid in room_ids:
+        state = room_manager.get_room(rid)
+        if not state:
+            continue
+        participants = room_manager.get_participants(rid)
+        host_name = participants.get(state.get('host_id'), 'Someone')
+        track_info = state.get('current_track_info') or {}
+        rooms.append({
+            'room_id': rid,
+            'host_name': host_name,
+            'participant_count': len(participants),
+            'current_track': track_info.get('name'),
+            'current_artist': ', '.join(a.get('name', '') for a in track_info.get('artists', [])) if track_info.get('artists') else None,
+            'is_playing': state.get('is_playing', False),
+        })
+    return jsonify({'rooms': rooms, 'count': len(rooms)})
+
+
 def _require_admin(f):
     """Decorator to require admin authentication."""
     from functools import wraps
