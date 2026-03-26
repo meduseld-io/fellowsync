@@ -1112,3 +1112,31 @@
   text-overflow: ellipsis;
   max-width: 160px;
 }
+
+/* Playlist upcoming tracks */
+.playlist-upcoming {
+  margin-top: 12px;
+}
+
+.playlist-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.playlist-divider-line {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.playlist-divider-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.queue-item.playlist-track {
+  opacity: 0.55;
+}

@@ -414,6 +414,13 @@ export default function RoomPage() {
   const currentTrack = room.current_track_info;
   const otherParticipants = Object.entries(participants).filter(([uid]) => uid !== user?.spotify_user_id);
 
+  // Compute upcoming playlist tracks (next 10 from auto-playlist after current index)
+  const upcomingPlaylist = (() => {
+    if (!room.auto_playlist?.length) return [];
+    const idx = room.auto_playlist_index || 0;
+    return room.auto_playlist.slice(idx, idx + 10);
+  })();
+
   return (
     <div className="room-page">
       <ToastContainer />
@@ -814,6 +821,33 @@ export default function RoomPage() {
                   );
                 })}
               </ul>
+            )}
+            {upcomingPlaylist.length > 0 && (
+              <div className="playlist-upcoming">
+                <div className="playlist-divider">
+                  <span className="playlist-divider-line" />
+                  <span className="playlist-divider-label">📋 Up next from {room.auto_playlist_name}</span>
+                  <span className="playlist-divider-line" />
+                </div>
+                <ul className="queue-list">
+                  {upcomingPlaylist.map((track, i) => {
+                    const masked = room.blind_mode && !isHost;
+                    return (
+                      <li key={`pl-${track.uri}-${i}`} className={`queue-item playlist-track${masked ? ' blind-item' : ''}`}>
+                        {masked ? (
+                          <div className="blind-art-placeholder">?</div>
+                        ) : (
+                          track.album_art && <img src={track.album_art} alt="" />
+                        )}
+                        <div className="queue-item-info">
+                          <div className="track-name">{masked ? '???' : track.name}</div>
+                          <div className="track-artist">{masked ? '???' : track.artist}</div>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
             )}
           </div>
         </div>
