@@ -486,11 +486,20 @@
 }
 
 .participant-actions {
-  display: flex;
+  display: none;
   align-items: center;
   gap: 4px;
   flex-shrink: 0;
   margin-left: auto;
+}
+
+.participant:hover .participant-actions {
+  display: flex;
+}
+
+.participant:hover .custom-badge,
+.participant:hover .dev-badge {
+  display: none;
 }
 
 .participant .host-badge {
@@ -525,12 +534,6 @@
   color: var(--text-muted);
   cursor: pointer;
   white-space: nowrap;
-  opacity: 0;
-  transition: opacity 0.15s;
-}
-
-.participant:hover .btn-promote {
-  opacity: 1;
 }
 
 .btn-promote:hover {
@@ -547,12 +550,6 @@
   color: var(--text-muted);
   cursor: pointer;
   white-space: nowrap;
-  opacity: 0;
-  transition: opacity 0.15s;
-}
-
-.participant:hover .btn-kick {
-  opacity: 1;
 }
 
 .btn-kick:hover {
