@@ -80,7 +80,6 @@ export default function RoomPage() {
         });
         prevParticipantsRef.current = next;
         setRoom(state);
-        setProgressKey((k) => k + 1);
       });
       socket.on('playback_sync', (state) => {
         if (!mounted) return;
