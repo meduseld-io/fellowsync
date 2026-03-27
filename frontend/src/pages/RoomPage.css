@@ -225,6 +225,7 @@
   border-radius: 12px;
   padding: 1.25rem;
   overflow: hidden;
+  min-width: 0;
 }
 
 .panel h2 {
@@ -386,6 +387,9 @@
 .search-item-info .track-artist {
   font-size: 0.8rem;
   color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .search-item .btn-add {
