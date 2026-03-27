@@ -35,6 +35,7 @@ export default function RoomPage() {
   const [showStats, setShowStats] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [progressMs, setProgressMs] = useState(0);
+  const [progressKey, setProgressKey] = useState(0);
   const searchTimeout = useRef(null);
   const vibeTimeout = useRef(null);
   const socketRef = useRef(null);
@@ -79,8 +80,13 @@ export default function RoomPage() {
         });
         prevParticipantsRef.current = next;
         setRoom(state);
+        setProgressKey((k) => k + 1);
       });
-      socket.on('playback_sync', (state) => { if (mounted) setRoom(state); });
+      socket.on('playback_sync', (state) => {
+        if (!mounted) return;
+        setRoom(state);
+        setProgressKey((k) => k + 1);
+      });
       socket.on('queue_updated', (state) => {
         if (!mounted) return;
         setRoom(state);
@@ -117,7 +123,7 @@ export default function RoomPage() {
     setProgressMs(calc());
     const id = setInterval(() => setProgressMs(calc()), 1000);
     return () => clearInterval(id);
-  }, [room?.position_ms, room?.last_update, room?.is_playing, room?.current_track_info?.duration_ms]);
+  }, [room?.position_ms, room?.last_update, room?.is_playing, room?.current_track_info?.duration_ms, progressKey]);
 
   // Sync vibe input from room state (when another host sets it or on initial load)
   useEffect(() => {
@@ -228,6 +234,7 @@ export default function RoomPage() {
     try {
       const updated = await api.skipTrack(roomId);
       setRoom(updated);
+      setProgressKey((k) => k + 1);
     } catch (e) {
       console.error('Failed to skip track:', e);
     }
@@ -237,6 +244,7 @@ export default function RoomPage() {
     try {
       const updated = await api.play(roomId);
       setRoom(updated);
+      setProgressKey((k) => k + 1);
       if (updated.playback_errors?.some(e => e.error === 'no_device')) {
         setDeviceWarning(true);
       } else {
@@ -251,6 +259,7 @@ export default function RoomPage() {
     try {
       const updated = await api.pause(roomId);
       setRoom(updated);
+      setProgressKey((k) => k + 1);
     } catch (e) {
       console.error('Failed to pause playback:', e);
     }
@@ -270,6 +279,7 @@ export default function RoomPage() {
     try {
       const updated = await api.sync(roomId);
       setRoom(updated);
+      setProgressKey((k) => k + 1);
       if (updated.sync_error?.error === 'no_device') {
         setDeviceWarning(true);
       } else {
