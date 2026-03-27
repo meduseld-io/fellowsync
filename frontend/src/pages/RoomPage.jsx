@@ -1099,7 +1099,7 @@ export default function RoomPage() {
                         {participantBadges[uid].text}
                       </span>
                     ) : uid === user?.spotify_user_id ? (
-                      <span className="add-badge-btn" onClick={handleOpenBadgeEditor}>+ Badge</span>
+                      <button className="add-badge-btn" onClick={handleOpenBadgeEditor}>+ Badge</button>
                     ) : null}
                   </div>
                   {isHost && uid !== room.host_id && (

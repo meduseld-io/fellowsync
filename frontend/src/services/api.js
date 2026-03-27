@@ -72,4 +72,6 @@ export const api = {
   // Badges
   adminSetBadge: (userId, text, color) => request(`/api/admin/badges/${userId}`, { method: 'PUT', body: JSON.stringify({ text, color }) }),
   adminRemoveBadge: (userId) => request(`/api/admin/badges/${userId}`, { method: 'DELETE' }),
+  setMyBadge: (text, color) => request('/api/me/badge', { method: 'PUT', body: JSON.stringify({ text, color }) }),
+  removeMyBadge: () => request('/api/me/badge', { method: 'DELETE' }),
 };
