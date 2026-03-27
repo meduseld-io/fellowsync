@@ -783,8 +783,10 @@ def public_active_rooms():
         if not state:
             continue
         participants = room_manager.get_participants(rid)
-        host_name = participants.get(state.get('host_id'), 'Someone')
+        host_id = state.get('host_id')
+        host_name = participants.get(host_id, 'Someone')
         track_info = state.get('current_track_info') or {}
+        group_id = groups.get_user_group_id(host_id) if host_id else None
         rooms.append({
             'room_id': rid,
             'host_name': host_name,
@@ -792,6 +794,7 @@ def public_active_rooms():
             'current_track': track_info.get('name'),
             'current_artist': ', '.join(a.get('name', '') for a in track_info.get('artists', [])) if track_info.get('artists') else None,
             'is_playing': state.get('is_playing', False),
+            'group_id': group_id,
         })
     return jsonify({'rooms': rooms, 'count': len(rooms)})
 
