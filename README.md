@@ -70,6 +70,7 @@ Create a room, share the 6-character room code, and start queuing tracks. The ho
 - **Playback progress bar** - live progress bar with elapsed/total time below the now-playing card
 - **Share room link** - copy a direct join URL to share with friends
 - **Promote to host** - host can transfer control to another listener
+- **Kick from room** - host can remove listeners from the room
 - **Host transfer on leave** - if the host leaves with others still in the room, they're prompted to pick a new host
 - **Activity log** - host and admin can view a timestamped log of all room actions (joins, leaves, queues, skips, etc.)
 - **Character avatars** - each user gets a deterministic "fella" avatar, with an in-lobby picker to choose your color
