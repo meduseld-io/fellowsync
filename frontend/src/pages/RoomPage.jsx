@@ -92,6 +92,12 @@ export default function RoomPage() {
         setRoom(state);
       });
       socket.on('error', (data) => console.error('Socket error:', data.message));
+      socket.on('kicked', () => {
+        if (!mounted) return;
+        navigate('/lobby');
+        // Show toast after navigation
+        setTimeout(() => showToast('You were kicked from the room'), 100);
+      });
     }
 
     init();
@@ -105,6 +111,7 @@ export default function RoomPage() {
         socketRef.current.off('playback_sync');
         socketRef.current.off('queue_updated');
         socketRef.current.off('error');
+        socketRef.current.off('kicked');
       }
     };
   }, [roomId]);
@@ -319,6 +326,11 @@ export default function RoomPage() {
     } catch (e) {
       console.error('Failed to promote user to host:', e);
     }
+  };
+
+  const handleKick = (userId) => {
+    if (!socketRef.current) return;
+    socketRef.current.emit('kick_user', { room_id: roomId, user_id: userId });
   };
 
   const handleReact = async (emoji) => {
@@ -896,9 +908,14 @@ export default function RoomPage() {
                   {uid === room.host_id && <span className="host-badge">Host</span>}
                   {isAdmin(uid) && <span className="dev-badge">Dev</span>}
                   {isHost && uid !== room.host_id && (
-                    <button className="btn-promote" onClick={() => handlePromote(uid)}>
-                      Make Host
-                    </button>
+                    <>
+                      <button className="btn-promote" onClick={() => handlePromote(uid)}>
+                        Make Host
+                      </button>
+                      <button className="btn-kick" onClick={() => handleKick(uid)}>
+                        Kick
+                      </button>
+                    </>
                   )}
                 </li>
               ))}

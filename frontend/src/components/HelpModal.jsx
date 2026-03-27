@@ -44,7 +44,7 @@ export default function HelpModal() {
             <p>Hit the "Sync!" button if your playback drifts out of position. The host can skip tracks instantly. Other listeners can vote to skip - once enough of the room votes (threshold set by the host), the track is skipped automatically.</p>
 
             <h3>Host Controls</h3>
-            <p>The host can drag to reorder the queue, shuffle it with the 🔀 button, remove any track, promote another listener to host, and clear the entire queue. If the host leaves, they'll be asked to pick a new host first.</p>
+            <p>The host can drag to reorder the queue, shuffle it with the 🔀 button, remove any track, promote another listener to host, kick listeners from the room, and clear the entire queue. If the host leaves, they'll be asked to pick a new host first.</p>
 
             <h3>BYOS Syncs</h3>
             <p>Spotify limits each app to 6 users in dev mode. If your group is larger, or you want to self-manage your Spotify app credentials, use BYOS (Bring Your Own Sync). One person creates a Sync with their Spotify app's Client ID and Secret, then shares the Sync ID with friends. Members join the Sync and re-login to authenticate through the Sync's Spotify app instead of the default one.</p>

@@ -494,6 +494,28 @@
   color: var(--fella-color);
 }
 
+.btn-kick {
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.participant:hover .btn-kick {
+  opacity: 1;
+}
+
+.btn-kick:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
 
 .playback-controls button.voted {
   border-color: var(--fella-color);

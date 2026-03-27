@@ -148,6 +148,44 @@ def init_socketio(sio):
         if updated:
             sio.emit('playback_sync', _room_payload(room_id, updated), room=room_id)
 
+    @sio.on('kick_user')
+    def on_kick_user(data):
+        user = session.get('user')
+        if not user:
+            return
+        room_id = data.get('room_id')
+        target_id = data.get('user_id')
+        if not room_id or not target_id:
+            return
+
+        state = room_manager.get_room(room_id)
+        if not state:
+            return
+
+        # Only the host can kick
+        if user['spotify_user_id'] != state['host_id']:
+            emit('error', {'message': 'Only the host can kick users'})
+            return
+
+        # Can't kick yourself
+        if target_id == user['spotify_user_id']:
+            return
+
+        participants = room_manager.get_participants(room_id)
+        target_name = participants.get(target_id, target_id)
+
+        room_manager.remove_participant(room_id, target_id)
+        room_manager.remove_user_token(room_id, target_id)
+        room_manager.log_activity(room_id, user['display_name'], 'kicked', target_name)
+
+        # Notify the kicked user
+        sio.emit('kicked', {'room_id': room_id, 'reason': 'You were kicked by the host'}, room=room_id)
+
+        # Broadcast updated room state
+        updated = room_manager.get_room(room_id)
+        if updated:
+            sio.emit('room_state', _room_payload(room_id, updated), room=room_id)
+
 
 def _room_payload(room_id, state):
     """Build a room state payload with participants and avatars."""
