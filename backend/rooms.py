@@ -696,6 +696,34 @@ def pause(room_id):
     return jsonify(_with_participants(room_id, state))
 
 
+@rooms_bp.route('/api/rooms/<room_id>/restart', methods=['POST'])
+@_require_auth
+def restart_track(room_id):
+    """Restart the current track from the beginning (host only)."""
+    user = _get_user()
+    if not _check_rate_limit(user['spotify_user_id'], 'play'):
+        return jsonify({'error': 'Too fast, slow down'}), 429
+
+    state = room_manager.get_room(room_id)
+    if not state:
+        return jsonify({'error': 'Room not found'}), 404
+
+    if user['spotify_user_id'] != state['host_id']:
+        return jsonify({'error': 'Only the host can control playback'}), 403
+
+    if not state.get('current_track'):
+        return jsonify({'error': 'Nothing is playing'}), 400
+
+    state['position_ms'] = 0
+    state['is_playing'] = True
+    state['last_update'] = time.time()
+    room_manager.save_room(room_id, state)
+    _trigger_playback_for_room(room_id, state)
+    room_manager.log_activity(room_id, user['display_name'], 'restarted track')
+    broadcast_sync(room_id, state)
+    return jsonify(_with_participants(room_id, state))
+
+
 @rooms_bp.route('/api/search')
 @_require_auth
 def search():

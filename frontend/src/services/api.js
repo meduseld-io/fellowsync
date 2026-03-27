@@ -32,6 +32,7 @@ export const api = {
   clearQueue: (roomId) => request(`/api/rooms/${roomId}/queue`, { method: 'DELETE' }),
   shuffleQueue: (roomId) => request(`/api/rooms/${roomId}/queue/shuffle`, { method: 'POST' }),
   skipTrack: (roomId) => request(`/api/rooms/${roomId}/skip`, { method: 'POST' }),
+  restartTrack: (roomId) => request(`/api/rooms/${roomId}/restart`, { method: 'POST' }),
   play: (roomId) => request(`/api/rooms/${roomId}/play`, { method: 'POST' }),
   pause: (roomId) => request(`/api/rooms/${roomId}/pause`, { method: 'POST' }),
   sync: (roomId) => request(`/api/rooms/${roomId}/sync`, { method: 'POST' }),

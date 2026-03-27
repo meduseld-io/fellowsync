@@ -258,6 +258,16 @@ export default function RoomPage() {
     }
   };
 
+  const handleRestart = async () => {
+    try {
+      const updated = await api.restartTrack(roomId);
+      setRoom(updated);
+      setProgressKey((k) => k + 1);
+    } catch (e) {
+      console.error('Failed to restart track:', e);
+    }
+  };
+
   const handlePlay = async () => {
     try {
       const updated = await api.play(roomId);
@@ -692,6 +702,9 @@ export default function RoomPage() {
                     ▶<span className="btn-label"> Play</span>
                   </button>
                 )}
+                <button className="btn-secondary" onClick={handleRestart} disabled={!currentTrack}>
+                  ⏮<span className="btn-label"> Restart</span>
+                </button>
                 <button className="btn-secondary" onClick={handleSkip} disabled={queue.length === 0 && !currentTrack}>
                   ⏭<span className="btn-label"> Skip</span>
                 </button>
