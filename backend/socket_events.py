@@ -11,6 +11,7 @@ import groups
 logger = logging.getLogger(__name__)
 
 socketio = None
+_sid_rooms = {}  # Maps socket session ID → (room_id, user_id) for disconnect cleanup
 
 
 def init_socketio(sio):
@@ -28,9 +29,28 @@ def init_socketio(sio):
 
     @sio.on('disconnect')
     def on_disconnect():
+        from flask import request as flask_request
         user = session.get('user')
-        if user:
-            logger.info("User %s disconnected", user['spotify_user_id'])
+        sid = flask_request.sid
+        mapping = _sid_rooms.pop(sid, None)
+        if mapping:
+            room_id, user_id = mapping
+            room_manager.remove_participant(room_id, user_id)
+            room_manager.remove_user_token(room_id, user_id)
+            display_name = user['display_name'] if user else user_id
+            room_manager.log_activity(room_id, display_name, 'left')
+            logger.info("User %s removed from room %s on disconnect", user_id, room_id)
+
+            participants = room_manager.get_participants(room_id)
+            if not participants:
+                logger.info("Room %s is empty after disconnect cleanup, deleting", room_id)
+                room_manager.delete_room(room_id)
+            else:
+                state = room_manager.get_room(room_id)
+                if state:
+                    sio.emit('room_state', _room_payload(room_id, state), room=room_id)
+        elif user:
+            logger.info("User %s disconnected (no room mapping)", user['spotify_user_id'])
 
     @sio.on('join_room')
     def on_join_room(data):
@@ -47,6 +67,8 @@ def init_socketio(sio):
             return
 
         join_room(room_id)
+        from flask import request as flask_request
+        _sid_rooms[flask_request.sid] = (room_id, user['spotify_user_id'])
         room_manager.add_participant(room_id, user['spotify_user_id'], user['display_name'])
         room_manager.log_activity(room_id, user['display_name'], 'joined')
         room_manager.store_user_token(room_id, user['spotify_user_id'], {
@@ -102,6 +124,8 @@ def init_socketio(sio):
             return
 
         leave_room(room_id)
+        from flask import request as flask_request
+        _sid_rooms.pop(flask_request.sid, None)
         room_manager.remove_participant(room_id, user['spotify_user_id'])
         room_manager.remove_user_token(room_id, user['spotify_user_id'])
         room_manager.log_activity(room_id, user['display_name'], 'left')
