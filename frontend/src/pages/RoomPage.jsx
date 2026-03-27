@@ -6,7 +6,7 @@ import { getSocket } from '../services/socket';
 import HelpModal from '../components/HelpModal';
 import Footer from '../components/Footer';
 import ToastContainer, { showToast } from '../components/Toast';
-import { getAvatarForUser } from '../utils/avatars';
+import { getAvatarForUser, getAvatarColor, setAvatarOverride, saveAvatarToBackend, getPickerColors } from '../utils/avatars';
 import { isAdmin } from '../utils/admin';
 import './RoomPage.css';
 
@@ -36,6 +36,8 @@ export default function RoomPage() {
   const [showSettings, setShowSettings] = useState(false);
   const [progressMs, setProgressMs] = useState(0);
   const [progressKey, setProgressKey] = useState(0);
+  const [showAvatarPicker, setShowAvatarPicker] = useState(false);
+  const [selectedAvatar, setSelectedAvatar] = useState(() => getAvatarColor(user?.spotify_user_id || ''));
   const searchTimeout = useRef(null);
   const vibeTimeout = useRef(null);
   const socketRef = useRef(null);
@@ -349,6 +351,13 @@ export default function RoomPage() {
     } catch (e) {
       console.error('Failed to react:', e);
     }
+  };
+
+  const handlePickAvatar = (color) => {
+    setAvatarOverride(color);
+    saveAvatarToBackend(color);
+    setSelectedAvatar(color);
+    setShowAvatarPicker(false);
   };
 
   const handleLeave = () => {
@@ -914,7 +923,13 @@ export default function RoomPage() {
                 })
                 .map(([uid, name]) => (
                 <li key={uid} className="participant">
-                  <img className="participant-avatar" src={getAvatarForUser(uid, participantAvatars)} alt="" />
+                  {uid === user?.spotify_user_id ? (
+                    <span className="fella-picker-wrap" onClick={() => setShowAvatarPicker(!showAvatarPicker)}>
+                      <img className="participant-avatar clickable" src={`/avatars/${selectedAvatar}.png`} alt="" />
+                    </span>
+                  ) : (
+                    <img className="participant-avatar" src={getAvatarForUser(uid, participantAvatars)} alt="" />
+                  )}
                   <span>{name}</span>
                   {uid === room.host_id && <span className="host-badge">Host</span>}
                   {isAdmin(uid) && <span className="dev-badge">Dev</span>}
@@ -932,6 +947,19 @@ export default function RoomPage() {
                         Kick
                       </button>
                     </>
+                  )}
+                  {uid === user?.spotify_user_id && showAvatarPicker && (
+                    <div className="room-avatar-picker">
+                      {getPickerColors(isAdmin(user?.spotify_user_id)).map((color) => (
+                        <img
+                          key={color}
+                          src={`/avatars/${color}.png`}
+                          alt={color}
+                          className={`avatar-option${selectedAvatar === color ? ' selected' : ''}`}
+                          onClick={() => handlePickAvatar(color)}
+                        />
+                      ))}
+                    </div>
                   )}
                 </li>
               ))}
