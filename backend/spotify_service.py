@@ -234,12 +234,12 @@ def get_playlist_tracks(access_token, playlist_id, limit=100, client_id=None, cl
     try:
         name = ''
 
-        # Primary: /playlists/{id}/items — the correct endpoint per Spotify docs
+        # Primary: /playlists/{id}/tracks
         try:
             resp = requests.get(
-                f'{API_BASE}/playlists/{playlist_id}/items',
+                f'{API_BASE}/playlists/{playlist_id}/tracks',
                 headers=_headers(access_token),
-                params={'market': 'US', 'limit': limit, 'additional_types': 'track'},
+                params={'limit': limit, 'additional_types': 'track'},
                 timeout=15,
             )
             if resp.status_code == 200:
@@ -275,7 +275,7 @@ def get_playlist_tracks(access_token, playlist_id, limit=100, client_id=None, cl
             resp = requests.get(
                 f'{API_BASE}/playlists/{playlist_id}',
                 headers=_headers(access_token),
-                params={'market': 'US'},
+                params={},
                 timeout=15,
             )
             if resp.status_code == 200:
@@ -297,6 +297,32 @@ def get_playlist_tracks(access_token, playlist_id, limit=100, client_id=None, cl
             logger.error("Playlist %s full object request failed: %s", playlist_id, e)
 
         logger.error("All attempts returned 0 tracks for playlist %s", playlist_id)
+
+        # Last resort: try with client credentials token (works for public playlists
+        # even when the user token gets 403)
+        if client_id or Config.SPOTIFY_CLIENT_ID:
+            try:
+                cc_token = _get_client_token(client_id=client_id, client_secret=client_secret)
+                if cc_token:
+                    resp = requests.get(
+                        f'{API_BASE}/playlists/{playlist_id}',
+                        headers=_headers(cc_token),
+                        timeout=15,
+                    )
+                    if resp.status_code == 200:
+                        data = resp.json()
+                        name = data.get('name', '') or name
+                        items = data.get('tracks', {}).get('items', [])
+                        logger.info("Playlist %s (%s): %d items via client credentials", playlist_id, name, len(items))
+                        if items:
+                            tracks = _parse_track_items(items, limit)
+                            if tracks:
+                                return tracks, name
+                    else:
+                        logger.warning("Playlist %s client credentials returned %s", playlist_id, resp.status_code)
+            except Exception as e:
+                logger.error("Playlist %s client credentials fallback failed: %s", playlist_id, e)
+
         return [], name or None
     except Exception as e:
         logger.error("Failed to fetch playlist %s: %s", playlist_id, e)
