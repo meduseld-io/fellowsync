@@ -41,10 +41,11 @@ def _check_rate_limit(user_id, action):
 
 
 def _with_participants(room_id, state):
-    """Attach participants and their avatars to a room state dict."""
+    """Attach participants, avatars, and badges to a room state dict."""
     participants = room_manager.get_participants(room_id)
     avatars = room_manager.get_participant_avatars(room_id)
-    return {**state, 'participants': participants, 'participant_avatars': avatars}
+    badges = room_manager.get_participant_badges(room_id)
+    return {**state, 'participants': participants, 'participant_avatars': avatars, 'participant_badges': badges}
 
 
 def _extract_playlist_id(url):
@@ -860,3 +861,24 @@ def admin_delete_all_rooms():
         room_manager.delete_room(rid)
         count += 1
     return jsonify({'success': True, 'deleted': count})
+
+
+@rooms_bp.route('/api/admin/badges/<user_id>', methods=['PUT'])
+@_require_admin
+def admin_set_badge(user_id):
+    """Set a custom badge for a user."""
+    data = request.json or {}
+    text = str(data.get('text', '')).strip()[:20]
+    color = str(data.get('color', '#1db954')).strip()
+    if not text:
+        return jsonify({'error': 'Badge text is required'}), 400
+    room_manager.set_user_badge(user_id, text, color)
+    return jsonify({'success': True, 'badge': {'text': text, 'color': color}})
+
+
+@rooms_bp.route('/api/admin/badges/<user_id>', methods=['DELETE'])
+@_require_admin
+def admin_remove_badge(user_id):
+    """Remove a user's badge."""
+    room_manager.remove_user_badge(user_id)
+    return jsonify({'success': True})

@@ -475,6 +475,13 @@
   border-radius: 10px;
 }
 
+.participant .custom-badge {
+  font-size: 0.7rem;
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
 .btn-promote {
   margin-left: auto;
   font-size: 0.7rem;

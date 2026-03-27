@@ -14,6 +14,9 @@ export default function AdminPage() {
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [badgeTarget, setBadgeTarget] = useState(null); // {uid, name}
+  const [badgeText, setBadgeText] = useState('');
+  const [badgeColor, setBadgeColor] = useState('#1db954');
 
   const from = searchParams.get('from');
   const fromRoomId = searchParams.get('roomId');
@@ -91,6 +94,26 @@ export default function AdminPage() {
     }
   };
 
+  const handleSetBadge = async () => {
+    if (!badgeTarget || !badgeText.trim()) return;
+    try {
+      await api.adminSetBadge(badgeTarget.uid, badgeText.trim(), badgeColor);
+      setBadgeTarget(null);
+      setBadgeText('');
+      setBadgeColor('#1db954');
+    } catch (e) {
+      console.error('Failed to set badge:', e);
+    }
+  };
+
+  const handleRemoveBadge = async (uid) => {
+    try {
+      await api.adminRemoveBadge(uid);
+    } catch (e) {
+      console.error('Failed to remove badge:', e);
+    }
+  };
+
   const handleBack = () => {
     if (from === 'room' && fromRoomId) {
       navigate(`/room/${fromRoomId}`);
@@ -103,6 +126,34 @@ export default function AdminPage() {
 
   return (
     <div className="admin-page">
+      {badgeTarget && (
+        <div className="modal-overlay" onClick={() => setBadgeTarget(null)}>
+          <div className="badge-modal" onClick={(e) => e.stopPropagation()}>
+            <h3>Set Badge — {badgeTarget.name}</h3>
+            <div className="badge-form">
+              <input
+                type="text"
+                placeholder="Badge text (e.g. Mod, VIP)"
+                value={badgeText}
+                onChange={(e) => setBadgeText(e.target.value.slice(0, 20))}
+                maxLength={20}
+                autoFocus
+                onKeyDown={(e) => { if (e.key === 'Enter') handleSetBadge(); }}
+              />
+              <div className="badge-color-row">
+                <label>Color</label>
+                <input type="color" value={badgeColor} onChange={(e) => setBadgeColor(e.target.value)} />
+                <span className="badge-preview" style={{ background: badgeColor }}>{badgeText || 'Preview'}</span>
+              </div>
+            </div>
+            <div className="badge-modal-actions">
+              <button className="btn-set-badge" onClick={handleSetBadge} disabled={!badgeText.trim()}>Set Badge</button>
+              <button className="btn-remove-badge" onClick={() => { handleRemoveBadge(badgeTarget.uid); setBadgeTarget(null); }}>Remove Badge</button>
+              <button className="btn-secondary" onClick={() => setBadgeTarget(null)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="admin-card">
         <div className="admin-header">
           <h1>Fellow<span style={{ color: 'var(--fella-color)' }}>Sync</span> Admin</h1>
@@ -144,7 +195,12 @@ export default function AdminPage() {
             {room.current_track && <div className="admin-room-track">Now: {room.current_track}</div>}
             <div className="admin-room-participants">
               {Object.entries(room.participants).map(([uid, name]) => (
-                <span key={uid} className={`admin-participant${uid === room.host_id ? ' host' : ''}`}>
+                <span
+                  key={uid}
+                  className={`admin-participant${uid === room.host_id ? ' host' : ''}`}
+                  onClick={() => { setBadgeTarget({ uid, name }); setBadgeText(''); setBadgeColor('#1db954'); }}
+                  style={{ cursor: 'pointer' }}
+                >
                   {name}{uid === room.host_id ? ' ★' : ''}
                 </span>
               ))}

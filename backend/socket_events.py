@@ -212,10 +212,11 @@ def init_socketio(sio):
 
 
 def _room_payload(room_id, state):
-    """Build a room state payload with participants and avatars."""
+    """Build a room state payload with participants, avatars, and badges."""
     participants = room_manager.get_participants(room_id)
     avatars = room_manager.get_participant_avatars(room_id)
-    return {**state, 'participants': participants, 'participant_avatars': avatars}
+    badges = room_manager.get_participant_badges(room_id)
+    return {**state, 'participants': participants, 'participant_avatars': avatars, 'participant_badges': badges}
 
 
 def broadcast_sync(room_id, state):

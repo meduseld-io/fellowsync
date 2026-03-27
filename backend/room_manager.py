@@ -387,6 +387,41 @@ def set_user_avatar(spotify_user_id, color):
     _redis.set(f'user_avatar:{spotify_user_id}', color)
 
 
+# --- User badges (admin-assigned, persist across rooms) ---
+
+def get_user_badge(spotify_user_id):
+    """Get a user's badge dict {text, color} or None."""
+    raw = _redis.get(f'user_badge:{spotify_user_id}')
+    if not raw:
+        return None
+    try:
+        return json.loads(raw)
+    except Exception as e:
+        logger.error("Failed to parse badge for user %s: %s", spotify_user_id, e)
+        return None
+
+
+def set_user_badge(spotify_user_id, text, color):
+    """Set a badge for a user. Persists indefinitely."""
+    _redis.set(f'user_badge:{spotify_user_id}', json.dumps({'text': text, 'color': color}))
+
+
+def remove_user_badge(spotify_user_id):
+    """Remove a user's badge."""
+    _redis.delete(f'user_badge:{spotify_user_id}')
+
+
+def get_participant_badges(room_id):
+    """Return dict of {user_id: {text, color}} for participants who have badges."""
+    participants = _redis.hgetall(_participants_key(room_id))
+    badges = {}
+    for uid in participants:
+        badge = get_user_badge(uid)
+        if badge:
+            badges[uid] = badge
+    return badges
+
+
 # --- Activity log ---
 
 MAX_ACTIVITY_ENTRIES = 50

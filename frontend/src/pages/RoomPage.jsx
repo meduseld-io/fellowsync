@@ -436,6 +436,7 @@ export default function RoomPage() {
   const isHost = user?.spotify_user_id === room.host_id;
   const participants = room.participants || {};
   const participantAvatars = room.participant_avatars || {};
+  const participantBadges = room.participant_badges || {};
   const queue = room.queue || [];
   const currentTrack = room.current_track_info;
   const otherParticipants = Object.entries(participants).filter(([uid]) => uid !== user?.spotify_user_id);
@@ -917,6 +918,11 @@ export default function RoomPage() {
                   <span>{name}</span>
                   {uid === room.host_id && <span className="host-badge">Host</span>}
                   {isAdmin(uid) && <span className="dev-badge">Dev</span>}
+                  {participantBadges[uid] && (
+                    <span className="custom-badge" style={{ background: participantBadges[uid].color }}>
+                      {participantBadges[uid].text}
+                    </span>
+                  )}
                   {isHost && uid !== room.host_id && (
                     <>
                       <button className="btn-promote" onClick={() => handlePromote(uid)}>

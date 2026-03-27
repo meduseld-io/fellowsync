@@ -66,4 +66,8 @@ export const api = {
   getGroupMembers: (groupId) => request(`/api/groups/${groupId}/members`),
   adminListGroups: () => request('/api/admin/groups'),
   adminDeleteGroup: (groupId) => request(`/api/admin/groups/${groupId}`, { method: 'DELETE' }),
+
+  // Badges
+  adminSetBadge: (userId, text, color) => request(`/api/admin/badges/${userId}`, { method: 'PUT', body: JSON.stringify({ text, color }) }),
+  adminRemoveBadge: (userId) => request(`/api/admin/badges/${userId}`, { method: 'DELETE' }),
 };
