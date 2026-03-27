@@ -416,6 +416,13 @@ export default function RoomPage() {
     if (!badgeText.trim()) return;
     try {
       await api.setMyBadge(badgeText.trim(), badgeColor);
+      setRoom((prev) => ({
+        ...prev,
+        participant_badges: {
+          ...prev.participant_badges,
+          [user.spotify_user_id]: { text: badgeText.trim(), color: badgeColor },
+        },
+      }));
       setShowBadgeEditor(false);
       showToast('Badge updated');
     } catch (e) {
@@ -426,6 +433,11 @@ export default function RoomPage() {
   const handleRemoveBadge = async () => {
     try {
       await api.removeMyBadge();
+      setRoom((prev) => {
+        const badges = { ...prev.participant_badges };
+        delete badges[user.spotify_user_id];
+        return { ...prev, participant_badges: badges };
+      });
       setShowBadgeEditor(false);
       showToast('Badge removed');
     } catch (e) {
