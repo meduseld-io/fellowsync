@@ -122,10 +122,12 @@ export default function RoomPage() {
       setProgressMs(room?.position_ms || 0);
       return;
     }
-    // Calculate current position from server state
+    // Use position_ms directly as the baseline and tick from the moment we received it
+    const baseMs = room.position_ms || 0;
+    const receivedAt = Date.now();
     const calc = () => {
-      const elapsed = (Date.now() / 1000 - room.last_update) * 1000;
-      return Math.min(room.position_ms + elapsed, room.current_track_info.duration_ms);
+      const elapsed = Date.now() - receivedAt;
+      return Math.min(baseMs + elapsed, room.current_track_info.duration_ms);
     };
     setProgressMs(calc());
     const id = setInterval(() => setProgressMs(calc()), 1000);
