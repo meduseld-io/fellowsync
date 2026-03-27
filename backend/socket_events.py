@@ -56,6 +56,14 @@ def init_socketio(sio):
             'group_id': user.get('group_id'),
         })
 
+        # Snapshot current position so clients get an accurate progress bar
+        if state.get('is_playing') and state.get('last_update'):
+            now = time.time()
+            elapsed = (now - state['last_update']) * 1000
+            state['position_ms'] = int(state['position_ms'] + elapsed)
+            state['last_update'] = now
+            room_manager.save_room(room_id, state)
+
         sio.emit('room_state', _room_payload(room_id, state), room=room_id)
 
         # Auto-sync: if room is playing, sync this user's Spotify to the current track

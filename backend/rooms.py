@@ -223,6 +223,13 @@ def get_room(room_id):
     state = room_manager.get_room(room_id)
     if not state:
         return jsonify({'error': 'Room not found'}), 404
+    # Snapshot current position so the client progress bar is accurate
+    if state.get('is_playing') and state.get('last_update'):
+        now = time.time()
+        elapsed = (now - state['last_update']) * 1000
+        state['position_ms'] = int(state['position_ms'] + elapsed)
+        state['last_update'] = now
+        room_manager.save_room(room_id, state)
     participants = room_manager.get_participants(room_id)
     return jsonify({**state, 'participants': participants})
 
@@ -642,7 +649,13 @@ def sync_playback(room_id):
     if refreshed is not token_data:
         room_manager.store_user_token(room_id, user_id, refreshed)
 
-    expected_ms = state['position_ms'] + (time.time() - state['last_update']) * 1000
+    # Snapshot current position so the client progress bar is accurate
+    now = time.time()
+    expected_ms = state['position_ms'] + (now - state['last_update']) * 1000
+    state['position_ms'] = int(expected_ms)
+    state['last_update'] = now
+    room_manager.save_room(room_id, state)
+
     result = spotify_service.play_track(
         refreshed['access_token'],
         state['current_track'],
