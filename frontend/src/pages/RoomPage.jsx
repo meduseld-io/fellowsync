@@ -703,13 +703,18 @@ export default function RoomPage() {
                   className={`btn-secondary${room.skip_votes?.includes(user?.spotify_user_id) ? ' voted' : ''}`}
                   onClick={handleSkip}
                 >
-                  ⏭<span className="btn-label"> Vote Skip</span> {room.skip_votes?.length > 0 && `(${room.skip_votes.length}/${Math.ceil(Object.keys(participants).length * (room.skip_threshold || 0.5))})`}
+                  ⏭<span className="btn-label"> Vote Skip</span>
                 </button>
               </div>
             )}
             {deviceWarning && (
               <div className="no-device-warning">
                 ⚠️ No active Spotify device found. Open Spotify on any device and play something briefly, then try again.
+              </div>
+            )}
+            {currentTrack && room.skip_votes?.length > 0 && (
+              <div className="skip-vote-indicator">
+                ⏭ {room.skip_votes.length}/{Math.ceil(Object.keys(participants).length * (room.skip_threshold || 0.5))} votes to skip
               </div>
             )}
           </div>

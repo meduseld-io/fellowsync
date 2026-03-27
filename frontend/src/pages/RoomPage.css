@@ -218,6 +218,17 @@
   color: #ffcc00;
 }
 
+.skip-vote-indicator {
+  font-size: 0.78rem;
+  color: #fbbf24;
+  margin-top: 0.5rem;
+  padding: 4px 10px;
+  background: rgba(251, 191, 36, 0.08);
+  border: 1px solid rgba(251, 191, 36, 0.2);
+  border-radius: 8px;
+  display: inline-block;
+}
+
 /* Queue */
 .panel {
   background: var(--surface);
