@@ -8,7 +8,7 @@ from config import Config
 import room_manager
 import spotify_service
 import groups
-from socket_events import broadcast_sync, broadcast_queue, broadcast_room_state
+from socket_events import broadcast_sync, broadcast_queue, broadcast_room_state, broadcast_reaction
 
 logger = logging.getLogger(__name__)
 rooms_bp = Blueprint('rooms', __name__)
@@ -758,6 +758,7 @@ def react(room_id):
         return jsonify({'error': 'Invalid reaction or reactions disabled'}), 400
 
     broadcast_room_state(room_id, updated)
+    broadcast_reaction(room_id, emoji)
     return jsonify(_with_participants(room_id, updated))
 
 

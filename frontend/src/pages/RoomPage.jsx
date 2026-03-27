@@ -98,6 +98,13 @@ export default function RoomPage() {
         navigate('/lobby');
         setTimeout(() => showToast('You were kicked from the room'), 100);
       });
+      socket.on('reaction', (data) => {
+        if (!mounted) return;
+        const id = Date.now() + Math.random();
+        const drift = Math.round((Math.random() - 0.5) * 40);
+        setFloatingEmojis((prev) => [...prev, { id, emoji: data.emoji, drift }]);
+        setTimeout(() => setFloatingEmojis((prev) => prev.filter((e) => e.id !== id)), 1500);
+      });
     }
 
     init();
@@ -112,6 +119,7 @@ export default function RoomPage() {
         socketRef.current.off('queue_updated');
         socketRef.current.off('error');
         socketRef.current.off('kicked');
+        socketRef.current.off('reaction');
       }
     };
   }, [roomId]);
@@ -339,11 +347,6 @@ export default function RoomPage() {
     try {
       const updated = await api.react(roomId, emoji);
       setRoom(updated);
-      // Spawn floating emoji animation
-      const id = Date.now() + Math.random();
-      const drift = Math.round((Math.random() - 0.5) * 40);
-      setFloatingEmojis((prev) => [...prev, { id, emoji, drift }]);
-      setTimeout(() => setFloatingEmojis((prev) => prev.filter((e) => e.id !== id)), 1500);
     } catch (e) {
       console.error('Failed to react:', e);
     }
@@ -903,7 +906,13 @@ export default function RoomPage() {
               </span>
             </h2>
             <ul className="participants-list">
-              {Object.entries(participants).map(([uid, name]) => (
+              {Object.entries(participants)
+                .sort(([aId, aName], [bId, bName]) => {
+                  if (aId === room.host_id) return -1;
+                  if (bId === room.host_id) return 1;
+                  return aName.localeCompare(bName);
+                })
+                .map(([uid, name]) => (
                 <li key={uid} className="participant">
                   <img className="participant-avatar" src={getAvatarForUser(uid, participantAvatars)} alt="" />
                   <span>{name}</span>

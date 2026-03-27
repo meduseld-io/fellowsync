@@ -210,3 +210,9 @@ def broadcast_room_state(room_id, state):
     """Broadcast a full room state update (settings, host change, etc.)."""
     if socketio:
         socketio.emit('room_state', _room_payload(room_id, state), room=room_id)
+
+
+def broadcast_reaction(room_id, emoji):
+    """Broadcast a reaction animation to all users in a room."""
+    if socketio:
+        socketio.emit('reaction', {'emoji': emoji}, room=room_id)
