@@ -274,7 +274,7 @@ def skip_track(room_id):
 SKIP_THRESHOLD = 0.5  # 50% of listeners must vote to skip
 
 
-def vote_skip(room_id, user_id):
+def vote_skip(room_id, user_id, user_name=None):
     """Register a skip vote. Returns (updated_state, skipped: bool).
     Host votes always trigger an immediate skip.
     Otherwise, skip happens when votes reach the threshold."""
@@ -284,7 +284,7 @@ def vote_skip(room_id, user_id):
 
     # Host skip is instant
     if user_id == state['host_id']:
-        record_skip(room_id, skipped_by_vote=False)
+        record_skip(room_id, skipped_by_vote=False, user_id=user_id, user_name=user_name)
         updated = skip_track(room_id)
         return updated, True
 
@@ -308,7 +308,7 @@ def vote_skip(room_id, user_id):
     vote_ratio = len(state['skip_votes']) / participant_count
     threshold = state.get('skip_threshold', SKIP_THRESHOLD)
     if vote_ratio >= threshold:
-        record_skip(room_id, skipped_by_vote=True)
+        record_skip(room_id, skipped_by_vote=True, user_id=user_id, user_name=user_name)
         updated = skip_track(room_id)
         return updated, True
 
@@ -490,7 +490,7 @@ def record_track_played(room_id, track_info):
     _redis.set(key, json.dumps(stats), ex=ROOM_TTL)
 
 
-def record_skip(room_id, skipped_by_vote=False):
+def record_skip(room_id, skipped_by_vote=False, user_id=None, user_name=None):
     """Record a skip event for stats."""
     state = get_room(room_id)
     if not state or not state.get('stats_enabled'):
@@ -507,6 +507,13 @@ def record_skip(room_id, skipped_by_vote=False):
     stats['skips'] += 1
     if skipped_by_vote:
         stats['vote_skips'] += 1
+
+    if user_id:
+        if 'skip_by_count' not in stats:
+            stats['skip_by_count'] = {}
+        stats['skip_by_count'][user_id] = stats['skip_by_count'].get(user_id, 0) + 1
+        if user_name:
+            stats['user_names'][user_id] = user_name
 
     _redis.set(key, json.dumps(stats), ex=ROOM_TTL)
 
@@ -530,6 +537,7 @@ def _empty_stats():
         'skips': 0,
         'vote_skips': 0,
         'queued_by_count': {},
+        'skip_by_count': {},
         'user_names': {},
         'started_at': time.time(),
         'reaction_counts': {},

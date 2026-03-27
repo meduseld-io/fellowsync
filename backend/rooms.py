@@ -424,7 +424,7 @@ def skip_track(room_id):
     if not state:
         return jsonify({'error': 'Room not found'}), 404
 
-    updated, skipped = room_manager.vote_skip(room_id, user['spotify_user_id'])
+    updated, skipped = room_manager.vote_skip(room_id, user['spotify_user_id'], user_name=user['display_name'])
     if not updated:
         return jsonify({'error': 'Room not found'}), 404
 
@@ -910,6 +910,29 @@ def admin_delete_all_rooms():
         room_manager.delete_room(rid)
         count += 1
     return jsonify({'success': True, 'deleted': count})
+
+
+@rooms_bp.route('/api/me/badge', methods=['PUT'])
+@_require_auth
+def set_own_badge():
+    """Let a user set their own badge."""
+    user = _get_user()
+    data = request.json or {}
+    text = str(data.get('text', '')).strip()[:20]
+    color = str(data.get('color', '#1db954')).strip()
+    if not text:
+        return jsonify({'error': 'Badge text is required'}), 400
+    room_manager.set_user_badge(user['spotify_user_id'], text, color)
+    return jsonify({'success': True, 'badge': {'text': text, 'color': color}})
+
+
+@rooms_bp.route('/api/me/badge', methods=['DELETE'])
+@_require_auth
+def remove_own_badge():
+    """Let a user remove their own badge."""
+    user = _get_user()
+    room_manager.remove_user_badge(user['spotify_user_id'])
+    return jsonify({'success': True})
 
 
 @rooms_bp.route('/api/admin/badges/<user_id>', methods=['PUT'])

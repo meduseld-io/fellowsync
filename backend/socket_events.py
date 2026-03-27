@@ -210,6 +210,18 @@ def init_socketio(sio):
         if updated:
             sio.emit('room_state', _room_payload(room_id, updated), room=room_id)
 
+    @sio.on('avatar_changed')
+    def on_avatar_changed(data):
+        user = session.get('user')
+        if not user:
+            return
+        room_id = data.get('room_id')
+        if not room_id:
+            return
+        state = room_manager.get_room(room_id)
+        if state:
+            sio.emit('room_state', _room_payload(room_id, state), room=room_id)
+
 
 def _room_payload(room_id, state):
     """Build a room state payload with participants, avatars, and badges."""

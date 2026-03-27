@@ -38,6 +38,9 @@ export default function RoomPage() {
   const [progressKey, setProgressKey] = useState(0);
   const [showAvatarPicker, setShowAvatarPicker] = useState(false);
   const [selectedAvatar, setSelectedAvatar] = useState(() => getAvatarColor(user?.spotify_user_id || ''));
+  const [showBadgeEditor, setShowBadgeEditor] = useState(false);
+  const [badgeText, setBadgeText] = useState('');
+  const [badgeColor, setBadgeColor] = useState('#1db954');
   const [playlistResults, setPlaylistResults] = useState([]);
   const [browsingPlaylist, setBrowsingPlaylist] = useState(null);
   const [playlistTracks, setPlaylistTracks] = useState([]);
@@ -391,11 +394,43 @@ export default function RoomPage() {
     }
   };
 
-  const handlePickAvatar = (color) => {
+  const handlePickAvatar = async (color) => {
     setAvatarOverride(color);
     saveAvatarToBackend(color);
     setSelectedAvatar(color);
     setShowAvatarPicker(false);
+    // Notify other participants so their view updates without a refresh
+    if (socketRef.current) {
+      socketRef.current.emit('avatar_changed', { room_id: roomId, color });
+    }
+  };
+
+  const handleOpenBadgeEditor = () => {
+    const myBadge = participantBadges[user?.spotify_user_id];
+    setBadgeText(myBadge?.text || '');
+    setBadgeColor(myBadge?.color || '#1db954');
+    setShowBadgeEditor(true);
+  };
+
+  const handleSetBadge = async () => {
+    if (!badgeText.trim()) return;
+    try {
+      await api.setMyBadge(badgeText.trim(), badgeColor);
+      setShowBadgeEditor(false);
+      showToast('Badge updated');
+    } catch (e) {
+      console.error('Failed to set badge:', e);
+    }
+  };
+
+  const handleRemoveBadge = async () => {
+    try {
+      await api.removeMyBadge();
+      setShowBadgeEditor(false);
+      showToast('Badge removed');
+    } catch (e) {
+      console.error('Failed to remove badge:', e);
+    }
   };
 
   const handleLeave = () => {
@@ -649,6 +684,36 @@ export default function RoomPage() {
             <button className="btn-secondary" onClick={() => setShowSettings(false)} style={{ marginTop: '1.25rem', width: '100%' }}>
               Done
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Badge editor modal */}
+      {showBadgeEditor && (
+        <div className="modal-overlay" onClick={() => setShowBadgeEditor(false)}>
+          <div className="badge-modal" onClick={(e) => e.stopPropagation()}>
+            <h3>Your Badge</h3>
+            <div className="badge-form">
+              <input
+                type="text"
+                placeholder="Badge text (e.g. Vibes, DJ, Chill)"
+                value={badgeText}
+                onChange={(e) => setBadgeText(e.target.value.slice(0, 20))}
+                maxLength={20}
+                autoFocus
+                onKeyDown={(e) => { if (e.key === 'Enter') handleSetBadge(); }}
+              />
+              <div className="badge-color-row">
+                <label>Color</label>
+                <input type="color" value={badgeColor} onChange={(e) => setBadgeColor(e.target.value)} />
+                <span className="badge-preview" style={{ background: badgeColor }}>{badgeText || 'Preview'}</span>
+              </div>
+            </div>
+            <div className="badge-modal-actions">
+              <button className="btn-set-badge" onClick={handleSetBadge} disabled={!badgeText.trim()}>Set Badge</button>
+              <button className="btn-remove-badge" onClick={handleRemoveBadge}>Remove</button>
+              <button className="btn-secondary" onClick={() => setShowBadgeEditor(false)}>Cancel</button>
+            </div>
           </div>
         </div>
       )}
@@ -1013,7 +1078,7 @@ export default function RoomPage() {
                   return aName.localeCompare(bName);
                 })
                 .map(([uid, name]) => (
-                <li key={uid} className="participant">
+                <li key={uid} className={`participant${isHost && uid !== room.host_id ? ' has-actions' : ''}`}>
                   {uid === user?.spotify_user_id ? (
                     <span className="fella-picker-wrap" onClick={() => setShowAvatarPicker(!showAvatarPicker)}>
                       <img className="participant-avatar clickable" src={`/avatars/${selectedAvatar}.png`} alt="" />
@@ -1025,11 +1090,17 @@ export default function RoomPage() {
                     <span>{name}</span>
                     {uid === room.host_id && <span className="host-badge">Host</span>}
                     {isAdmin(uid) && <span className="dev-badge">Dev</span>}
-                    {participantBadges[uid] && (
-                      <span className="custom-badge" style={{ background: participantBadges[uid].color }}>
+                    {participantBadges[uid] ? (
+                      <span
+                        className={`custom-badge${uid === user?.spotify_user_id ? ' clickable' : ''}`}
+                        style={{ background: participantBadges[uid].color, cursor: uid === user?.spotify_user_id ? 'pointer' : 'default' }}
+                        onClick={uid === user?.spotify_user_id ? handleOpenBadgeEditor : undefined}
+                      >
                         {participantBadges[uid].text}
                       </span>
-                    )}
+                    ) : uid === user?.spotify_user_id ? (
+                      <span className="add-badge-btn" onClick={handleOpenBadgeEditor}>+ Badge</span>
+                    ) : null}
                   </div>
                   {isHost && uid !== room.host_id && (
                     <div className="participant-actions">
@@ -1128,6 +1199,15 @@ export default function RoomPage() {
                         ))}
                     </>
                   )}
+                  {stats.skip_by_count && Object.keys(stats.skip_by_count).length > 0 && (() => {
+                    const top = Object.entries(stats.skip_by_count).sort(([, a], [, b]) => b - a)[0];
+                    return (
+                      <div className="stat-row">
+                        <span className="stat-label">Most skips</span>
+                        <span className="stat-value"><span className="stat-user">{stats.user_names[top[0]] || top[0]}</span> ({top[1]})</span>
+                      </div>
+                    );
+                  })()}
                   {room.reactions_enabled && stats.reaction_counts && Object.keys(stats.reaction_counts).length > 0 && (
                     <>
                       <div className="stat-divider" />
