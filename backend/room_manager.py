@@ -135,6 +135,11 @@ def store_user_token(room_id, user_id, token_data):
     _redis.hset(_tokens_key(room_id), user_id, json.dumps(token_data))
 
 
+def remove_user_token(room_id, user_id):
+    """Remove a user's Spotify token from this room so it stops controlling their playback."""
+    _redis.hdel(_tokens_key(room_id), user_id)
+
+
 def get_user_token(room_id, user_id):
     """Get a user's stored token data."""
     raw = _redis.hget(_tokens_key(room_id), user_id)
