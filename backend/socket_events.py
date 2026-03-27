@@ -178,8 +178,8 @@ def init_socketio(sio):
         room_manager.remove_user_token(room_id, target_id)
         room_manager.log_activity(room_id, user['display_name'], 'kicked', target_name)
 
-        # Notify the kicked user
-        sio.emit('kicked', {'room_id': room_id, 'reason': 'You were kicked by the host'}, room=room_id)
+        # Notify the kicked user (broadcast to room, client filters by user_id)
+        sio.emit('kicked', {'room_id': room_id, 'user_id': target_id, 'reason': 'You were kicked by the host'}, room=room_id)
 
         # Broadcast updated room state
         updated = room_manager.get_room(room_id)

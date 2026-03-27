@@ -92,10 +92,10 @@ export default function RoomPage() {
         setRoom(state);
       });
       socket.on('error', (data) => console.error('Socket error:', data.message));
-      socket.on('kicked', () => {
+      socket.on('kicked', (data) => {
         if (!mounted) return;
+        if (data.user_id !== user?.spotify_user_id) return;
         navigate('/lobby');
-        // Show toast after navigation
         setTimeout(() => showToast('You were kicked from the room'), 100);
       });
     }
