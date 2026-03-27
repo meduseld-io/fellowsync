@@ -1021,23 +1021,25 @@ export default function RoomPage() {
                   ) : (
                     <img className="participant-avatar" src={getAvatarForUser(uid, participantAvatars)} alt="" />
                   )}
-                  <span>{name}</span>
-                  {uid === room.host_id && <span className="host-badge">Host</span>}
-                  {isAdmin(uid) && <span className="dev-badge">Dev</span>}
-                  {participantBadges[uid] && (
-                    <span className="custom-badge" style={{ background: participantBadges[uid].color }}>
-                      {participantBadges[uid].text}
-                    </span>
-                  )}
+                  <div className="participant-info">
+                    <span>{name}</span>
+                    {uid === room.host_id && <span className="host-badge">Host</span>}
+                    {isAdmin(uid) && <span className="dev-badge">Dev</span>}
+                    {participantBadges[uid] && (
+                      <span className="custom-badge" style={{ background: participantBadges[uid].color }}>
+                        {participantBadges[uid].text}
+                      </span>
+                    )}
+                  </div>
                   {isHost && uid !== room.host_id && (
-                    <>
+                    <div className="participant-actions">
                       <button className="btn-promote" onClick={() => handlePromote(uid)}>
                         Make Host
                       </button>
                       <button className="btn-kick" onClick={() => handleKick(uid)}>
                         Kick
                       </button>
-                    </>
+                    </div>
                   )}
                   {uid === user?.spotify_user_id && showAvatarPicker && (
                     <div className="room-avatar-picker">

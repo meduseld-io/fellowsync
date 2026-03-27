@@ -238,6 +238,17 @@ def skip_track(room_id):
     # Reset reactions on track change
     state['reactions'] = {}
 
+    # Auto-queue from playlist if queue is empty
+    if not state['queue'] and state.get('auto_playlist'):
+        idx = state.get('auto_playlist_index', 0)
+        playlist = state['auto_playlist']
+        if idx < len(playlist):
+            track = dict(playlist[idx])
+            track['queued_by'] = 'Auto-playlist'
+            track['queued_by_id'] = '__auto__'
+            state['queue'].append(track)
+            state['auto_playlist_index'] = idx + 1
+
     if state['queue']:
         idx = 0
         next_track = state['queue'].pop(idx)

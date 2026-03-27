@@ -473,6 +473,24 @@
   font-size: 0.9rem;
   padding: 6px 0;
   flex-wrap: wrap;
+  position: relative;
+}
+
+.participant-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.participant-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  margin-left: auto;
 }
 
 .participant .host-badge {
@@ -499,7 +517,6 @@
 }
 
 .btn-promote {
-  margin-left: auto;
   font-size: 0.7rem;
   padding: 2px 8px;
   border-radius: 10px;
