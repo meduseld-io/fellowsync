@@ -161,6 +161,32 @@ def search_tracks(access_token, query, limit=10):
         return []
 
 
+def search_playlists(access_token, query, limit=10):
+    """Search Spotify for playlists."""
+    try:
+        resp = requests.get(
+            f'{API_BASE}/search',
+            headers=_headers(access_token),
+            params={'q': query, 'type': 'playlist', 'limit': limit},
+            timeout=10,
+        )
+        resp.raise_for_status()
+        items = resp.json().get('playlists', {}).get('items', [])
+        return [
+            {
+                'id': p['id'],
+                'name': p['name'],
+                'owner': p['owner']['display_name'] if p.get('owner') else 'Unknown',
+                'image': p['images'][0]['url'] if p.get('images') else None,
+                'track_count': p.get('tracks', {}).get('total', 0),
+            }
+            for p in items if p
+        ]
+    except Exception as e:
+        logger.error("Failed to search playlists: %s", e)
+        return []
+
+
 def get_track_info(access_token, uri):
     """Get track metadata by URI."""
     track_id = uri.split(':')[-1]

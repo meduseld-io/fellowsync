@@ -38,6 +38,10 @@ export default function RoomPage() {
   const [progressKey, setProgressKey] = useState(0);
   const [showAvatarPicker, setShowAvatarPicker] = useState(false);
   const [selectedAvatar, setSelectedAvatar] = useState(() => getAvatarColor(user?.spotify_user_id || ''));
+  const [playlistResults, setPlaylistResults] = useState([]);
+  const [browsingPlaylist, setBrowsingPlaylist] = useState(null);
+  const [playlistTracks, setPlaylistTracks] = useState([]);
+  const [loadingPlaylist, setLoadingPlaylist] = useState(false);
   const searchTimeout = useRef(null);
   const vibeTimeout = useRef(null);
   const socketRef = useRef(null);
@@ -153,24 +157,48 @@ export default function RoomPage() {
   // Search with debounce
   const handleSearch = useCallback((query) => {
     setSearchQuery(query);
+    setBrowsingPlaylist(null);
+    setPlaylistTracks([]);
     if (searchTimeout.current) clearTimeout(searchTimeout.current);
     if (!query.trim()) {
       setSearchResults([]);
+      setPlaylistResults([]);
       return;
     }
     searchTimeout.current = setTimeout(async () => {
       setSearching(true);
       try {
         const data = await api.search(query, searchFilter);
-        setSearchResults(data.tracks || []);
+        if (searchFilter === 'playlist') {
+          setPlaylistResults(data.playlists || []);
+          setSearchResults([]);
+        } else {
+          setSearchResults(data.tracks || []);
+          setPlaylistResults([]);
+        }
       } catch (e) {
         console.error('Search failed:', e);
         setSearchResults([]);
+        setPlaylistResults([]);
       } finally {
         setSearching(false);
       }
     }, 400);
   }, [searchFilter]);
+
+  const handleBrowsePlaylist = async (playlist) => {
+    setLoadingPlaylist(true);
+    setBrowsingPlaylist(playlist);
+    try {
+      const data = await api.getPlaylistTracks(playlist.id);
+      setPlaylistTracks(data.tracks || []);
+    } catch (e) {
+      console.error('Failed to load playlist tracks:', e);
+      setPlaylistTracks([]);
+    } finally {
+      setLoadingPlaylist(false);
+    }
+  };
 
   const handleAddTrack = async (track, playNext = false) => {
     setQueueError('');
@@ -779,11 +807,16 @@ export default function RoomPage() {
           <div className="panel" style={{ marginBottom: '1.5rem' }}>
             <h2>Add Track</h2>
             <div className="search-filters">
-              {['track', 'artist', 'album'].map((type) => (
+              {['track', 'artist', 'album', 'playlist'].map((type) => (
                 <button
                   key={type}
                   className={`search-filter-btn${searchFilter === type ? ' active' : ''}`}
-                  onClick={() => { setSearchFilter(type); if (searchQuery.trim()) handleSearch(searchQuery); }}
+                  onClick={() => {
+                    setSearchFilter(type);
+                    setBrowsingPlaylist(null);
+                    setPlaylistTracks([]);
+                    if (searchQuery.trim()) handleSearch(searchQuery);
+                  }}
                 >
                   {type.charAt(0).toUpperCase() + type.slice(1)}
                 </button>
@@ -799,7 +832,47 @@ export default function RoomPage() {
             </div>
             {searching && <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Searching...</p>}
             {queueError && <p className="queue-error">{queueError}</p>}
-            {searchResults.length > 0 && (
+            {browsingPlaylist && (
+              <div className="playlist-browse">
+                <div className="playlist-browse-header">
+                  <button className="btn-back" onClick={() => { setBrowsingPlaylist(null); setPlaylistTracks([]); }}>←</button>
+                  <span className="playlist-browse-name">{browsingPlaylist.name}</span>
+                </div>
+                {loadingPlaylist && <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Loading tracks...</p>}
+                {!loadingPlaylist && playlistTracks.length === 0 && <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>No tracks found</p>}
+                {playlistTracks.length > 0 && (
+                  <ul className="search-results">
+                    {playlistTracks.map((track) => (
+                      <li key={track.uri} className="search-item">
+                        {track.album_art && <img src={track.album_art} alt="" />}
+                        <div className="search-item-info">
+                          <div className="track-name">{track.name}</div>
+                          <div className="track-artist">{track.artist}</div>
+                        </div>
+                        <div className="search-item-actions">
+                          <button className="btn-add-next" onClick={() => handleAddTrack(track, true)}>▶ Next</button>
+                          <button className="btn-add" onClick={() => handleAddTrack(track)}>+ Add</button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
+            {!browsingPlaylist && playlistResults.length > 0 && (
+              <ul className="search-results">
+                {playlistResults.map((pl) => (
+                  <li key={pl.id} className="search-item playlist-item" onClick={() => handleBrowsePlaylist(pl)}>
+                    {pl.image && <img src={pl.image} alt="" />}
+                    <div className="search-item-info">
+                      <div className="track-name">{pl.name}</div>
+                      <div className="track-artist">{pl.owner} · {pl.track_count} tracks</div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {!browsingPlaylist && searchResults.length > 0 && (
               <ul className="search-results">
                 {searchResults.map((track) => (
                   <li key={track.uri} className="search-item">

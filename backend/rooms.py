@@ -727,12 +727,12 @@ def restart_track(room_id):
 @rooms_bp.route('/api/search')
 @_require_auth
 def search():
-    """Search Spotify for tracks. Supports ?type=track|artist|album to filter."""
+    """Search Spotify for tracks. Supports ?type=track|artist|album|playlist to filter."""
     q = request.args.get('q', '').strip()
     if not q:
         return jsonify({'tracks': []})
     search_type = request.args.get('type', 'track')
-    if search_type not in ('track', 'artist', 'album'):
+    if search_type not in ('track', 'artist', 'album', 'playlist'):
         search_type = 'track'
     user = _get_user()
     cid, csecret = None, None
@@ -754,6 +754,27 @@ def search():
     elif search_type == 'album':
         tracks = spotify_service.search_tracks(token_data['access_token'], f'album:{q}')
         return jsonify({'tracks': tracks})
+    elif search_type == 'playlist':
+        playlists = spotify_service.search_playlists(token_data['access_token'], q)
+        return jsonify({'playlists': playlists})
+
+
+@rooms_bp.route('/api/playlist/<playlist_id>/tracks')
+@_require_auth
+def get_playlist_tracks_list(playlist_id):
+    """Get tracks from a Spotify playlist."""
+    user = _get_user()
+    cid, csecret = None, None
+    if user.get('group_id'):
+        creds = groups.get_group_credentials(user['group_id'])
+        if creds:
+            cid, csecret = creds
+    token_data = spotify_service.get_valid_token(user, client_id=cid, client_secret=csecret)
+    if not token_data:
+        return jsonify({'error': 'Token expired'}), 401
+    session['user'] = token_data
+    tracks, name = spotify_service.get_playlist_tracks(token_data['access_token'], playlist_id, client_id=cid, client_secret=csecret)
+    return jsonify({'tracks': tracks or [], 'name': name or ''})
 
 
 @rooms_bp.route('/api/rooms/<room_id>/activity')

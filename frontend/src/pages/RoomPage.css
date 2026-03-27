@@ -959,6 +959,46 @@
   color: var(--fella-color);
 }
 
+/* Playlist browse */
+.playlist-item {
+  cursor: pointer;
+}
+
+.playlist-item:hover {
+  background: var(--surface-hover);
+}
+
+.playlist-browse-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.playlist-browse-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-back {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 0.85rem;
+  color: var(--text);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.btn-back:hover {
+  border-color: var(--fella-color);
+  color: var(--fella-color);
+}
+
 /* Drag reorder */
 .drag-handle {
   cursor: grab;
