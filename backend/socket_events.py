@@ -3,7 +3,7 @@
 import time
 import logging
 from flask import session
-from flask_socketio import SocketIO, emit, join_room, leave_room
+from flask_socketio import emit, join_room, leave_room
 import room_manager
 import spotify_service
 import groups

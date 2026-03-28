@@ -4,7 +4,7 @@ import time
 import logging
 import urllib.parse
 import requests
-from flask import Blueprint, request, jsonify, redirect, session
+from flask import Blueprint, request, jsonify, session
 from config import Config
 import room_manager
 import groups
