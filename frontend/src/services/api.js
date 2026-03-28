@@ -64,6 +64,7 @@ export const api = {
   getMyGroup: () => request('/api/groups/me'),
   joinGroup: (groupId) => request(`/api/groups/${groupId}/join`, { method: 'POST' }),
   leaveGroup: (groupId) => request(`/api/groups/${groupId}/leave`, { method: 'POST' }),
+  kickGroupMember: (groupId, userId) => request(`/api/groups/${groupId}/kick/${userId}`, { method: 'POST' }),
   updateGroupCredentials: (groupId, clientId, clientSecret) => request(`/api/groups/${groupId}/credentials`, { method: 'PUT', body: JSON.stringify({ client_id: clientId, client_secret: clientSecret }) }),
   getGroupMembers: (groupId) => request(`/api/groups/${groupId}/members`),
   adminListGroups: () => request('/api/admin/groups'),

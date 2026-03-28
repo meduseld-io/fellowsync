@@ -1090,7 +1090,7 @@ export default function RoomPage() {
                   return aName.localeCompare(bName);
                 })
                 .map(([uid, name]) => (
-                <li key={uid} className={`participant${isHost && uid !== room.host_id ? ' has-actions' : ''}`}>
+                <li key={uid} className={`participant${(isHost || isAdmin(user?.spotify_user_id)) && uid !== user?.spotify_user_id ? ' has-actions' : ''}`}>
                   {uid === user?.spotify_user_id ? (
                     <span className="fella-picker-wrap" onClick={() => setShowAvatarPicker(!showAvatarPicker)}>
                       <img className="participant-avatar clickable" src={`/avatars/${selectedAvatar}.png`} alt="" />
@@ -1114,11 +1114,13 @@ export default function RoomPage() {
                       <button className="add-badge-btn" onClick={handleOpenBadgeEditor}>+ Badge</button>
                     ) : null}
                   </div>
-                  {isHost && uid !== room.host_id && (
+                  {(isHost || isAdmin(user?.spotify_user_id)) && uid !== user?.spotify_user_id && (
                     <div className="participant-actions">
-                      <button className="btn-promote" onClick={() => handlePromote(uid)}>
-                        Make Host
-                      </button>
+                      {isHost && uid !== room.host_id && (
+                        <button className="btn-promote" onClick={() => handlePromote(uid)}>
+                          Make Host
+                        </button>
+                      )}
                       <button className="btn-kick" onClick={() => handleKick(uid)}>
                         Kick
                       </button>

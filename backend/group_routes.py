@@ -135,6 +135,35 @@ def get_members(group_id):
     return jsonify({'members': members})
 
 
+@groups_bp.route('/api/groups/<group_id>/kick/<user_id>', methods=['POST'])
+@_require_auth
+def kick_group_member(group_id, user_id):
+    """Kick a member from a group. Leader or admin only."""
+    caller = _get_user()
+    caller_id = caller['spotify_user_id']
+
+    group = groups.get_group(group_id)
+    if not group:
+        return jsonify({'error': 'Sync not found'}), 404
+
+    is_leader = caller_id == group.get('leader_id')
+    is_admin = caller_id in Config.ADMIN_USER_IDS
+    if not is_leader and not is_admin:
+        return jsonify({'error': 'Only the sync leader or an admin can kick members'}), 403
+
+    if user_id == caller_id:
+        return jsonify({'error': 'Cannot kick yourself'}), 400
+
+    members = groups.get_group_members(group_id)
+    if user_id not in members:
+        return jsonify({'error': 'User not in this sync'}), 404
+
+    groups.leave_group(group_id, user_id)
+    updated_group = groups.get_user_group(caller_id) if groups.get_user_group_id(caller_id) == group_id else None
+    updated_members = groups.get_group_members(group_id)
+    return jsonify({'ok': True, 'group': updated_group, 'members': updated_members})
+
+
 # --- Admin endpoints ---
 
 def _require_admin(f):

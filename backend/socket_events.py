@@ -7,6 +7,7 @@ from flask_socketio import SocketIO, emit, join_room, leave_room
 import room_manager
 import spotify_service
 import groups
+from config import Config
 
 logger = logging.getLogger(__name__)
 
@@ -219,8 +220,10 @@ def init_socketio(sio):
         if not state:
             return
 
-        # Only the host can kick
-        if user['spotify_user_id'] != state['host_id']:
+        # Only the host or an admin can kick
+        is_host = user['spotify_user_id'] == state['host_id']
+        is_admin = user['spotify_user_id'] in Config.ADMIN_USER_IDS
+        if not is_host and not is_admin:
             emit('error', {'message': 'Only the host can kick users'})
             return
 

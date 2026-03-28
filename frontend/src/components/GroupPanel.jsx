@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { isAdmin } from '../utils/admin';
 import './GroupPanel.css';
 
 export default function GroupPanel() {
@@ -96,11 +97,29 @@ export default function GroupPanel() {
     login(group.id);
   };
 
+  const handleKickMember = async (uid) => {
+    if (!group) return;
+    try {
+      const data = await api.kickGroupMember(group.id, uid);
+      if (data.group) {
+        setGroup(data.group);
+        setMembers(data.members || {});
+      } else {
+        // Group was deleted (last member kicked)
+        setGroup(null);
+        setMembers({});
+      }
+    } catch (e) {
+      console.error('Failed to kick member:', e);
+    }
+  };
+
   if (loading) return null;
 
   // User is in a group
   if (group) {
     const memberList = Object.entries(members);
+    const canKick = user && (user.spotify_user_id === group.leader_id || isAdmin(user.spotify_user_id));
 
     return (
       <div className="group-panel">
@@ -127,6 +146,9 @@ export default function GroupPanel() {
             {memberList.map(([uid, name]) => (
               <span key={uid} className={`group-member${uid === group.leader_id ? ' leader' : ''}`}>
                 {name}{uid === group.leader_id ? ' ★' : ''}
+                {canKick && uid !== user.spotify_user_id && (
+                  <button className="btn-kick-member" onClick={() => handleKickMember(uid)} title="Remove from sync">✕</button>
+                )}
               </span>
             ))}
           </div>
