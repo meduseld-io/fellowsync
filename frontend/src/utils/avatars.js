@@ -24,8 +24,8 @@ export const AVATAR_HEX = {
   moon: '#c4b5fd',
   mush: '#d35d6e',
   pump: '#f97316',
-  rasp: '#e11d48',
-  strawb: '#ff4d6d',
+  rasp: '#ff4d6d',
+  strawb: '#e11d48',
   sun: '#ffb347',
   dev: '#ff8c00',
 };
