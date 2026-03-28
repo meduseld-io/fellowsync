@@ -3,12 +3,12 @@ import { api } from '../services/api.js';
 
 export const AVATAR_COLORS = [
   'green', 'pink', 'yellow', 'purple', 'blue',
-  'bee', 'bunny', 'cloud', 'devil', 'king',
+  'bee', 'bunny', 'cloud', 'devil',
   'moon', 'mush', 'pump', 'rasp', 'strawb', 'sun',
 ];
 
 /** All valid colors including admin-only ones */
-const ALL_COLORS = [...AVATAR_COLORS, 'dev'];
+const ALL_COLORS = [...AVATAR_COLORS, 'dev', 'king'];
 
 export const AVATAR_HEX = {
   green: '#4ade80',
@@ -20,7 +20,7 @@ export const AVATAR_HEX = {
   bunny: '#e8b4d8',
   cloud: '#a8d8ea',
   devil: '#e74c3c',
-  king: '#ffd700',
+  king: '#b78aff',
   moon: '#c4b5fd',
   mush: '#d35d6e',
   pump: '#f97316',
@@ -96,7 +96,7 @@ export function saveAvatarToBackend(color) {
  * Admin users get the exclusive red option.
  */
 export function getPickerColors(isAdminUser) {
-  return isAdminUser ? [...AVATAR_COLORS, 'dev'] : AVATAR_COLORS;
+  return isAdminUser ? [...AVATAR_COLORS, 'king', 'dev'] : AVATAR_COLORS;
 }
 
 export function setFavicon(color) {
