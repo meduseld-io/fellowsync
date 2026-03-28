@@ -502,7 +502,7 @@ def record_track_played(room_id, track_info):
 
 
 def record_skip(room_id, skipped_by_vote=False, user_id=None, user_name=None):
-    """Record a skip event for stats."""
+    """Record a skip event for stats. Attributes the skip to the track owner (whose song got skipped)."""
     state = get_room(room_id)
     if not state or not state.get('stats_enabled'):
         return
@@ -519,12 +519,16 @@ def record_skip(room_id, skipped_by_vote=False, user_id=None, user_name=None):
     if skipped_by_vote:
         stats['vote_skips'] += 1
 
-    if user_id:
+    # Attribute skip to the track owner (whose song got skipped), not who pressed skip
+    track_info = state.get('current_track_info') or {}
+    owner_id = track_info.get('queued_by_id')
+    owner_name = track_info.get('queued_by')
+    if owner_id and owner_id != '__auto__':
         if 'skip_by_count' not in stats:
             stats['skip_by_count'] = {}
-        stats['skip_by_count'][user_id] = stats['skip_by_count'].get(user_id, 0) + 1
-        if user_name:
-            stats['user_names'][user_id] = user_name
+        stats['skip_by_count'][owner_id] = stats['skip_by_count'].get(owner_id, 0) + 1
+        if owner_name:
+            stats['user_names'][owner_id] = owner_name
 
     _redis.set(key, json.dumps(stats), ex=ROOM_TTL)
 

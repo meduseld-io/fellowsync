@@ -1217,7 +1217,7 @@ export default function RoomPage() {
                     const top = Object.entries(stats.skip_by_count).sort(([, a], [, b]) => b - a)[0];
                     return (
                       <div className="stat-row">
-                        <span className="stat-label">Most skips</span>
+                        <span className="stat-label">Most skipped</span>
                         <span className="stat-value"><span className="stat-user">{stats.user_names[top[0]] || top[0]}</span> ({top[1]})</span>
                       </div>
                     );
