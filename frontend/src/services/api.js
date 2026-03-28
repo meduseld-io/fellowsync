@@ -59,6 +59,10 @@ export const api = {
   getAvatar: () => request('/api/auth/avatar'),
   setAvatar: (color) => request('/api/auth/avatar', { method: 'PUT', body: JSON.stringify({ color }) }),
 
+  // Display name
+  getDisplayName: () => request('/api/auth/display-name'),
+  setDisplayName: (display_name) => request('/api/auth/display-name', { method: 'PUT', body: JSON.stringify({ display_name }) }),
+
   // Groups (BYOK)
   createGroup: (name, clientId, clientSecret) => request('/api/groups', { method: 'POST', body: JSON.stringify({ name, client_id: clientId, client_secret: clientSecret }) }),
   getMyGroup: () => request('/api/groups/me'),

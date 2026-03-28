@@ -267,6 +267,20 @@ def init_socketio(sio):
         if state:
             sio.emit('room_state', _room_payload(room_id, state), room=room_id)
 
+    @sio.on('name_changed')
+    def on_name_changed(data):
+        user = session.get('user')
+        if not user:
+            return
+        room_id = data.get('room_id')
+        new_name = (data.get('name') or '').strip()
+        if not room_id or not new_name:
+            return
+        room_manager.update_participant_name(room_id, user['spotify_user_id'], new_name)
+        state = room_manager.get_room(room_id)
+        if state:
+            sio.emit('room_state', _room_payload(room_id, state), room=room_id)
+
 
 def _room_payload(room_id, state):
     """Build a room state payload with participants, avatars, and badges."""

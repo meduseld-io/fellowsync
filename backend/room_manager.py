@@ -409,6 +409,25 @@ def set_user_avatar(spotify_user_id, color):
     _redis.set(f'user_avatar:{spotify_user_id}', color)
 
 
+# --- User display name overrides (persisted across sessions) ---
+
+def get_user_display_name(spotify_user_id):
+    """Get a user's custom display name, or None."""
+    return _redis.get(f'user_display_name:{spotify_user_id}')
+
+
+def set_user_display_name(spotify_user_id, name):
+    """Save a user's custom display name."""
+    _redis.set(f'user_display_name:{spotify_user_id}', name)
+
+
+def update_participant_name(room_id, user_id, new_name):
+    """Update a participant's display name in a room."""
+    participants = _redis.hgetall(_participants_key(room_id))
+    if user_id in participants:
+        _redis.hset(_participants_key(room_id), user_id, new_name)
+
+
 # --- User badges (admin-assigned, persist across rooms) ---
 
 def get_user_badge(spotify_user_id):

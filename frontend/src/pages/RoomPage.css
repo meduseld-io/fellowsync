@@ -1409,3 +1409,50 @@
 .btn-remove-badge:hover {
   background: rgba(248, 113, 113, 0.25);
 }
+
+/* Name editing */
+.participant-name-editable {
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.participant-name-editable:hover {
+  color: var(--text);
+}
+
+.name-edit-icon {
+  font-size: 0.7rem;
+  margin-left: 3px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.participant-name-editable:hover .name-edit-icon {
+  opacity: 0.6;
+}
+
+.name-edit-row {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.name-edit-input {
+  width: 120px;
+  font-size: 0.85rem;
+  padding: 2px 6px;
+}
+
+.name-edit-save {
+  background: var(--fella-color);
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  width: 24px;
+  height: 24px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

@@ -37,6 +37,53 @@
   color: var(--text-muted);
 }
 
+.lobby-display-name {
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.lobby-display-name:hover {
+  color: var(--text);
+}
+
+.name-edit-icon {
+  font-size: 0.75rem;
+  margin-left: 4px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.lobby-display-name:hover .name-edit-icon {
+  opacity: 0.6;
+}
+
+.name-edit-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.name-edit-input {
+  width: 160px;
+  text-align: center;
+  font-size: 0.95rem;
+  padding: 4px 8px;
+}
+
+.name-edit-save {
+  background: var(--fella-color);
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .lobby-fella {
   width: 48px;
   height: 48px;

@@ -53,6 +53,9 @@ export default function HelpModal() {
             <h3>Room Code</h3>
             <p>Click the room code in the top-right corner to copy it to your clipboard.</p>
 
+            <h3>Display Name</h3>
+            <p>Click your name in the lobby or the listeners panel to change your display name. Your custom name is saved and used across all rooms.</p>
+
             <h3>Contact</h3>
             <p>Questions, issues, or feedback? Reach out at <a href="mailto:admin@meduseld.io" style={{ color: 'var(--fella-color)' }}>admin@meduseld.io</a></p>
 

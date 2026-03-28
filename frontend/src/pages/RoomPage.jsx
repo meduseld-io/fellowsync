@@ -12,7 +12,7 @@ import './RoomPage.css';
 
 export default function RoomPage() {
   const { roomId } = useParams();
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
   const navigate = useNavigate();
   const [room, setRoom] = useState(null);
   const [error, setError] = useState('');
@@ -45,6 +45,8 @@ export default function RoomPage() {
   const [browsingPlaylist, setBrowsingPlaylist] = useState(null);
   const [playlistTracks, setPlaylistTracks] = useState([]);
   const [loadingPlaylist, setLoadingPlaylist] = useState(false);
+  const [editingName, setEditingName] = useState(false);
+  const [nameInput, setNameInput] = useState(user?.display_name || '');
   const searchTimeout = useRef(null);
   const vibeTimeout = useRef(null);
   const socketRef = useRef(null);
@@ -402,6 +404,25 @@ export default function RoomPage() {
     // Notify other participants so their view updates without a refresh
     if (socketRef.current) {
       socketRef.current.emit('avatar_changed', { room_id: roomId, color });
+    }
+  };
+
+  const handleSaveName = async () => {
+    const trimmed = nameInput.trim();
+    if (!trimmed || trimmed === user?.display_name) {
+      setEditingName(false);
+      setNameInput(user?.display_name || '');
+      return;
+    }
+    try {
+      await api.setDisplayName(trimmed);
+      setUser((prev) => ({ ...prev, display_name: trimmed }));
+      setEditingName(false);
+      if (socketRef.current) {
+        socketRef.current.emit('name_changed', { room_id: roomId, name: trimmed });
+      }
+    } catch (e) {
+      console.error('Failed to save display name:', e);
     }
   };
 
@@ -1099,7 +1120,26 @@ export default function RoomPage() {
                     <img className="participant-avatar" src={getAvatarForUser(uid, participantAvatars)} alt="" />
                   )}
                   <div className="participant-info">
-                    <span>{name}</span>
+                    {uid === user?.spotify_user_id && editingName ? (
+                      <div className="name-edit-row">
+                        <input
+                          type="text"
+                          className="name-edit-input"
+                          value={nameInput}
+                          onChange={(e) => setNameInput(e.target.value.slice(0, 32))}
+                          onKeyDown={(e) => { if (e.key === 'Enter') handleSaveName(); if (e.key === 'Escape') { setEditingName(false); setNameInput(user?.display_name || ''); } }}
+                          maxLength={32}
+                          autoFocus
+                        />
+                        <button className="name-edit-save" onClick={handleSaveName}>✓</button>
+                      </div>
+                    ) : uid === user?.spotify_user_id ? (
+                      <span className="participant-name-editable" onClick={() => { setNameInput(user?.display_name || ''); setEditingName(true); }}>
+                        {name}<span className="name-edit-icon">✎</span>
+                      </span>
+                    ) : (
+                      <span>{name}</span>
+                    )}
                     {uid === room.host_id && <span className="host-badge">Host</span>}
                     {isAdmin(uid) && <span className="dev-badge">Dev</span>}
                     {participantBadges[uid] ? (

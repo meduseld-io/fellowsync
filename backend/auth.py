@@ -115,6 +115,11 @@ def callback():
     if group_id:
         groups.claim_pending_membership(group_id, profile['id'], profile.get('display_name', profile['id']))
 
+    # Apply saved custom display name if one exists
+    saved_name = room_manager.get_user_display_name(profile['id'])
+    if saved_name:
+        user_data['display_name'] = saved_name
+
     session['user'] = user_data
     session.pop('pending_group_id', None)
 
@@ -180,3 +185,31 @@ def set_avatar():
         return jsonify({'error': 'Missing color'}), 400
     room_manager.set_user_avatar(user['spotify_user_id'], color)
     return jsonify({'ok': True, 'avatar': color})
+
+
+@auth_bp.route('/api/auth/display-name')
+def get_display_name():
+    """Return the user's saved custom display name."""
+    user = session.get('user')
+    if not user:
+        return jsonify({'error': 'Not authenticated'}), 401
+    name = room_manager.get_user_display_name(user['spotify_user_id'])
+    return jsonify({'display_name': name})
+
+
+@auth_bp.route('/api/auth/display-name', methods=['PUT'])
+def set_display_name():
+    """Save the user's custom display name."""
+    user = session.get('user')
+    if not user:
+        return jsonify({'error': 'Not authenticated'}), 401
+    data = request.json or {}
+    name = (data.get('display_name') or '').strip()
+    if not name:
+        return jsonify({'error': 'Missing display_name'}), 400
+    if len(name) > 32:
+        return jsonify({'error': 'Display name too long (max 32 characters)'}), 400
+    room_manager.set_user_display_name(user['spotify_user_id'], name)
+    user['display_name'] = name
+    session['user'] = user
+    return jsonify({'ok': True, 'display_name': name})

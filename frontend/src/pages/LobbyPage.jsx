@@ -11,7 +11,7 @@ import { isAdmin } from '../utils/admin';
 import './LobbyPage.css';
 
 export default function LobbyPage() {
-  const { user, logout } = useAuth();
+  const { user, setUser, logout } = useAuth();
   const navigate = useNavigate();
   const [joinCode, setJoinCode] = useState('');
   const [error, setError] = useState('');
@@ -28,6 +28,8 @@ export default function LobbyPage() {
   const [autoPlaylistUrl, setAutoPlaylistUrl] = useState('');
   const [blindMode, setBlindMode] = useState(false);
   const [settingsError, setSettingsError] = useState('');
+  const [editingName, setEditingName] = useState(false);
+  const [nameInput, setNameInput] = useState(user?.display_name || '');
 
   useEffect(() => { document.title = 'FellowSync - Lobby'; }, []);
 
@@ -35,6 +37,22 @@ export default function LobbyPage() {
     setAvatarOverride(color);
     saveAvatarToBackend(color);
     setSelectedAvatar(color);
+  };
+
+  const handleSaveName = async () => {
+    const trimmed = nameInput.trim();
+    if (!trimmed || trimmed === user?.display_name) {
+      setEditingName(false);
+      setNameInput(user?.display_name || '');
+      return;
+    }
+    try {
+      await api.setDisplayName(trimmed);
+      setUser((prev) => ({ ...prev, display_name: trimmed }));
+      setEditingName(false);
+    } catch (e) {
+      console.error('Failed to save display name:', e);
+    }
   };
 
   const handleCreate = async () => {
@@ -81,7 +99,28 @@ export default function LobbyPage() {
         <img src="/logo.png" alt="FellowSync" style={{ maxWidth: 280, width: '75%', height: 'auto', marginBottom: '0.5rem' }} />
         <h1>Fellow<span style={{ color: AVATAR_HEX[selectedAvatar] || '#4ade80' }}>Sync</span></h1>
         <div className="lobby-user">
-          <span>{user?.display_name}</span>
+          {editingName ? (
+            <div className="name-edit-row">
+              <input
+                type="text"
+                className="name-edit-input"
+                value={nameInput}
+                onChange={(e) => setNameInput(e.target.value.slice(0, 32))}
+                onKeyDown={(e) => { if (e.key === 'Enter') handleSaveName(); if (e.key === 'Escape') { setEditingName(false); setNameInput(user?.display_name || ''); } }}
+                maxLength={32}
+                autoFocus
+              />
+              <button className="name-edit-save" onClick={handleSaveName}>✓</button>
+            </div>
+          ) : (
+            <span
+              className="lobby-display-name"
+              onClick={() => { setNameInput(user?.display_name || ''); setEditingName(true); }}
+            >
+              {user?.display_name}
+              <span className="name-edit-icon">✎</span>
+            </span>
+          )}
           <span
             className={`lobby-fella-wrap${showAvatarPicker ? ' picker-open' : ''}`}
             data-fella-tooltip="Click to change your fella!"
