@@ -88,6 +88,9 @@
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 320px;
 }
 
 .avatar-option {

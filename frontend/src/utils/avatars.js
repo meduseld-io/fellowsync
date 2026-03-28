@@ -1,7 +1,11 @@
 import { isAdmin } from './admin';
 import { api } from '../services/api.js';
 
-export const AVATAR_COLORS = ['green', 'pink', 'yellow', 'purple', 'blue'];
+export const AVATAR_COLORS = [
+  'green', 'pink', 'yellow', 'purple', 'blue',
+  'bee', 'bunny', 'cloud', 'devil', 'king',
+  'moon', 'mush', 'pump', 'rasp', 'strawb', 'sun',
+];
 
 /** All valid colors including admin-only ones */
 const ALL_COLORS = [...AVATAR_COLORS, 'dev'];
@@ -12,6 +16,17 @@ export const AVATAR_HEX = {
   yellow: '#facc15',
   purple: '#b78aff',
   blue: '#47b5ff',
+  bee: '#f5a623',
+  bunny: '#e8b4d8',
+  cloud: '#a8d8ea',
+  devil: '#e74c3c',
+  king: '#ffd700',
+  moon: '#c4b5fd',
+  mush: '#d35d6e',
+  pump: '#f97316',
+  rasp: '#e11d48',
+  strawb: '#ff4d6d',
+  sun: '#ffb347',
   dev: '#ff8c00',
 };
 
