@@ -184,8 +184,10 @@ def _require_admin(f):
 @groups_bp.route('/api/admin/groups')
 @_require_admin
 def admin_list_groups():
-    """List all BYOK groups."""
+    """List all BYOK groups with members."""
     all_groups = groups.list_all_groups()
+    for g in all_groups:
+        g['members'] = groups.get_group_members(g['id'])
     return jsonify({'groups': all_groups})
 
 

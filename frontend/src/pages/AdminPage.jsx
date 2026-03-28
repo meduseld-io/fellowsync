@@ -85,6 +85,16 @@ export default function AdminPage() {
     }
   };
 
+  const handleKickGroupMember = async (groupId, userId, userName) => {
+    if (!confirm(`Remove ${userName} from this sync?`)) return;
+    try {
+      await api.kickGroupMember(groupId, userId);
+      loadGroups();
+    } catch (e) {
+      console.error('Failed to kick group member:', e);
+    }
+  };
+
   const handleJoinRoom = async (roomId) => {
     try {
       await api.joinRoom(roomId);
@@ -226,6 +236,20 @@ export default function AdminPage() {
               <span>👑 {group.leader_name}</span>
               <span className="admin-muted" style={{ fontSize: '0.75rem' }}>App: {group.client_id?.slice(0, 12)}...</span>
             </div>
+            {group.members && Object.keys(group.members).length > 0 && (
+              <div className="admin-room-participants">
+                {Object.entries(group.members).map(([uid, name]) => (
+                  <span key={uid} className={`admin-participant${uid === group.leader_id ? ' host' : ''}`}>
+                    {name}{uid === group.leader_id ? ' ★' : ''}
+                    <button
+                      className="btn-kick-inline"
+                      onClick={() => handleKickGroupMember(group.id, uid, name)}
+                      title="Remove from sync"
+                    >✕</button>
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
         ))}
       </div>

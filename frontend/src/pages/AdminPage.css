@@ -352,3 +352,24 @@
 .admin-participant:hover {
   background: color-mix(in srgb, var(--fella-color) 15%, transparent);
 }
+
+.btn-kick-inline {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.65rem;
+  padding: 0 0.15rem;
+  margin-left: 0.25rem;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s;
+}
+
+.admin-participant:hover .btn-kick-inline {
+  opacity: 1;
+}
+
+.btn-kick-inline:hover {
+  color: #ef4444;
+}
