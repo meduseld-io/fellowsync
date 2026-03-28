@@ -35,6 +35,16 @@ def init_socketio(sio):
         mapping = _sid_rooms.pop(sid, None)
         if mapping:
             room_id, user_id = mapping
+
+            # Check if this user still has another active connection to the same room
+            still_connected = any(
+                uid == user_id and rid == room_id
+                for other_sid, (rid, uid) in _sid_rooms.items()
+            )
+            if still_connected:
+                logger.info("User %s disconnected sid=%s but still has another connection to room %s", user_id, sid, room_id)
+                return
+
             room_manager.remove_participant(room_id, user_id)
             room_manager.remove_user_token(room_id, user_id)
             display_name = user['display_name'] if user else user_id
@@ -66,11 +76,34 @@ def init_socketio(sio):
             emit('error', {'message': 'Room not found'})
             return
 
-        join_room(room_id)
+        user_id = user['spotify_user_id']
+
+        # Check if this user already has an active connection to this room
+        # If so, clean up the old SID mapping to prevent ghost participants
         from flask import request as flask_request
-        _sid_rooms[flask_request.sid] = (room_id, user['spotify_user_id'])
-        room_manager.add_participant(room_id, user['spotify_user_id'], user['display_name'])
-        room_manager.log_activity(room_id, user['display_name'], 'joined')
+        old_sids = [sid for sid, (rid, uid) in _sid_rooms.items() if uid == user_id and rid == room_id and sid != flask_request.sid]
+        for old_sid in old_sids:
+            _sid_rooms.pop(old_sid, None)
+            try:
+                leave_room(room_id, sid=old_sid)
+            except Exception:
+                pass
+
+        already_in = room_manager.get_participants(room_id).get(user_id)
+
+        join_room(room_id)
+        _sid_rooms[flask_request.sid] = (room_id, user_id)
+        room_manager.add_participant(room_id, user_id, user['display_name'])
+        room_manager.store_user_token(room_id, user_id, {
+            'access_token': user['access_token'],
+            'refresh_token': user['refresh_token'],
+            'expires_at': user['expires_at'],
+            'group_id': user.get('group_id'),
+        })
+
+        # Only log "joined" if they weren't already a participant
+        if not already_in:
+            room_manager.log_activity(room_id, user['display_name'], 'joined')
         room_manager.store_user_token(room_id, user['spotify_user_id'], {
             'access_token': user['access_token'],
             'refresh_token': user['refresh_token'],
@@ -201,6 +234,15 @@ def init_socketio(sio):
         room_manager.remove_participant(room_id, target_id)
         room_manager.remove_user_token(room_id, target_id)
         room_manager.log_activity(room_id, user['display_name'], 'kicked', target_name)
+
+        # Clean up all SID mappings for the kicked user
+        kicked_sids = [sid for sid, (rid, uid) in _sid_rooms.items() if uid == target_id and rid == room_id]
+        for sid in kicked_sids:
+            _sid_rooms.pop(sid, None)
+            try:
+                leave_room(room_id, sid=sid)
+            except Exception:
+                pass
 
         # Notify the kicked user (broadcast to room, client filters by user_id)
         sio.emit('kicked', {'room_id': room_id, 'user_id': target_id, 'reason': 'You were kicked by the host'}, room=room_id)
