@@ -11,7 +11,7 @@ async function request(path, options = {}) {
     if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
     return data;
   } catch (e) {
-    console.error(`API request failed [${path}]:`, e);
+    console.error('API request failed [%s]:', path, e);
     throw e;
   }
 }
