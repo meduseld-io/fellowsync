@@ -305,7 +305,6 @@ def vote_skip(room_id, user_id, user_name=None):
 
     # Don't double-vote
     if user_id in state['skip_votes']:
-        participants = get_participants(room_id)
         return state, False
 
     state['skip_votes'].append(user_id)
