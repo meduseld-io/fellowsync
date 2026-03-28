@@ -267,8 +267,8 @@ def get_playlist_tracks(access_token, playlist_id, limit=100, client_id=None, cl
                         )
                         if meta.status_code == 200:
                             name = meta.json().get('name', '')
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        logger.error("Failed to fetch playlist %s metadata: %s", playlist_id, e)
                     tracks = _parse_track_items(items, limit)
                     if tracks:
                         logger.info("Playlist %s: parsed %d tracks via /items", playlist_id, len(tracks))

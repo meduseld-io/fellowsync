@@ -87,8 +87,8 @@ def init_socketio(sio):
             _sid_rooms.pop(old_sid, None)
             try:
                 leave_room(room_id, sid=old_sid)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.error("Failed to leave_room for old sid %s in room %s: %s", old_sid, room_id, e)
 
         already_in = room_manager.get_participants(room_id).get(user_id)
 
@@ -244,8 +244,8 @@ def init_socketio(sio):
             _sid_rooms.pop(sid, None)
             try:
                 leave_room(room_id, sid=sid)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.error("Failed to leave_room for kicked sid %s in room %s: %s", sid, room_id, e)
 
         # Notify the kicked user (broadcast to room, client filters by user_id)
         sio.emit('kicked', {'room_id': room_id, 'user_id': target_id, 'reason': 'You were kicked by the host'}, room=room_id)

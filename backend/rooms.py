@@ -465,8 +465,8 @@ def update_settings(room_id):
         try:
             val = int(data['max_consecutive'])
             state['max_consecutive'] = max(0, val)
-        except (TypeError, ValueError):
-            pass
+        except (TypeError, ValueError) as e:
+            logger.error("Invalid max_consecutive value %r: %s", data['max_consecutive'], e)
 
     if 'hear_me_out' in data:
         state['hear_me_out'] = bool(data['hear_me_out'])
@@ -512,8 +512,8 @@ def update_settings(room_id):
             val = float(data['skip_threshold'])
             if val in (0.25, 0.5, 0.75, 1.0):
                 state['skip_threshold'] = val
-        except (TypeError, ValueError):
-            pass
+        except (TypeError, ValueError) as e:
+            logger.error("Invalid skip_threshold value %r: %s", data['skip_threshold'], e)
 
     if 'auto_playlist_url' in data:
         url = str(data['auto_playlist_url'] or '').strip()
