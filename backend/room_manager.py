@@ -195,14 +195,19 @@ def add_to_queue(room_id, track_info, play_next=False):
 
     # In hear-me-out mode, reorder queue to round-robin by user
     if state.get('hear_me_out'):
-        state['queue'] = _round_robin_queue(state['queue'])
+        now_playing_by = None
+        if state.get('current_track_info'):
+            now_playing_by = state['current_track_info'].get('queued_by_id')
+        state['queue'] = _round_robin_queue(state['queue'], current_queued_by_id=now_playing_by)
 
     save_room(room_id, state)
     return state
 
 
-def _round_robin_queue(queue):
-    """Reorder queue to alternate between users fairly (round-robin)."""
+def _round_robin_queue(queue, current_queued_by_id=None):
+    """Reorder queue to alternate between users fairly (round-robin).
+    If current_queued_by_id is set, that user's now-playing track counts
+    as their first turn, so other users' tracks come before theirs."""
     if len(queue) <= 1:
         return queue
 
@@ -214,6 +219,12 @@ def _round_robin_queue(queue):
         if uid not in user_queues:
             user_queues[uid] = []
         user_queues[uid].append(track)
+
+    # If someone has the now-playing track, they already had a turn.
+    # Move them to the end of the rotation order so others go first.
+    if current_queued_by_id and current_queued_by_id in user_queues:
+        moved = user_queues.pop(current_queued_by_id)
+        user_queues[current_queued_by_id] = moved
 
     # Interleave: take one from each user in rotation
     result = []

@@ -472,7 +472,8 @@ def update_settings(room_id):
         state['hear_me_out'] = bool(data['hear_me_out'])
         # Re-sort queue if enabling hear_me_out
         if state['hear_me_out'] and state['queue']:
-            state['queue'] = room_manager._round_robin_queue(state['queue'])
+            now_playing_by = state.get('current_track_info', {}).get('queued_by_id') if state.get('current_track_info') else None
+            state['queue'] = room_manager._round_robin_queue(state['queue'], current_queued_by_id=now_playing_by)
 
     if 'vibe' in data:
         vibe = str(data['vibe'] or '').strip()[:50]
@@ -495,7 +496,8 @@ def update_settings(room_id):
         for f in mode_flags:
             state[f] = (f == winner)
         if winner == 'hear_me_out' and state['queue']:
-            state['queue'] = room_manager._round_robin_queue(state['queue'])
+            now_playing_by = state.get('current_track_info', {}).get('queued_by_id') if state.get('current_track_info') else None
+            state['queue'] = room_manager._round_robin_queue(state['queue'], current_queued_by_id=now_playing_by)
 
     if 'reactions_enabled' in data:
         state['reactions_enabled'] = bool(data['reactions_enabled'])
