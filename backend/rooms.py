@@ -760,6 +760,8 @@ def search():
         playlists = spotify_service.search_playlists(token_data['access_token'], q)
         return jsonify({'playlists': playlists})
 
+    return jsonify({'tracks': []})
+
 
 @rooms_bp.route('/api/playlist/<playlist_id>/tracks')
 @_require_auth

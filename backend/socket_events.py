@@ -27,6 +27,7 @@ def init_socketio(sio):
             logger.error("WebSocket connect rejected: no session user")
             return False
         logger.info("User %s connected via WebSocket", user['spotify_user_id'])
+        return True
 
     @sio.on('disconnect')
     def on_disconnect():
