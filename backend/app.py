@@ -51,9 +51,9 @@ def health():
 def serve_frontend(path):
     """Serve the built React frontend. Falls back to index.html for client-side routing."""
     if path:
-        safe_path = os.path.normpath(path)
-        if not safe_path.startswith('..') and os.path.isfile(os.path.join(DIST_DIR, safe_path)):
-            return send_from_directory(DIST_DIR, safe_path)
+        full_path = os.path.normpath(os.path.join(DIST_DIR, path))
+        if full_path.startswith(os.path.normpath(DIST_DIR) + os.sep) and os.path.isfile(full_path):
+            return send_from_directory(DIST_DIR, os.path.relpath(full_path, DIST_DIR))
     return send_from_directory(DIST_DIR, 'index.html')
 
 
