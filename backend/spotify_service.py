@@ -162,16 +162,26 @@ def search_tracks(access_token, query, limit=10):
 
 
 def search_playlists(access_token, query, limit=10):
-    """Search Spotify for playlists."""
+    """Return the current user's own playlists, optionally filtered by query.
+
+    Uses GET /me/playlists since Spotify's /items endpoint restricts access
+    to owner/collaborator playlists only.
+    """
     try:
-        resp = requests.get(
-            f'{API_BASE}/search',
-            headers=_headers(access_token),
-            params={'q': query, 'type': 'playlist', 'limit': limit},
-            timeout=10,
-        )
-        resp.raise_for_status()
-        items = resp.json().get('playlists', {}).get('items', [])
+        all_playlists = []
+        url = f'{API_BASE}/me/playlists'
+        params = {'limit': 50}
+        while url and len(all_playlists) < 200:
+            resp = requests.get(url, headers=_headers(access_token), params=params, timeout=10)
+            resp.raise_for_status()
+            data = resp.json()
+            all_playlists.extend(data.get('items', []))
+            url = data.get('next')
+            params = {}
+
+        q = query.lower().strip()
+        filtered = [p for p in all_playlists if p and (not q or q in p.get('name', '').lower())]
+
         return [
             {
                 'id': p['id'],
@@ -180,10 +190,10 @@ def search_playlists(access_token, query, limit=10):
                 'image': p['images'][0]['url'] if p.get('images') else None,
                 'track_count': p.get('tracks', {}).get('total', 0),
             }
-            for p in items if p
+            for p in filtered[:limit]
         ]
     except Exception as e:
-        logger.error("Failed to search playlists: %s", e)
+        logger.error("Failed to fetch user playlists: %s", e)
         return []
 
 
@@ -228,16 +238,16 @@ def _get_client_token(client_id=None, client_secret=None):
 def get_playlist_tracks(access_token, playlist_id, limit=100, client_id=None, client_secret=None):
     """Fetch tracks from a Spotify playlist. Returns (tracks_list, playlist_name) or ([], None).
 
-    Uses /playlists/{id}/items (the current Spotify endpoint for playlist tracks).
-    Falls back to the full playlist object if /items fails.
+    Uses /playlists/{id}/items (the current Spotify endpoint for playlist items).
+    Falls back to the full playlist object if /items fails (e.g. 403 for non-owned playlists).
     """
     try:
         name = ''
 
-        # Primary: /playlists/{id}/tracks
+        # Primary: /playlists/{id}/items (current non-deprecated endpoint)
         try:
             resp = requests.get(
-                f'{API_BASE}/playlists/{playlist_id}/tracks',
+                f'{API_BASE}/playlists/{playlist_id}/items',
                 headers=_headers(access_token),
                 params={'limit': limit, 'additional_types': 'track'},
                 timeout=15,
@@ -264,7 +274,7 @@ def get_playlist_tracks(access_token, playlist_id, limit=100, client_id=None, cl
                         logger.info("Playlist %s: parsed %d tracks via /items", playlist_id, len(tracks))
                         return tracks, name
             elif resp.status_code == 403:
-                logger.warning("Playlist %s /items returned 403", playlist_id)
+                logger.warning("Playlist %s /items returned 403 (not owner/collaborator), falling back", playlist_id)
             else:
                 logger.warning("Playlist %s /items returned %s", playlist_id, resp.status_code)
         except Exception as e:
@@ -333,9 +343,8 @@ def _parse_track_items(items, limit=100):
     """Parse Spotify playlist items into track dicts."""
     tracks = []
     for item in items[:limit]:
-        # /items endpoint nests track data under 'item' key (with 'track' as a boolean)
-        # Legacy /tracks endpoint nests it under 'track' key (as an object)
-        t = item.get('item') if isinstance(item.get('item'), dict) else item.get('track') if isinstance(item.get('track'), dict) else None
+        # Spotify returns track data under both 'item' (current) and 'track' (deprecated) keys
+        t = item.get('track') if isinstance(item.get('track'), dict) else item.get('item') if isinstance(item.get('item'), dict) else None
         if not t or not t.get('uri'):
             continue
         # Skip episodes or other non-track types
