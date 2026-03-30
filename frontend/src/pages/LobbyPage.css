@@ -20,6 +20,8 @@
   max-width: 440px;
   width: 100%;
   text-align: center;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .lobby-card h1 {
@@ -173,13 +175,20 @@
 .join-row {
   display: flex;
   gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .join-row input {
   flex: 1;
+  min-width: 0;
   text-transform: uppercase;
   letter-spacing: 2px;
   text-align: center;
+}
+
+.join-row button {
+  flex-shrink: 0;
 }
 
 .lobby-footer {
