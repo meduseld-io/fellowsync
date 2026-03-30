@@ -12,7 +12,7 @@ Built with Flask, React, Redis, and the Spotify Web API.
 
 ## Getting Started
 
-FellowSync uses BYOS (Bring Your Own Sync) - each friend group registers a free Spotify app and uses those credentials to log in. One person creates a Sync, shares the Sync ID, and up to 5 others join.
+FellowSync uses BYOS (Bring Your Own Sync) - each friend group registers a free Spotify app and uses those credentials to log in. One person creates a Sync, shares the Sync ID, and up to 5 others join. This is necessary because Spotify limits developer apps to 6 total users unless you apply for an extended quota, so each friend group needs their own app.
 
 ### 1. Create a Spotify App
 
