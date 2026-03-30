@@ -875,7 +875,7 @@ export default function RoomPage() {
             {floatingEmojis.map((fe) => (
               <span key={fe.id} className="floating-emoji" style={{ '--drift': `${fe.drift}px` }}>{fe.emoji}</span>
             ))}
-            {['🔥', '❤️', '😴', '💀', '😂'].map((emoji) => {
+            {['🔥', '❤️', '😴', '💩', '😂'].map((emoji) => {
               const voters = room.reactions?.[emoji] || [];
               const voted = voters.includes(user?.spotify_user_id);
               return (

@@ -325,7 +325,7 @@ def vote_skip(room_id, user_id, user_name=None):
     return state, False
 
 
-REACTION_EMOJIS = ['🔥', '❤️', '😴', '💀', '😂']
+REACTION_EMOJIS = ['🔥', '❤️', '😴', '💩', '😂']
 
 
 def react_track(room_id, user_id, emoji):
