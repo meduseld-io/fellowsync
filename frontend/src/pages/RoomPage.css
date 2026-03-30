@@ -9,10 +9,6 @@
   box-sizing: border-box;
 }
 
-.room-page > .fs-footer {
-  margin-top: auto;
-}
-
 .room-header {
   display: flex;
   align-items: center;

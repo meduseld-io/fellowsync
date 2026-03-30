@@ -3,6 +3,8 @@
   padding: 0.75rem 0;
   border-top: 1px solid color-mix(in srgb, var(--fella-color) 20%, transparent);
   width: 100%;
+  margin-top: auto;
+  flex-shrink: 0;
 }
 
 .fs-footer p {
