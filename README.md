@@ -4,7 +4,7 @@
 
 # FellowSync - Spotify Jam Rooms
 
-> ⚠️ **Alpha Software** - FellowSync is in early development (v0.2.0-alpha). Expect bugs, rough edges, and breaking changes between versions. If you run into issues, please [open a GitHub issue](https://github.com/meduseld-io/fellowsync/issues) or email [admin@meduseld.io](mailto:admin@meduseld.io).
+> ⚠️ **Early Release** - FellowSync is under active development. Expect bugs, rough edges, and breaking changes between versions. If you run into issues, please [open a GitHub issue](https://github.com/meduseld-io/fellowsync/issues) or email [admin@meduseld.io](mailto:admin@meduseld.io).
 
 A self-hosted Spotify listening party app. Create a room, invite friends, and listen to music together in sync. Everyone queues tracks, the host controls playback, and FellowSync keeps everyone's Spotify playing the same song at the same position.
 

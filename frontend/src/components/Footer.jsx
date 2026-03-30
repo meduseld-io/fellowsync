@@ -19,7 +19,7 @@ export default function Footer() {
       })
       .catch(err => {
         console.error('Failed to fetch latest FellowSync release version:', err);
-        setVersion('v0.1.0-alpha');
+        setVersion('v0.1.0');
       });
   }, []);
 
