@@ -1,0 +1,27 @@
+{
+  "name": "fellowsync",
+  "version": "0.2.0-alpha",
+  "private": true,
+  "scripts": {
+    "prepare": "husky install",
+    "commit": "cz",
+    "release": "commit-and-tag-version --prerelease alpha",
+    "release:patch": "commit-and-tag-version --release-as patch --prerelease alpha",
+    "release:minor": "commit-and-tag-version --release-as minor",
+    "release:major": "commit-and-tag-version --release-as major",
+    "release:stable": "commit-and-tag-version"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^18.4.3",
+    "@commitlint/config-conventional": "^18.4.3",
+    "commit-and-tag-version": "^12.7.0",
+    "commitizen": "^4.3.0",
+    "cz-conventional-changelog": "^3.3.0",
+    "husky": "^8.0.3"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
+}

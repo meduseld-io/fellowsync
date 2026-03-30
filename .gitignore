@@ -11,10 +11,14 @@ venv/
 # Node
 node_modules/
 frontend/dist/
+package-lock.json
 
 # IDE
 .vscode/
 .idea/
+
+# Kiro
+.kiro/
 
 # Asset variations
 frontend/public/avatars/fellavariations*.png
