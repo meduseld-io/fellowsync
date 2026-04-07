@@ -25,6 +25,7 @@ export default function RoomPage() {
   const [queueError, setQueueError] = useState('');
   const [searchFilter, setSearchFilter] = useState('track');
   const [dragIndex, setDragIndex] = useState(null);
+  const [autoPlaylistDragIndex, setAutoPlaylistDragIndex] = useState(null);
   const [vibeInput, setVibeInput] = useState('');
   const [showHostTransfer, setShowHostTransfer] = useState(false);
   const [activityLog, setActivityLog] = useState([]);
@@ -239,6 +240,43 @@ export default function RoomPage() {
       showToast('Queue shuffled');
     } catch (e) {
       console.error('Failed to shuffle queue:', e);
+    }
+  };
+
+  const handleAutoPlaylistDragStart = (index) => {
+    setAutoPlaylistDragIndex(index);
+  };
+
+  const handleAutoPlaylistDragOver = (e) => {
+    e.preventDefault();
+  };
+
+  const handleAutoPlaylistDrop = async (e, toIndex) => {
+    e.preventDefault();
+    if (autoPlaylistDragIndex === null || autoPlaylistDragIndex === toIndex) {
+      setAutoPlaylistDragIndex(null);
+      return;
+    }
+    try {
+      const updated = await api.reorderAutoPlaylist(roomId, autoPlaylistDragIndex, toIndex);
+      setRoom(updated);
+    } catch (err) {
+      console.error('Failed to reorder auto-playlist:', err);
+    }
+    setAutoPlaylistDragIndex(null);
+  };
+
+  const handleAutoPlaylistDragEnd = () => {
+    setAutoPlaylistDragIndex(null);
+  };
+
+  const handleShuffleAutoPlaylist = async () => {
+    try {
+      const updated = await api.shuffleAutoPlaylist(roomId);
+      setRoom(updated);
+      showToast('Auto-playlist shuffled');
+    } catch (e) {
+      console.error('Failed to shuffle auto-playlist:', e);
     }
   };
 
@@ -1054,11 +1092,26 @@ export default function RoomPage() {
                   <span className="playlist-divider-label">📋 Up next from {room.auto_playlist_name}</span>
                   <span className="playlist-divider-line" />
                 </div>
+                {(isHost || isAdmin(user?.spotify_user_id)) && upcomingPlaylist.length > 1 && (
+                  <div className="auto-playlist-actions">
+                    <span className="queue-action-btn shuffle" onClick={handleShuffleAutoPlaylist}>🔀 Shuffle</span>
+                  </div>
+                )}
                 <ul className="queue-list">
                   {upcomingPlaylist.map((track, i) => {
                     const masked = room.blind_mode && !isHost;
+                    const canManage = isHost || isAdmin(user?.spotify_user_id);
                     return (
-                      <li key={`pl-${track.uri}-${i}`} className={`queue-item playlist-track${masked ? ' blind-item' : ''}`}>
+                      <li
+                        key={`pl-${track.uri}-${i}`}
+                        className={`queue-item playlist-track${masked ? ' blind-item' : ''}${autoPlaylistDragIndex === i ? ' dragging' : ''}`}
+                        draggable={canManage}
+                        onDragStart={canManage ? () => handleAutoPlaylistDragStart(i) : undefined}
+                        onDragOver={canManage ? (e) => handleAutoPlaylistDragOver(e) : undefined}
+                        onDrop={canManage ? (e) => handleAutoPlaylistDrop(e, i) : undefined}
+                        onDragEnd={canManage ? handleAutoPlaylistDragEnd : undefined}
+                      >
+                        {canManage && <span className="drag-handle">⠿</span>}
                         {masked ? (
                           <div className="blind-art-placeholder">?</div>
                         ) : (

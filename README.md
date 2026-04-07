@@ -64,6 +64,8 @@ Create a room, share the 6-character room code, and start queuing tracks. The ho
 - **Search filters** - search by track, artist, or album name
 - **Playlist search** - browse and filter tracks from any Spotify playlist directly in the search panel
 - **Auto-playlist** - host pastes a Spotify playlist URL and tracks auto-queue when the manual queue empties
+- **Auto-playlist reorder** - host can drag to rearrange upcoming auto-playlist tracks
+- **Auto-playlist shuffle** - host can shuffle the remaining auto-playlist tracks
 - **Upcoming playlist tracks** - the next 10 auto-playlist tracks are shown below the queue so everyone can see what's coming
 
 ### Room Modes & Settings

@@ -385,6 +385,39 @@ def shuffle_queue(room_id):
     return state
 
 
+def reorder_auto_playlist(room_id, from_idx, to_idx):
+    """Reorder a track within the unplayed portion of the auto-playlist. Returns updated state."""
+    state = get_room(room_id)
+    if not state:
+        return None
+    playlist = state.get('auto_playlist', [])
+    offset = state.get('auto_playlist_index', 0)
+    remaining = playlist[offset:]
+    if from_idx < 0 or from_idx >= len(remaining) or to_idx < 0 or to_idx >= len(remaining):
+        return None
+    track = remaining.pop(from_idx)
+    remaining.insert(to_idx, track)
+    state['auto_playlist'] = playlist[:offset] + remaining
+    save_room(room_id, state)
+    return state
+
+
+def shuffle_auto_playlist(room_id):
+    """Shuffle the unplayed portion of the auto-playlist. Returns updated state."""
+    state = get_room(room_id)
+    if not state:
+        return None
+    playlist = state.get('auto_playlist', [])
+    offset = state.get('auto_playlist_index', 0)
+    remaining = playlist[offset:]
+    if len(remaining) <= 1:
+        return state
+    random.shuffle(remaining)
+    state['auto_playlist'] = playlist[:offset] + remaining
+    save_room(room_id, state)
+    return state
+
+
 def get_all_active_rooms():
     """Return list of all active room IDs."""
     keys = _redis.keys('room:??????')

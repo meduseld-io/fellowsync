@@ -412,6 +412,60 @@ def shuffle_queue(room_id):
     return jsonify(_with_participants(room_id, updated))
 
 
+@rooms_bp.route('/api/rooms/<room_id>/auto-playlist/reorder', methods=['PUT'])
+@_require_auth
+def reorder_auto_playlist(room_id):
+    """Reorder the auto-playlist (host only). Expects {from_index, to_index} relative to unplayed tracks."""
+    user = _get_user()
+    if not _check_rate_limit(user['spotify_user_id'], 'reorder'):
+        return jsonify({'error': 'Too fast, slow down'}), 429
+
+    state = room_manager.get_room(room_id)
+    if not state:
+        return jsonify({'error': 'Room not found'}), 404
+
+    if user['spotify_user_id'] != state['host_id'] and user['spotify_user_id'] not in Config.ADMIN_USER_IDS:
+        return jsonify({'error': 'Only the host can reorder the auto-playlist'}), 403
+
+    data = request.json or {}
+    from_idx = data.get('from_index')
+    to_idx = data.get('to_index')
+
+    if from_idx is None or to_idx is None:
+        return jsonify({'error': 'Missing from_index or to_index'}), 400
+
+    updated = room_manager.reorder_auto_playlist(room_id, from_idx, to_idx)
+    if not updated:
+        return jsonify({'error': 'Invalid index or room not found'}), 400
+
+    broadcast_queue(room_id, updated)
+    return jsonify(_with_participants(room_id, updated))
+
+
+@rooms_bp.route('/api/rooms/<room_id>/auto-playlist/shuffle', methods=['POST'])
+@_require_auth
+def shuffle_auto_playlist(room_id):
+    """Shuffle the unplayed auto-playlist tracks (host only)."""
+    user = _get_user()
+    if not _check_rate_limit(user['spotify_user_id'], 'reorder'):
+        return jsonify({'error': 'Too fast, slow down'}), 429
+
+    state = room_manager.get_room(room_id)
+    if not state:
+        return jsonify({'error': 'Room not found'}), 404
+
+    if user['spotify_user_id'] != state['host_id'] and user['spotify_user_id'] not in Config.ADMIN_USER_IDS:
+        return jsonify({'error': 'Only the host can shuffle the auto-playlist'}), 403
+
+    updated = room_manager.shuffle_auto_playlist(room_id)
+    if not updated:
+        return jsonify({'error': 'Room not found'}), 404
+
+    room_manager.log_activity(room_id, user['display_name'], 'shuffled auto-playlist')
+    broadcast_queue(room_id, updated)
+    return jsonify(_with_participants(room_id, updated))
+
+
 @rooms_bp.route('/api/rooms/<room_id>/skip', methods=['POST'])
 @_require_auth
 def skip_track(room_id):

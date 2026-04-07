@@ -1241,6 +1241,14 @@
   opacity: 0.55;
 }
 
+.auto-playlist-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding-left: 4px;
+}
+
 /* Room avatar picker */
 .participant-avatar.clickable {
   cursor: pointer;
