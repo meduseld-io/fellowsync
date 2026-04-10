@@ -33,6 +33,7 @@ export const api = {
   shuffleQueue: (roomId) => request(`/api/rooms/${roomId}/queue/shuffle`, { method: 'POST' }),
   reorderAutoPlaylist: (roomId, fromIndex, toIndex) => request(`/api/rooms/${roomId}/auto-playlist/reorder`, { method: 'PUT', body: JSON.stringify({ from_index: fromIndex, to_index: toIndex }) }),
   shuffleAutoPlaylist: (roomId) => request(`/api/rooms/${roomId}/auto-playlist/shuffle`, { method: 'POST' }),
+  addAutoPlaylistToQueue: (roomId, playlistIndex) => request(`/api/rooms/${roomId}/auto-playlist/add-to-queue`, { method: 'POST', body: JSON.stringify({ playlist_index: playlistIndex }) }),
   skipTrack: (roomId) => request(`/api/rooms/${roomId}/skip`, { method: 'POST' }),
   restartTrack: (roomId) => request(`/api/rooms/${roomId}/restart`, { method: 'POST' }),
   play: (roomId) => request(`/api/rooms/${roomId}/play`, { method: 'POST' }),

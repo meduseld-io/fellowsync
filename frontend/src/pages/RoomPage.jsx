@@ -270,6 +270,29 @@ export default function RoomPage() {
     setAutoPlaylistDragIndex(null);
   };
 
+  const handleAddAutoPlaylistToQueue = async (playlistIndex) => {
+    try {
+      const track = upcomingPlaylist[playlistIndex];
+      const updated = await api.addAutoPlaylistToQueue(roomId, playlistIndex);
+      setRoom(updated);
+      showToast(`${track?.name || 'Track'} added to queue`);
+    } catch (e) {
+      console.error('Failed to add auto-playlist track to queue:', e);
+    }
+  };
+
+  const handleQueueDragOver = (e) => {
+    e.preventDefault();
+  };
+
+  const handleQueueDrop = async (e) => {
+    e.preventDefault();
+    if (autoPlaylistDragIndex !== null) {
+      await handleAddAutoPlaylistToQueue(autoPlaylistDragIndex);
+      setAutoPlaylistDragIndex(null);
+    }
+  };
+
   const handleShuffleAutoPlaylist = async () => {
     try {
       const updated = await api.shuffleAutoPlaylist(roomId);
@@ -1029,7 +1052,7 @@ export default function RoomPage() {
           )}
 
           {/* Queue */}
-          <div className="panel">
+          <div className="panel" onDragOver={handleQueueDragOver} onDrop={handleQueueDrop}>
             <h2>
               Queue
               {isHost && queue.length > 0 ? (
@@ -1121,6 +1144,9 @@ export default function RoomPage() {
                           <div className="track-name">{masked ? '???' : track.name}</div>
                           <div className="track-artist">{masked ? '???' : track.artist}</div>
                         </div>
+                        {!masked && (
+                          <button className="btn-add-to-queue" onClick={() => handleAddAutoPlaylistToQueue(i)} title="Add to queue">+</button>
+                        )}
                       </li>
                     );
                   })}

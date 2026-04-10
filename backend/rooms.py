@@ -210,6 +210,15 @@ def create_room():
         state['auto_playlist'] = tracks
         state['auto_playlist_index'] = 0
         state['auto_playlist_name'] = name or 'Playlist'
+
+        # Auto-play first track if nothing is queued
+        if not state['queue'] and not state.get('current_track') and tracks:
+            first = dict(tracks[0])
+            first['queued_by'] = 'Auto-playlist'
+            first['queued_by_id'] = '__auto__'
+            state['queue'].append(first)
+            state['auto_playlist_index'] = 1
+
         room_manager.save_room(state['room_id'], state)
         room_manager.log_activity(state['room_id'], user['display_name'], 'set auto-playlist', name or playlist_id)
 
@@ -466,6 +475,64 @@ def shuffle_auto_playlist(room_id):
     return jsonify(_with_participants(room_id, updated))
 
 
+@rooms_bp.route('/api/rooms/<room_id>/auto-playlist/add-to-queue', methods=['POST'])
+@_require_auth
+def add_auto_playlist_to_queue(room_id):
+    """Add a track from the auto-playlist to the queue."""
+    user = _get_user()
+    if not _check_rate_limit(user['spotify_user_id'], 'add_to_queue'):
+        return jsonify({'error': 'Too fast, slow down'}), 429
+
+    state = room_manager.get_room(room_id)
+    if not state:
+        return jsonify({'error': 'Room not found'}), 404
+
+    data = request.json or {}
+    playlist_index = data.get('playlist_index')
+    if playlist_index is None:
+        return jsonify({'error': 'Missing playlist_index'}), 400
+
+    playlist = state.get('auto_playlist', [])
+    offset = state.get('auto_playlist_index', 0)
+    remaining = playlist[offset:]
+
+    if playlist_index < 0 or playlist_index >= len(remaining):
+        return jsonify({'error': 'Invalid playlist index'}), 400
+
+    track = dict(remaining[playlist_index])
+    track['queued_by'] = user['display_name']
+    track['queued_by_id'] = user['spotify_user_id']
+
+    # Remove from auto-playlist remaining
+    abs_index = offset + playlist_index
+    state['auto_playlist'].pop(abs_index)
+
+    # Add to queue
+    updated = room_manager.add_to_queue(room_id, track)
+    if updated == 'consecutive_limit':
+        # Put it back
+        state['auto_playlist'].insert(abs_index, remaining[playlist_index])
+        room_manager.save_room(room_id, state)
+        return jsonify({'error': 'You have reached the maximum consecutive songs limit.'}), 429
+    if not updated:
+        return jsonify({'error': 'Room not found'}), 404
+
+    # Sync the auto-playlist changes into the updated state
+    updated['auto_playlist'] = state['auto_playlist']
+    room_manager.save_room(room_id, updated)
+
+    # If nothing is playing, start playback
+    if not updated.get('current_track') and updated['queue']:
+        updated = room_manager.skip_track(room_id)
+        if updated:
+            _trigger_playback_for_room(room_id, updated)
+            broadcast_sync(room_id, updated)
+
+    room_manager.log_activity(room_id, user['display_name'], 'queued from playlist', track.get('name', ''))
+    broadcast_queue(room_id, updated)
+    return jsonify(_with_participants(room_id, updated))
+
+
 @rooms_bp.route('/api/rooms/<room_id>/skip', methods=['POST'])
 @_require_auth
 def skip_track(room_id):
@@ -603,8 +670,24 @@ def update_settings(room_id):
             state['auto_playlist_name'] = name or 'Playlist'
             room_manager.log_activity(room_id, user['display_name'], 'set auto-playlist', name or playlist_id)
 
+            # Auto-play first track if nothing is queued or playing
+            if not state['queue'] and not state.get('current_track') and tracks:
+                first = dict(tracks[0])
+                first['queued_by'] = 'Auto-playlist'
+                first['queued_by_id'] = '__auto__'
+                state['queue'].append(first)
+                state['auto_playlist_index'] = 1
+
     room_manager.save_room(room_id, state)
     room_manager.log_activity(room_id, user['display_name'], 'updated settings')
+
+    # If we just queued an auto-playlist track and nothing is playing, start it
+    if state['queue'] and not state.get('current_track'):
+        state = room_manager.skip_track(room_id)
+        if state:
+            _trigger_playback_for_room(room_id, state)
+            broadcast_sync(room_id, state)
+
     broadcast_room_state(room_id, state)
     return jsonify(_with_participants(room_id, state))
 

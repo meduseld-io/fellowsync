@@ -1241,6 +1241,39 @@
   opacity: 0.55;
 }
 
+.queue-item.playlist-track:hover {
+  opacity: 0.75;
+}
+
+.btn-add-to-queue {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(74, 222, 128, 0.15);
+  border: none;
+  color: #4ade80;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.15s;
+  padding: 0;
+  line-height: 1;
+}
+
+.queue-item.playlist-track:hover .btn-add-to-queue {
+  opacity: 1;
+}
+
+.btn-add-to-queue:hover {
+  background: rgba(74, 222, 128, 0.3);
+}
+
 .auto-playlist-actions {
   display: flex;
   align-items: center;
