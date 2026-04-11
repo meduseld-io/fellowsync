@@ -954,14 +954,23 @@ export default function RoomPage() {
             {['🔥', '❤️', '😴', '💩', '😂'].map((emoji) => {
               const voters = room.reactions?.[emoji] || [];
               const voted = voters.includes(user?.spotify_user_id);
+              const voterNames = voters.map((uid) => uid === user?.spotify_user_id ? 'You' : (participants[uid] || 'Someone'));
               return (
-                <button
-                  key={emoji}
-                  className={`reaction-btn${voted ? ' reacted' : ''}`}
-                  onClick={() => handleReact(emoji)}
-                >
-                  {emoji} {voters.length > 0 && <span className="reaction-count">{voters.length}</span>}
-                </button>
+                <div key={emoji} className="reaction-wrap">
+                  <button
+                    className={`reaction-btn${voted ? ' reacted' : ''}`}
+                    onClick={() => handleReact(emoji)}
+                  >
+                    {emoji} {voters.length > 0 && <span className="reaction-count">{voters.length}</span>}
+                  </button>
+                  {voterNames.length > 0 && (
+                    <div className="reaction-names">
+                      {voterNames.map((name, i) => (
+                        <span key={i} className="reaction-name-badge">{name}</span>
+                      ))}
+                    </div>
+                  )}
+                </div>
               );
             })}
           </div>

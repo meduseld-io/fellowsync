@@ -719,6 +719,33 @@
   color: var(--text-muted);
 }
 
+.reaction-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.reaction-names {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  justify-content: center;
+  max-width: 80px;
+}
+
+.reaction-name-badge {
+  font-size: 0.6rem;
+  padding: 1px 6px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--fella-color) 12%, transparent);
+  color: var(--fella-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 72px;
+}
+
 .floating-emoji {
   position: absolute;
   font-size: 1.5rem;
