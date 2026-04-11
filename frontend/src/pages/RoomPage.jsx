@@ -53,6 +53,18 @@ export default function RoomPage() {
   const socketRef = useRef(null);
   const prevParticipantsRef = useRef({});
 
+  // Update room state from a queue-only change, preserving playback position
+  const setRoomQueueOnly = (updated) => {
+    setRoom((prev) => {
+      if (!prev) return updated;
+      return {
+        ...updated,
+        position_ms: prev.position_ms,
+        last_update: prev.last_update,
+      };
+    });
+  };
+
   // Scroll to top on mount
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -100,7 +112,7 @@ export default function RoomPage() {
       });
       socket.on('queue_updated', (state) => {
         if (!mounted) return;
-        setRoom(state);
+        setRoomQueueOnly(state);
       });
       socket.on('error', (data) => console.error('Socket error:', data.message));
       socket.on('kicked', (data) => {
@@ -210,7 +222,7 @@ export default function RoomPage() {
     setQueueError('');
     try {
       const updated = await api.addToQueue(roomId, track, playNext);
-      setRoom(updated);
+      setRoomQueueOnly(updated);
       setSearchQuery('');
       setSearchResults([]);
       showToast(`${track.name} added to queue`);
@@ -226,7 +238,7 @@ export default function RoomPage() {
   const handleClearQueue = async () => {
     try {
       const updated = await api.clearQueue(roomId);
-      setRoom(updated);
+      setRoomQueueOnly(updated);
       showToast('Queue cleared');
     } catch (e) {
       console.error('Failed to clear queue:', e);
@@ -236,7 +248,7 @@ export default function RoomPage() {
   const handleShuffleQueue = async () => {
     try {
       const updated = await api.shuffleQueue(roomId);
-      setRoom(updated);
+      setRoomQueueOnly(updated);
       showToast('Queue shuffled');
     } catch (e) {
       console.error('Failed to shuffle queue:', e);
@@ -259,7 +271,7 @@ export default function RoomPage() {
     }
     try {
       const updated = await api.reorderAutoPlaylist(roomId, autoPlaylistDragIndex, toIndex);
-      setRoom(updated);
+      setRoomQueueOnly(updated);
     } catch (err) {
       console.error('Failed to reorder auto-playlist:', err);
     }
@@ -274,7 +286,7 @@ export default function RoomPage() {
     try {
       const track = upcomingPlaylist[playlistIndex];
       const updated = await api.addAutoPlaylistToQueue(roomId, playlistIndex);
-      setRoom(updated);
+      setRoomQueueOnly(updated);
       showToast(`${track?.name || 'Track'} added to queue`);
     } catch (e) {
       console.error('Failed to add auto-playlist track to queue:', e);
@@ -296,7 +308,7 @@ export default function RoomPage() {
   const handleShuffleAutoPlaylist = async () => {
     try {
       const updated = await api.shuffleAutoPlaylist(roomId);
-      setRoom(updated);
+      setRoomQueueOnly(updated);
       showToast('Auto-playlist shuffled');
     } catch (e) {
       console.error('Failed to shuffle auto-playlist:', e);
@@ -307,7 +319,7 @@ export default function RoomPage() {
     try {
       const trackName = queue[index]?.name || 'Track';
       const updated = await api.removeFromQueue(roomId, index);
-      setRoom(updated);
+      setRoomQueueOnly(updated);
       showToast(`${trackName} removed from queue`);
     } catch (e) {
       console.error('Failed to remove track from queue:', e);
@@ -331,7 +343,7 @@ export default function RoomPage() {
     }
     try {
       const updated = await api.reorderQueue(roomId, dragIndex, toIndex);
-      setRoom(updated);
+      setRoomQueueOnly(updated);
     } catch (err) {
       console.error('Failed to reorder queue:', err);
     }
