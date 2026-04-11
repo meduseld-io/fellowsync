@@ -108,8 +108,20 @@ def callback():
     if Config.REQUIRE_BYOK and not group_id:
         is_admin = profile['id'] in Config.ADMIN_USER_IDS
         if not is_admin:
-            session.pop('pending_group_id', None)
-            return jsonify({'error': 'A BYOS sync is required. Create or join a sync before logging in.'}), 403
+            # Check if user already belongs to a group from a previous session
+            existing_group = groups.get_user_group_id(profile['id'])
+            if existing_group:
+                # User belongs to a group but authenticated with default credentials.
+                # The token was issued by the default app, so refresh must use default
+                # credentials. Store group_id on the session for UI but mark that the
+                # token uses default credentials so room token storage can handle it.
+                group_id = existing_group
+                user_data['group_id'] = group_id
+                user_data['_default_app_token'] = True
+                logger.info("User %s re-authenticated via default app, restored group %s", profile['id'], existing_group)
+            else:
+                session.pop('pending_group_id', None)
+                return jsonify({'error': 'A BYOS sync is required. Create or join a sync before logging in.'}), 403
 
     # If user logged in through a group, claim any pending placeholder membership
     if group_id:

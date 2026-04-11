@@ -96,11 +96,12 @@ def init_socketio(sio):
         join_room(room_id)
         _sid_rooms[flask_request.sid] = (room_id, user_id)
         room_manager.add_participant(room_id, user_id, user['display_name'])
+        _tok_gid = None if user.get('_default_app_token') else user.get('group_id')
         room_manager.store_user_token(room_id, user_id, {
             'access_token': user['access_token'],
             'refresh_token': user['refresh_token'],
             'expires_at': user['expires_at'],
-            'group_id': user.get('group_id'),
+            'group_id': _tok_gid,
         })
 
         # Only log "joined" if they weren't already a participant
@@ -110,7 +111,7 @@ def init_socketio(sio):
             'access_token': user['access_token'],
             'refresh_token': user['refresh_token'],
             'expires_at': user['expires_at'],
-            'group_id': user.get('group_id'),
+            'group_id': _tok_gid,
         })
 
         # Snapshot current position so clients get an accurate progress bar

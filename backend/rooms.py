@@ -123,6 +123,17 @@ def _get_user():
     return session.get('user')
 
 
+def _token_group_id(user):
+    """Get the group_id to use for token storage/refresh.
+
+    If the user authenticated via the default Spotify app (e.g. 'I already have access'),
+    returns None so token refresh uses default credentials even though the user belongs to a group.
+    """
+    if user.get('_default_app_token'):
+        return None
+    return user.get('group_id')
+
+
 def _require_auth(f):
     """Decorator to require authentication."""
     from functools import wraps
@@ -178,7 +189,7 @@ def create_room():
         'access_token': user['access_token'],
         'refresh_token': user['refresh_token'],
         'expires_at': user['expires_at'],
-        'group_id': user.get('group_id'),
+        'group_id': _token_group_id(user),
     })
 
     # Handle auto-playlist if provided — fail room creation if playlist is invalid
@@ -192,8 +203,9 @@ def create_room():
             return jsonify({'error': msg}), 400
 
         _cid, _csecret = None, None
-        if user.get('group_id'):
-            _creds = groups.get_group_credentials(user['group_id'])
+        _gid = _token_group_id(user)
+        if _gid:
+            _creds = groups.get_group_credentials(_gid)
             if _creds:
                 _cid, _csecret = _creds
         token_data = spotify_service.get_valid_token(user, client_id=_cid, client_secret=_csecret)
@@ -257,7 +269,7 @@ def join_room(room_id):
         'access_token': user['access_token'],
         'refresh_token': user['refresh_token'],
         'expires_at': user['expires_at'],
-        'group_id': user.get('group_id'),
+        'group_id': _token_group_id(user),
     })
     participants = room_manager.get_participants(room_id)
     return jsonify({**state, 'participants': participants})
@@ -652,8 +664,9 @@ def update_settings(room_id):
                 room_manager.save_room(room_id, state)
                 return jsonify({'error': msg}), 400
             _cid, _csecret = None, None
-            if user.get('group_id'):
-                _creds = groups.get_group_credentials(user['group_id'])
+            _gid = _token_group_id(user)
+            if _gid:
+                _creds = groups.get_group_credentials(_gid)
                 if _creds:
                     _cid, _csecret = _creds
             token_data = spotify_service.get_valid_token(user, client_id=_cid, client_secret=_csecret)
@@ -875,8 +888,9 @@ def search():
         search_type = 'track'
     user = _get_user()
     cid, csecret = None, None
-    if user.get('group_id'):
-        creds = groups.get_group_credentials(user['group_id'])
+    _gid = _token_group_id(user)
+    if _gid:
+        creds = groups.get_group_credentials(_gid)
         if creds:
             cid, csecret = creds
     token_data = spotify_service.get_valid_token(user, client_id=cid, client_secret=csecret)
@@ -906,8 +920,9 @@ def get_playlist_tracks_list(playlist_id):
     """Get tracks from a Spotify playlist."""
     user = _get_user()
     cid, csecret = None, None
-    if user.get('group_id'):
-        creds = groups.get_group_credentials(user['group_id'])
+    _gid = _token_group_id(user)
+    if _gid:
+        creds = groups.get_group_credentials(_gid)
         if creds:
             cid, csecret = creds
     token_data = spotify_service.get_valid_token(user, client_id=cid, client_secret=csecret)
