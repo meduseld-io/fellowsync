@@ -1052,7 +1052,10 @@ export default function RoomPage() {
           )}
 
           {/* Queue */}
-          <div className="panel" onDragOver={handleQueueDragOver} onDrop={handleQueueDrop}>
+          <div className={`panel${autoPlaylistDragIndex !== null ? ' queue-drop-active' : ''}`} onDragOver={handleQueueDragOver} onDrop={handleQueueDrop}>
+            {autoPlaylistDragIndex !== null && (
+              <div className="queue-drop-hint">Drop here to add to queue</div>
+            )}
             <h2>
               Queue
               {isHost && queue.length > 0 ? (
