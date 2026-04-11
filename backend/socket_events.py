@@ -55,8 +55,9 @@ def init_socketio(sio):
 
             participants = room_manager.get_participants(room_id)
             if not participants:
-                logger.info("Room %s is empty after disconnect cleanup, deleting", room_id)
-                room_manager.delete_room(room_id)
+                # Don't delete immediately - let the cleanup worker handle it
+                # so rooms survive server restarts and brief disconnects
+                logger.info("Room %s is now empty, will be cleaned up by worker if nobody rejoins", room_id)
             else:
                 state = room_manager.get_room(room_id)
                 if state:

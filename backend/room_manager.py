@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 _redis = redis.from_url(Config.REDIS_URL, decode_responses=True)
 
-ROOM_TTL = 300  # 5 minutes
+ROOM_TTL = 3600  # 1 hour - refreshed on every save_room call
 
 
 def _room_key(room_id):

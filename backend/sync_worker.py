@@ -38,7 +38,7 @@ def _trigger_playback_for_room(room_id, state):
             logger.error("Auto-advance playback failed for user %s: %s", user_id, result.get('message', result['error']))
 
 
-EMPTY_ROOM_TTL = 300  # Clean up empty rooms after 5 minutes
+EMPTY_ROOM_TTL = 300  # Clean up empty rooms after 5 minutes of being empty
 
 
 def run_sync_loop(socketio):
@@ -94,13 +94,38 @@ def _check_room(room_id):
             broadcast_sync(room_id, updated)
 
 
+_empty_since = {}  # room_id -> timestamp when room first became empty
+
+
 def _cleanup_empty_rooms():
-    """Delete rooms with no participants and no active playback."""
+    """Delete rooms with no participants after a grace period."""
     room_ids = room_manager.get_all_active_rooms()
+    now = time.time()
+
+    # Track which rooms are still active so we can clean up _empty_since
+    active_rooms = set(room_ids)
+
     for room_id in room_ids:
         participants = room_manager.get_participants(room_id)
-        if not participants:
-            state = room_manager.get_room(room_id)
-            if not state or not state.get('is_playing'):
-                logger.info("Cleaning up empty room %s", room_id)
-                room_manager.delete_room(room_id)
+        if participants:
+            # Room has people - clear any empty timestamp
+            _empty_since.pop(room_id, None)
+            continue
+
+        # Room is empty
+        if room_id not in _empty_since:
+            _empty_since[room_id] = now
+            logger.info("Room %s is empty, starting %ds grace period", room_id, EMPTY_ROOM_TTL)
+            continue
+
+        # Check if grace period has elapsed
+        empty_duration = now - _empty_since[room_id]
+        if empty_duration >= EMPTY_ROOM_TTL:
+            logger.info("Room %s empty for %.0fs, cleaning up", room_id, empty_duration)
+            room_manager.delete_room(room_id)
+            _empty_since.pop(room_id, None)
+
+    # Clean up stale entries for rooms that no longer exist
+    for room_id in list(_empty_since.keys()):
+        if room_id not in active_rooms:
+            _empty_since.pop(room_id, None)
