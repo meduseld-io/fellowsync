@@ -858,7 +858,7 @@ export default function RoomPage() {
             <Link to={`/admin?from=room&roomId=${roomId}`} className="btn-admin">Admin</Link>
           )}
           <button className="btn-secondary" onClick={() => navigate('/lobby')} style={{ padding: '8px 14px', fontSize: '0.85rem' }}>
-            🏠
+            Home
           </button>
           <button className="btn-secondary" onClick={handleLeave} style={{ padding: '8px 14px', fontSize: '0.85rem' }}>
             Leave
