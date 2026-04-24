@@ -337,6 +337,11 @@ export default function RoomPage() {
 
   const handleDrop = async (e, toIndex) => {
     e.preventDefault();
+    if (autoPlaylistDragIndex !== null) {
+      await handleAddAutoPlaylistToQueue(autoPlaylistDragIndex);
+      setAutoPlaylistDragIndex(null);
+      return;
+    }
     if (dragIndex === null || dragIndex === toIndex) {
       setDragIndex(null);
       return;
@@ -1108,8 +1113,8 @@ export default function RoomPage() {
                     className={`queue-item${dragIndex === i ? ' dragging' : ''}${masked ? ' blind-item' : ''}`}
                     draggable={isHost}
                     onDragStart={isHost ? () => handleDragStart(i) : undefined}
-                    onDragOver={isHost ? (e) => handleDragOver(e, i) : undefined}
-                    onDrop={isHost ? (e) => handleDrop(e, i) : undefined}
+                    onDragOver={(e) => { if (isHost || autoPlaylistDragIndex !== null) e.preventDefault(); }}
+                    onDrop={isHost || autoPlaylistDragIndex !== null ? (e) => handleDrop(e, i) : undefined}
                     onDragEnd={isHost ? handleDragEnd : undefined}
                   >
                     {isHost && <span className="drag-handle">⠿</span>}
@@ -1171,9 +1176,6 @@ export default function RoomPage() {
                           <div className="track-name">{masked ? '???' : track.name}</div>
                           <div className="track-artist">{masked ? '???' : track.artist}</div>
                         </div>
-                        {!masked && (
-                          <button className="btn-add-to-queue" onClick={() => handleAddAutoPlaylistToQueue(i)} title="Add to queue">+</button>
-                        )}
                       </li>
                     );
                   })}
