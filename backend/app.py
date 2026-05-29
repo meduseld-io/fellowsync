@@ -2,9 +2,11 @@
 
 import os
 import logging
+import redis as redis_lib
 from flask import Flask, send_from_directory
 from flask_cors import CORS
 from flask_socketio import SocketIO
+from flask_session import Session
 from config import Config
 from auth import auth_bp
 from rooms import rooms_bp
@@ -21,6 +23,15 @@ DIST_DIR = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'dist')
 app = Flask(__name__, static_folder=None)
 app.secret_key = Config.SECRET_KEY
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+
+# Store sessions in Redis so they survive server restarts
+app.config['SESSION_TYPE'] = 'redis'
+app.config['SESSION_REDIS'] = redis_lib.from_url(Config.REDIS_URL)
+app.config['SESSION_PERMANENT'] = True
+app.config['PERMANENT_SESSION_LIFETIME'] = 60 * 60 * 24 * 30  # 30 days
+app.config['SESSION_KEY_PREFIX'] = 'fs_session:'
+app.config['SESSION_USE_SIGNER'] = True
+Session(app)
 
 cors_origins = [Config.FRONTEND_URL]
 if Config.FRONTEND_URL != 'http://localhost:5173':
