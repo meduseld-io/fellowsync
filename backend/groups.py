@@ -88,7 +88,12 @@ def join_group(group_id, user_id, display_name):
         return None
 
     members = _redis.hgetall(_members_key(group_id))
-    if len(members) >= 6:
+    # Exclude the __pending__ placeholder from the capacity count — it is a
+    # transient slot that gets replaced by the real user ID after OAuth. Counting
+    # it would block new join attempts when a previous attempt's placeholder was
+    # never claimed (e.g. user navigated away before completing OAuth).
+    real_member_count = sum(1 for uid in members if uid != '__pending__')
+    if real_member_count >= 6:
         return 'full'
 
     # Remove from previous group if any
@@ -232,9 +237,18 @@ def claim_pending_membership(group_id, real_user_id, display_name):
         if group.get('leader_id') == '__pending__':
             group['leader_id'] = real_user_id
             group['leader_name'] = display_name
-            _redis.set(_group_key(group_id), json.dumps(group))
+
+        group['member_count'] = len(_redis.hgetall(members_key))
+        _redis.set(_group_key(group_id), json.dumps(group))
     else:
-        # No pending slot — just add them as a new member
+        # No pending slot — add as a new member only if there is capacity
+        real_member_count = sum(1 for uid in members if uid != '__pending__')
+        if real_member_count >= 6:
+            logger.warning(
+                "claim_pending_membership: group %s is full (%d real members), cannot add %s",
+                group_id, real_member_count, real_user_id,
+            )
+            return
         _redis.hset(members_key, real_user_id, display_name)
         _redis.set(f'{USER_GROUP_KEY}{real_user_id}', group_id)
         group['member_count'] = len(_redis.hgetall(members_key))
