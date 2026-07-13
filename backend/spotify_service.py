@@ -117,7 +117,7 @@ def play_track(access_token, uri, position_ms=0, device_id=None):
         return {'ok': True}
     except Exception as e:
         logger.error("Failed to play track: %s", e)
-        return {'error': 'play_failed', 'message': str(e)}
+        return {'error': 'play_failed', 'message': 'Playback failed. Try reopening Spotify.'}
 
 
 def pause_playback(access_token):
@@ -130,7 +130,7 @@ def pause_playback(access_token):
         return {'ok': True}
     except Exception as e:
         logger.error("Failed to pause playback: %s", e)
-        return {'error': 'pause_failed', 'message': str(e)}
+        return {'error': 'pause_failed', 'message': 'Pause failed. Try reopening Spotify.'}
 
 
 def search_tracks(access_token, query, limit=10):
