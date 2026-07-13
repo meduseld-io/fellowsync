@@ -4,6 +4,6 @@ Flask-CORS==6.0.0
 Flask-Session==0.8.0
 redis==5.2.1
 requests==2.33.0
-python-dotenv==1.1.0
+python-dotenv==1.2.2
 simple-websocket==1.1.0
-cryptography==46.0.6
+cryptography==49.0.0
